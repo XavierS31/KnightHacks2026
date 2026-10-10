@@ -3,6 +3,7 @@ import { request, useApi, type IntegrationSummary } from '../../shared/api'
 import { AsyncState } from '../../shared/AsyncState'
 import type { components } from '../../shared/api-types'
 import './discovery.css'
+import { ProductAccess } from './ProductAccess'
 
 type DiscoveryRun = components['schemas']['DiscoveryRun']
 type DiscoveryRequest = components['schemas']['DiscoveryRequest']
@@ -230,6 +231,7 @@ export default function IntegrationPanel() {
   const { data, error, refresh } = useApi<IntegrationSummary>('/integration/summary')
   if (!data || error) return <><AsyncState error={error} /><button onClick={refresh}>Retry</button></>
   return <section className="feature-section">
+    <ProductAccess />
     <DiscoveryControls />
     <div className="section-heading"><h2>Candidate evidence</h2><span className="badge">{data.mode}</span></div>
     <div className="two-columns">{data.repositories.map(repo => <article className="panel" key={repo.id}>

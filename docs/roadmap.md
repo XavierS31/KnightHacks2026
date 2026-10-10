@@ -80,3 +80,5 @@ A hands B a version manifest, product URL, validated briefing and fixed task/che
 
 Completion requires one real validated integration, all 500 evidence-backed mandatory trials and feedback per version, ten exact selectable sessions, five engineering roles, reviewed improvements, preserved versions, substantive HF/Neon execution and honest matched results. Large configured fixture populations do not satisfy these gates.
 
+
+2026-10-10 A fixed-sample gate: SourceTable v1 integrates pinned pdfplumber/Frictionless with a real separate-origin product page. Independent source checks, adapter rejection/timeout cases and browser normal/error/recovery/isolation/reset checks passed. A’s immutable implementation/environment manifest and three check/task templates are available to B. This establishes the local I2/I3/I4 sample workflow; C durable persistence, wider PDF coverage, portable environment verification and all persona/evolution gates remain open.

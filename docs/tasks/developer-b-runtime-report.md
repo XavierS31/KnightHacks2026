@@ -70,7 +70,8 @@ Local ignored evidence: `artifacts/devb-live-readiness-20261010.json`,
 
 ## Verification
 
-343 combined backend tests after merging A's PR #5 (317 before that merge), actual local Chromium checks, six standalone stream-validation tests,
+362 combined backend tests pass after reconciling A PRs #7/#8 (343 after #5, 317 originally),
+with one opt-in real-Docker check skipped on this Windows host. Actual local Chromium checks, six standalone stream-validation tests,
 Ruff, frontend typecheck/build and generated-contract checks pass. Final test counts are recorded
 in [status](../status.md). Build retains the existing large persona/3D chunk warning; test client
 emits its dependency deprecation warning. Dependencies unchanged.
@@ -85,8 +86,11 @@ smoke servers were started/stopped. Mandatory experiment counts remain zero thro
 1. **B source/model gate:** reviews relevant to A's real product, reliable extraction, independent
    support approval and representative generation/browser/feedback role evaluation. Two category
    reviews and a configuration smoke do not finish P1/model acceptance.
-2. **A blocker:** immutable validated product URL/commit, briefing, supported task/check catalog
-   and scoped state reset. Live executor rejects missing real validation; mock input is no substitute.
+2. **A handoff now available:** upstream PRs #7/#8 provide SourceTable v1's frozen manifest, local
+   product URL, task/check templates and reset semantics. See [A handoff](../handoffs/developer-a-v1.md).
+   B still needs a feature-owned consumer that verifies compatibility and binds templates to exact
+   persona scenarios; the existing mock operation is not that consumer. Portable runtime validation
+   remains required on other computers.
 3. **C blocker:** coordinated immutable corpus/approval/population storage, authenticated reviewer
    identity, durable actions/feedback/frame artifacts, atomic spending, queue leases and recovery.
    Live execution rejects an in-memory sink. C needs intended server-side DATABASE_URL for Neon;

@@ -9,7 +9,8 @@ Playwright executes browser tasks; React Three Fiber visualizes ten selected per
 
 This is a runnable, fixture-first shared scaffold with developer starter implementations.
 Sample repository combinations, personas and improvement suggestions are explicitly synthetic.
-No real source pair has been selected, no 500-persona experiment has run, and no v2 has been approved.
+A selected pdfplumber + Frictionless and validated a narrow PDF-table/type-check adapter on fixed samples.
+SourceTable v1 runs as a separate local product; its [frozen handoff](backend/app/features/integration/product/v1/manifest.json) records the implementation and environment. No 500-persona experiment has run and no v2 has been approved.
 The required experiment is **500 personas on each version**, not 500 generated records.
 Each persona requires a [software-behavior profile](docs/software-behavior.md) grounded in real software
 reviews for production use. The schema supports Reddit, Hacker News and other review sources; current
@@ -65,6 +66,10 @@ npm --prefix frontend run generate:api
 
 `shared/openapi.json` and `frontend/src/shared/api-types.ts` are generated artifacts, not separately
 maintained contract definitions. Python's `backend/app/shared/contracts.py` is authoritative.
+
+## Real product v1
+
+[SourceTable startup and checks](backend/app/features/integration/product/README.md) describe the pinned Docker image, separate port 8001 product, source-cell mapping and A → B handoff. Its validation covers fixed machine-generated ruled PDFs, not arbitrary PDFs or OCR. Local image/source fingerprints must match the frozen manifest; fixture summaries elsewhere remain explicitly synthetic. Durable Neon evidence storage is still C’s dependency.
 
 ## Developer kickoff
 

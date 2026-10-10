@@ -13,7 +13,7 @@ accounting and dependency-ordered remaining work: [B runtime report](tasks/devel
 | Skeleton and shared contracts | Runnable fixture scaffold; offline tests, generated contracts, typecheck/build and desktop/mobile browser smoke verified | Replace fixtures at real execution gates |
 | Three developer starter slices | A discovery, B exact-session viewer/inference boundary, C grounded analysis/database helper implemented and checked | Production milestones in each starter task |
 | Developer roles and project skills | Repository-local instructions prepared | Valid TOML/YAML, scoped paths and kickoff review |
-| Live repository integration | Not established | Both sources + actual adapter pass fixed cases |
+| Live repository integration | SourceTable v1: pinned pdfplumber/Frictionless adapter passed fixed normal/error/compatibility/timeout checks and real browser flow | Broader PDF coverage, portable environment verification and C durable storage |
 | Hosted HF inference | A authenticated Qwen3-32B/DeepInfra with 26 repository interpretations and five hypotheses; B's configuration smoke validated, behavior extraction quality/reliability unresolved | Independent role-output support review; representative B/C roles, durable experiment accounting and measured pilots |
 | Review-informed persona behavior | Bounded corpus/approval/population foundations; two real public reviews; extraction rejected then provider failure; no approved live profiles | Product-relevant corpus, independently supported behavior and C-persisted frozen 500-person population |
 | Neon persistence | Connection not established | Actual durable write/read/migration evidence |
@@ -80,3 +80,18 @@ B PR #6 reconciled merged A PR #5 without changing A feature implementation: reg
 OpenAPI/types, retained both owners' status evidence, and passed **343 combined backend tests** with
 Chromium, Ruff, frontend type/build and contract drift. Initial PR CI passed before the upstream merge;
 the reconciled commit triggers fresh CI. No additional live inference or spending during reconciliation.
+2026-10-10 A product v1: selected the Python pdfplumber/Frictionless pair after independent execution and overlap research. SourceTable’s separate port-8001 page calls the real offline Docker adapter; types are validated from extracted strings and errors retain source page/cell geometry. Normal rows, wrong types, required missing values, wrong headers, malformed PDF, no table and actual timeout cleanup passed. Installed source archive metadata and container adapter fingerprint were checked. Input/output, process resources, wall time and stdout are bounded; operations have no shared server records.
+
+A’s real-browser verification covered normal output, schema-error mapping, recovery, separate-context state, reload reset and 390px no-overflow layout. These are product checks, not persona trials. The frozen v1 manifest contains implementation commit/fingerprints, immutable local image ID, source pins, schemas, initial state and three browser check/task templates. Port-8001 `/api/v1/handoff` returns it only when local fingerprints match; the dashboard readiness route reports compatibility separately from process availability. All 220 backend tests passed with real Docker/Chromium checks enabled; lint, generated contracts and frontend typecheck/build passed. No additional HF calls were needed; A’s local reserved allowance remains $0.92.
+
+Remaining cross-owner gates: C must provide Neon-backed evidence/version persistence; B must consume the handoff, bind tasks to actual scenario identities, retain browser/session outcomes and verify review-grounded population generation before trials. No v2, persona outcomes, public deployment or full experiment has been produced by this A work.
+
+2026-10-10 A version-storage preparation: added an immutable version repository over C’s existing table/pool contract, with explicit live CLI opt-in, JSONB bound values, bounded transactions, idempotent save and conflicting-rewrite rejection. Eight offline cases and real disposable local PostgreSQL 17.11 roundtrip/idempotency/conflict/concurrent-save checks passed; the temporary database was removed. 228 combined backend checks pass. This is prepared A persistence code, not a verified Neon connection; no migration/shared-database code was changed. A’s alternate uploaded City/People/date PDF also passed adapter and UI checks, preserving frozen v1.
+
+PR #6 merge reconciliation with A PRs #7/#8 preserves the frozen product and both owners' evidence.
+A coordinated test-only Windows portability fixes: bounded pytest IDs and synthetic temporary
+manifest/source fingerprints, with image/set/content drift rejection retained. This does not validate
+the Linux-frozen runtime on Windows. **362 combined tests passed with Chromium; one opt-in real
+Docker test skipped** because Docker is unavailable on this host. Ruff, six stream-validation checks,
+frontend type/build and generated-contract drift passed. B's next A-dependent task is consuming the
+now-available [SourceTable handoff](handoffs/developer-a-v1.md), not waiting for its creation.

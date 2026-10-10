@@ -1,0 +1,441 @@
+{
+  "mode": "live",
+  "version": {
+    "id": "cd43ab96-8e17-574c-a820-da09b1df706a",
+    "label": "SourceTable v1",
+    "status": "validated",
+    "commit_sha": "d120f429a2fdb27c43c0b88dfb29cd5c5ca1ee42",
+    "runtime_url": "http://127.0.0.1:8001",
+    "briefing": "Load sample PDF, choose column types, then Extract & validate. Inspect a result cell or error to see its original text and source coordinates. Download a display-safe CSV. Reload starts fresh state.",
+    "capabilities": [
+      {
+        "id": "fd6b04a6-1cef-55d2-9129-f52555141c8e",
+        "key": "extract_validate_table",
+        "description": "Extract a ruled PDF table, validate declared column types, and map errors to source cells.",
+        "input_schema": {
+          "$defs": {
+            "ColumnRule": {
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "maxLength": 80,
+                  "minLength": 1,
+                  "title": "Name",
+                  "type": "string"
+                },
+                "type": {
+                  "default": "string",
+                  "enum": [
+                    "string",
+                    "integer",
+                    "number",
+                    "date"
+                  ],
+                  "title": "Type",
+                  "type": "string"
+                },
+                "required": {
+                  "default": false,
+                  "title": "Required",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "name"
+              ],
+              "title": "ColumnRule",
+              "type": "object"
+            }
+          },
+          "additionalProperties": false,
+          "properties": {
+            "pdf_base64": {
+              "maxLength": 1333336,
+              "minLength": 1,
+              "title": "Pdf Base64",
+              "type": "string"
+            },
+            "columns": {
+              "items": {
+                "$ref": "#/$defs/ColumnRule"
+              },
+              "maxItems": 12,
+              "minItems": 1,
+              "title": "Columns",
+              "type": "array"
+            }
+          },
+          "required": [
+            "pdf_base64",
+            "columns"
+          ],
+          "title": "TableInput",
+          "type": "object"
+        },
+        "output_schema": {
+          "$defs": {
+            "Cell": {
+              "additionalProperties": false,
+              "properties": {
+                "page": {
+                  "maximum": 3,
+                  "minimum": 1,
+                  "title": "Page",
+                  "type": "integer"
+                },
+                "table": {
+                  "minimum": 0,
+                  "title": "Table",
+                  "type": "integer"
+                },
+                "row": {
+                  "minimum": 1,
+                  "title": "Row",
+                  "type": "integer"
+                },
+                "column": {
+                  "minimum": 1,
+                  "title": "Column",
+                  "type": "integer"
+                },
+                "text": {
+                  "maxLength": 500,
+                  "title": "Text",
+                  "type": "string"
+                },
+                "bbox": {
+                  "anyOf": [
+                    {
+                      "maxItems": 4,
+                      "minItems": 4,
+                      "prefixItems": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "number"
+                        }
+                      ],
+                      "type": "array"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Bbox"
+                }
+              },
+              "required": [
+                "page",
+                "table",
+                "row",
+                "column",
+                "text",
+                "bbox"
+              ],
+              "title": "Cell",
+              "type": "object"
+            },
+            "TableError": {
+              "additionalProperties": false,
+              "properties": {
+                "code": {
+                  "title": "Code",
+                  "type": "string"
+                },
+                "message": {
+                  "title": "Message",
+                  "type": "string"
+                },
+                "row": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Row"
+                },
+                "column": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Column"
+                },
+                "source_cell": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/Cell"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null
+                }
+              },
+              "required": [
+                "code",
+                "message"
+              ],
+              "title": "TableError",
+              "type": "object"
+            }
+          },
+          "additionalProperties": false,
+          "properties": {
+            "status": {
+              "enum": [
+                "valid",
+                "invalid"
+              ],
+              "title": "Status",
+              "type": "string"
+            },
+            "headers": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Headers",
+              "type": "array"
+            },
+            "rows": {
+              "items": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "title": "Rows",
+              "type": "array"
+            },
+            "cells": {
+              "items": {
+                "$ref": "#/$defs/Cell"
+              },
+              "title": "Cells",
+              "type": "array"
+            },
+            "errors": {
+              "items": {
+                "$ref": "#/$defs/TableError"
+              },
+              "title": "Errors",
+              "type": "array"
+            },
+            "csv_text": {
+              "title": "Csv Text",
+              "type": "string"
+            },
+            "pdf_sha256": {
+              "pattern": "^[a-f0-9]{64}$",
+              "title": "Pdf Sha256",
+              "type": "string"
+            },
+            "limitations": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Limitations",
+              "type": "array"
+            }
+          },
+          "required": [
+            "status",
+            "headers",
+            "rows",
+            "cells",
+            "errors",
+            "csv_text",
+            "pdf_sha256",
+            "limitations"
+          ],
+          "title": "TableOutput",
+          "type": "object"
+        },
+        "validated": true,
+        "evidence": [
+          {
+            "source": "jsvine/pdfplumber",
+            "reference": "https://github.com/jsvine/pdfplumber/commit/4c64b92d5caccd71c645e98e0fabb0c4dba7ff45",
+            "collected_at": "2026-10-10T10:48:26.465081Z",
+            "kind": "source",
+            "note": "Pinned source archive installed; independent and adapter checks executed locally."
+          },
+          {
+            "source": "frictionlessdata/frictionless-py",
+            "reference": "https://github.com/frictionlessdata/frictionless-py/commit/2a30fbd5a7d9ace96b121494624b970e56a72a0f",
+            "collected_at": "2026-10-10T10:48:26.465214Z",
+            "kind": "source",
+            "note": "Pinned source archive installed; independent and adapter checks executed locally."
+          }
+        ]
+      }
+    ],
+    "limitations": [
+      "Validated on fixed machine-generated ruled PDF fixtures, not arbitrary PDFs or OCR.",
+      "Exactly one table, up to 1 MB/3 pages/100 rows/12 columns; broader cases need review.",
+      "Schema validity is not transcription accuracy, accounting correctness or demand evidence.",
+      "Stateless local operation; no Neon persistence, persona trials, or v2 promotion.",
+      "Source MIT notices are preserved in installed distributions; full dependency review remains open."
+    ]
+  },
+  "source_commits": {
+    "jsvine/pdfplumber": "4c64b92d5caccd71c645e98e0fabb0c4dba7ff45",
+    "frictionlessdata/frictionless-py": "2a30fbd5a7d9ace96b121494624b970e56a72a0f"
+  },
+  "image_id": "sha256:998df8c083e6094f9aac9a347b2fe61670dcc4ea9407e17b57accba128193d5e",
+  "implementation_hashes": {
+    "backend/app/features/integration/product/app.py": "f383cd2c1c99c8a759150f7811e6dd1fef023c18bb22e1f7e6fee8b8ae07d79e",
+    "backend/app/features/integration/product/checks.py": "4dbcd4a15f96adc41b162e83b748c29767d39880df2db3eb4474075a67b4deb1",
+    "backend/app/features/integration/product/executor.py": "0a0b95231deca9d49c1aa79629867904dfc75dab91fe6f5023f97fb1303da466",
+    "backend/app/features/integration/product/freeze.py": "f1e89f437b0ae0c37fcb1170cb9542c2d9e287eb47c738aa0288d6026023011b",
+    "backend/app/features/integration/product/handoff.py": "abb32208ba6e136f972a031980c67e56bc7f6420e8209ac5f8149930b2ff2305",
+    "backend/app/features/integration/product/models.py": "3fa21f12349a1f59742443dba26f42b6fc53d1bd1a10dc034b0b90954443c0bb",
+    "backend/app/features/integration/product/runtime/Dockerfile": "cfa0210ca15525ed8ade4d6ce586ba5878588cf5c302f525925dceed08a445ce",
+    "backend/app/features/integration/product/runtime/adapter.py": "1f2bdb1b9a08477e9f2f8e97307a04eb01d777b46ecbce284268dd947a68f382",
+    "backend/app/features/integration/product/runtime/requirements.lock": "7eb001febf34ac3d020eaf69d5875da94218941ddd9c645f7909cf4e25fe4bd1",
+    "backend/app/features/integration/proof/independent.py": "ed1afa4991e8bcce5850abc2668f1fdaf299940ae0d1cb3774415ce8be37cc24",
+    "frontend/src/features/integration/product/app.js": "64c88074a3c4f26b8a0644b1e251feec9b0846fc16fee914a792896579e1adbe",
+    "frontend/src/features/integration/product/index.html": "b8154e099ee914a2f77745978d46e2d42768d8e00befdea1a0cae51e7ad86d76",
+    "frontend/src/features/integration/product/style.css": "fa6931f7136875d62aa3f1ce725d8200700f9430bd3813fde6b88645c04b5000"
+  },
+  "checks": [
+    {
+      "id": "sourcetable-normal-v1",
+      "goal": "Extract the sample inventory and inspect Quantity in its first row.",
+      "initial_state": "sample-inventory-v1",
+      "expected": {
+        "status": "valid",
+        "rows": [
+          [
+            "Apples",
+            "2",
+            "1.25"
+          ],
+          [
+            "Oranges",
+            "3",
+            "2.00"
+          ]
+        ],
+        "source_row": 2,
+        "source_column": 2,
+        "source_text": "2"
+      },
+      "action_budget": 6
+    },
+    {
+      "id": "sourcetable-type-error-v1",
+      "goal": "Set the Item column to integer, run the check, and inspect the first error.",
+      "initial_state": "sample-inventory-v1",
+      "expected": {
+        "status": "invalid",
+        "source_row": 2,
+        "source_column": 1,
+        "source_text": "Apples"
+      },
+      "action_budget": 7
+    },
+    {
+      "id": "sourcetable-recovery-v1",
+      "goal": "After an Item integer error, change Item back to string and rerun.",
+      "initial_state": "sample-inventory-v1",
+      "expected": {
+        "status": "valid",
+        "rows": [
+          [
+            "Apples",
+            "2",
+            "1.25"
+          ],
+          [
+            "Oranges",
+            "3",
+            "2.00"
+          ]
+        ]
+      },
+      "action_budget": 9
+    }
+  ],
+  "initial_states": {
+    "sample-inventory-v1": {
+      "pdf_base64": "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvUmVzb3VyY2VzIDw8IC9Gb250IDw8IC9GMSA0IDAgUiA+PiA+PiAvQ29udGVudHMgNSAwIFIgPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNTE0ID4+CnN0cmVhbQowLjUgdwo1MCA2NTAgbSA1MCA3NDAgbCBTCjI1MCA2NTAgbSAyNTAgNzQwIGwgUwozMzAgNjUwIG0gMzMwIDc0MCBsIFMKNDMwIDY1MCBtIDQzMCA3NDAgbCBTCjUwIDY1MCBtIDQzMCA2NTAgbCBTCjUwIDY4MCBtIDQzMCA2ODAgbCBTCjUwIDcxMCBtIDQzMCA3MTAgbCBTCjUwIDc0MCBtIDQzMCA3NDAgbCBTCkJUIC9GMSAxMiBUZiA2MCA3MjAgVGQgKEl0ZW0pIFRqIEVUCkJUIC9GMSAxMiBUZiAyNjAgNzIwIFRkIChRdWFudGl0eSkgVGogRVQKQlQgL0YxIDEyIFRmIDM0MCA3MjAgVGQgKFVuaXQgcHJpY2UpIFRqIEVUCkJUIC9GMSAxMiBUZiA2MCA2OTAgVGQgKEFwcGxlcykgVGogRVQKQlQgL0YxIDEyIFRmIDI2MCA2OTAgVGQgKDIpIFRqIEVUCkJUIC9GMSAxMiBUZiAzNDAgNjkwIFRkICgxLjI1KSBUaiBFVApCVCAvRjEgMTIgVGYgNjAgNjYwIFRkIChPcmFuZ2VzKSBUaiBFVApCVCAvRjEgMTIgVGYgMjYwIDY2MCBUZCAoMykgVGogRVQKQlQgL0YxIDEyIFRmIDM0MCA2NjAgVGQgKDIuMDApIFRqIEVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAowMDAwMDAwMjQxIDAwMDAwIG4gCjAwMDAwMDAzMTEgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgo4NzYKJSVFT0YK",
+      "columns": [
+        {
+          "name": "Item",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "Quantity",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "Unit price",
+          "type": "number",
+          "required": true
+        }
+      ]
+    }
+  },
+  "validation": {
+    "validated_at": "2026-10-10T10:48:26.466699+00:00",
+    "normal": "passed",
+    "invalid_type": "passed",
+    "missing_value": "passed",
+    "header_mismatch": "passed",
+    "malformed_pdf": "passed",
+    "no_table": "passed",
+    "timeout_cleanup": "passed",
+    "fixture_pdf_sha256": "ef5fbd2c70f14c690996fbc9cc6474a9186106eb39717fc0260a384a44c6f865",
+    "installed_sources": {
+      "adapter": "1f2bdb1b9a08477e9f2f8e97307a04eb01d777b46ecbce284268dd947a68f382",
+      "sources": {
+        "pdfplumber": {
+          "archive_info": {
+            "hash": "sha256=1c3b22b889adfb71d04b72b2c9b46a8c28ff0af907968416d2f7d724078669a2",
+            "hashes": {
+              "sha256": "1c3b22b889adfb71d04b72b2c9b46a8c28ff0af907968416d2f7d724078669a2"
+            }
+          },
+          "url": "https://github.com/jsvine/pdfplumber/archive/4c64b92d5caccd71c645e98e0fabb0c4dba7ff45.tar.gz"
+        },
+        "frictionless": {
+          "archive_info": {
+            "hash": "sha256=a3451317b07299b540018200830ee40e96c33b8afe921589456024c480ea55a2",
+            "hashes": {
+              "sha256": "a3451317b07299b540018200830ee40e96c33b8afe921589456024c480ea55a2"
+            }
+          },
+          "url": "https://github.com/frictionlessdata/frictionless-py/archive/2a30fbd5a7d9ace96b121494624b970e56a72a0f.tar.gz"
+        }
+      }
+    },
+    "environment": "Linux arm64, Python 3.12; immutable local image; pinned dependency versions"
+  },
+  "limitations": [
+    "Validated on fixed machine-generated ruled PDF fixtures, not arbitrary PDFs or OCR.",
+    "Exactly one table, up to 1 MB/3 pages/100 rows/12 columns; broader cases need review.",
+    "Schema validity is not transcription accuracy, accounting correctness or demand evidence.",
+    "Stateless local operation; no Neon persistence, persona trials, or v2 promotion.",
+    "Source MIT notices are preserved in installed distributions; full dependency review remains open."
+  ]
+}
