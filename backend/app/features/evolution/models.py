@@ -1,6 +1,6 @@
 """Feature-local contracts for the evidence-backed offline analysis starter."""
 
-from typing import Literal
+from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import Field
@@ -38,3 +38,18 @@ class AnalysisReport(Contract):
     clusters: list[FeedbackCluster]
     limitations: list[str]
     next_gate: str
+
+
+class AnalysisRecord(Contract):
+    """One validated output of a read-only engineering role and the exact evidence it read."""
+
+    id: UUID
+    experiment_id: UUID
+    job_id: UUID | None = None
+    role: Literal["analyst", "prioritizer", "ux_reviewer"]
+    method: str = Field(min_length=1)
+    prompt_version: str | None = None
+    inference: dict[str, Any] | None = None  # Shared HF adapter metadata; None means no model call.
+    session_ids: list[UUID] = Field(min_length=1)
+    action_ids: list[UUID]
+    output: dict[str, Any]

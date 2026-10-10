@@ -26,3 +26,5 @@ Run database/evolution tests plus frontend typecheck/build. CI runs offline pyte
 
 
 2026-10-10 E1 gate preparation: migration runner, `002_persistence_checks.sql` and the write/read/rollback gate are implemented and verified on a disposable local TLS PostgreSQL. The gate procedure is in `backend/migrations/README.md`. Neon is still not configured or migrated. Next: run the runner and the gate against the intended Neon database, then record the output in `docs/status.md`.
+
+2026-10-10 E1 repositories and jobs (#10): migration 003, `SessionRepository`, `AnalysisRepository` and `JobQueue` (claim, lease, heartbeat, expiry recovery, retry, cancel) are implemented. Real-database tests pass on a disposable local TLS PostgreSQL. Neon is still not configured. Next: run the gate and these tests on Neon, then B wires the worker to `JobQueue`/`SessionRepository` (#17) and C reads persisted sessions for HF role analysis (#11).

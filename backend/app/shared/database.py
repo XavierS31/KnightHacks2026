@@ -14,6 +14,24 @@ class DatabaseUnavailable(RuntimeError):
     """A sanitized availability/configuration error safe for application reporting."""
 
 
+class RecordMissing(LookupError):
+    """A referenced record does not exist. Nothing was written."""
+
+
+class RecordConflict(ValueError):
+    """The write would replace or contradict a stored record. Nothing was written."""
+
+
+class RecordInvalid(ValueError):
+    """The record or its references fail validation. Nothing was written."""
+
+
+def bound_transaction(connection: Any, *, statement: str = "5s", lock: str = "2s") -> None:
+    """Limit the current transaction so a stuck query or lock cannot hold a pooled connection."""
+    connection.execute("SELECT set_config('statement_timeout', %s, true), "
+                       "set_config('lock_timeout', %s, true)", (statement, lock))
+
+
 class NeonDatabase:
     def __init__(
         self,
