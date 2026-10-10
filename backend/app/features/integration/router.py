@@ -8,6 +8,7 @@ from backend.app.features.integration.discovery import (
     DiscoveryStore,
     discovery_error,
 )
+from backend.app.features.integration.product.handoff import ProductReadiness, readiness
 from backend.app.features.integration.proposals import (
     Extraction,
     IntegrationInference,
@@ -25,6 +26,11 @@ router = APIRouter(tags=["integration"])
 store = DiscoveryStore()
 source_store = SourceStore()
 interpretations = InterpretationStore()
+
+
+@router.get('/integration/product-readiness', response_model=ProductReadiness)
+def product_readiness(settings: Settings = Depends(get_settings)):
+    return readiness(settings.artifact_root)
 
 
 def inference_failure(code):

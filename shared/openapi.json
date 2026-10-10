@@ -1242,6 +1242,40 @@
         "title": "PersonaSummary",
         "type": "object"
       },
+      "ProductReadiness": {
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "runtime_url": {
+            "default": "http://127.0.0.1:8001",
+            "title": "Runtime Url",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProductVersion"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "status",
+          "message"
+        ],
+        "title": "ProductReadiness",
+        "type": "object"
+      },
       "ProductVersion": {
         "additionalProperties": false,
         "properties": {
@@ -2607,6 +2641,27 @@
         "summary": "Health",
         "tags": [
           "system"
+        ]
+      }
+    },
+    "/api/v1/integration/product-readiness": {
+      "get": {
+        "operationId": "product_readiness_api_v1_integration_product_readiness_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductReadiness"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Product Readiness",
+        "tags": [
+          "integration"
         ]
       }
     },
