@@ -47,6 +47,7 @@ class Extraction(Contract):
     provenance: dict[str, Any]
     reservation: dict[str, Any]
     limitations: list[str]
+    storage: Literal["in_memory", "database"] = "in_memory"
 
 
 class PairIdea(Contract):
@@ -72,6 +73,7 @@ class ProposalPreview(Contract):
     provenance: dict[str, Any]
     reservation: dict[str, Any]
     limitations: list[str]
+    storage: Literal["in_memory", "database"] = "in_memory"
 
 
 class ProposalRequest(Contract):
@@ -84,7 +86,7 @@ class IntegrationInference:
         self.inference = inference or HuggingFaceInference(settings)
         self.budget = IntegrationBudget(settings)
 
-    async def _generate(self, messages, schema, role):
+    async def _generate(self, messages, schema, role, prompt_version="integration-citations-v2"):
         # Reject missing credentials before charging the local reservation.
         if not (self.settings.hf_token.get_secret_value() and self.settings.hf_model_id
                 and self.settings.hf_provider):
@@ -92,7 +94,7 @@ class IntegrationInference:
         reservation = self.budget.reserve(messages, schema.model_json_schema())
         result = await self.inference.generate_structured(
             role=role, messages=messages, output_schema=schema,
-            prompt_version="integration-citations-v2",
+            prompt_version=prompt_version,
         )
         return result, reservation
 
@@ -142,7 +144,7 @@ class IntegrationInference:
             limitations=["HF interpretation of bounded source excerpts; human interface review required.",
                          "Citation existence is checked; support for each interpretation needs review.",
                          "No independent execution or adapter validation has occurred.",
-                         "In-memory result; local reservation is not provider-reported spend."],
+                         "The local reservation is not provider-reported spend."],
         )
 
     async def propose(self, extractions: list[Extraction]):
@@ -176,7 +178,7 @@ class IntegrationInference:
             provenance=result.provenance, reservation=reservation,
             limitations=["Hypotheses only; source citations resolve through supplied extractions.",
                          "Existing-solution research, license review and independent execution remain open.",
-                         "In-memory result; local reservation is not provider-reported spend."],
+                         "The local reservation is not provider-reported spend."],
         )
 
     async def close(self):
@@ -184,6 +186,8 @@ class IntegrationInference:
 
 
 class InterpretationStore:
+    """Retain at most 100 of each record in this process. They are also stored when records exist."""
+
     def __init__(self):
         self.extractions: OrderedDict[UUID, Extraction] = OrderedDict()
         self.previews: OrderedDict[UUID, ProposalPreview] = OrderedDict()
@@ -193,3 +197,36 @@ class InterpretationStore:
         records[item.id] = item
         while len(records) > 100:
             records.popitem(last=False)
+
+    @staticmethod
+    def label(item, records):
+        storage = "database" if records is not None else "in_memory"
+        note = ("The result is stored in the database." if records is not None
+                else "In-memory result; it is lost on restart or after 100 newer results.")
+        return item.model_copy(update={"storage": storage, "limitations": [*item.limitations, note]})
+
+    def add_extraction(self, extraction: Extraction, records=None) -> Extraction:
+        extraction = self.label(extraction, records)
+        if records is not None:
+            records.save_extraction(extraction)
+        self.retain(self.extractions, extraction)
+        return extraction
+
+    def get_extraction(self, extraction_id: UUID, records=None) -> Extraction | None:
+        extraction = self.extractions.get(extraction_id)
+        if extraction is None and records is not None:
+            extraction = records.get_extraction(extraction_id)
+        return extraction
+
+    def add_preview(self, preview: ProposalPreview, records=None) -> ProposalPreview:
+        preview = self.label(preview, records)
+        if records is not None:
+            records.save_preview(preview)
+        self.retain(self.previews, preview)
+        return preview
+
+    def get_preview(self, preview_id: UUID, records=None) -> ProposalPreview | None:
+        preview = self.previews.get(preview_id)
+        if preview is None and records is not None:
+            preview = records.get_preview(preview_id)
+        return preview

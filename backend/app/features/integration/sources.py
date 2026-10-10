@@ -1,4 +1,5 @@
 """Read-only, bounded source snapshots. Source text is data, never instructions."""
+import asyncio
 import base64
 import binascii
 import hashlib
@@ -48,6 +49,8 @@ class SourceDocument(Contract):
     text: str
     content_sha256: str
     truncated: bool
+    issue_state: str | None = None
+    issue_updated_at: str | None = None
 
 
 class SourceSnapshot(Contract):
@@ -62,7 +65,7 @@ class SourceSnapshot(Contract):
     documents: list[SourceDocument]
     limitations: list[str]
     failures: list[str]
-    storage: Literal["in_memory"] = "in_memory"
+    storage: Literal["in_memory", "database"] = "in_memory"
 
 
 class GitHubSources:
@@ -181,6 +184,8 @@ class GitHubSources:
                             request_reference=url, collected_at=datetime.now(UTC),
                             text=text[:MAX_TEXT_CHARS], content_sha256=hashlib.sha256(text.encode()).hexdigest(),
                             truncated=len(text) > MAX_TEXT_CHARS,
+                            issue_state=issue.get("state") if issue.get("state") in {"open", "closed"} else None,
+                            issue_updated_at=issue.get("updated_at") if isinstance(issue.get("updated_at"), str) else None,
                         ))
                 except HTTPException as exc:
                     failures.append(f"issues: {exc.detail['code']}")
@@ -198,25 +203,39 @@ class GitHubSources:
                 "Only README, license and explicitly requested documentation are read; no recursive crawl.",
                 "One bounded issue page is sampled; pull requests are excluded without backfilling.",
                 "Text may be truncated; SHA-256 identifies full decoded content, not the displayed excerpt.",
-                "In-memory snapshots are lost on restart or after 100 newer snapshots; no Neon persistence.",
                 "Metadata and documentation do not establish validated capabilities or feasibility.",
             ],
         )
 
 
 class SourceStore:
+    """Retain at most 100 snapshots in this process. They are also stored when records exist."""
+
     def __init__(self):
         self.snapshots: OrderedDict[UUID, SourceSnapshot] = OrderedDict()
         self.github = GitHubSources()
 
-    async def create(self, repository, request, token=""):
+    async def create(self, run_id, repository, request, token="", records=None):
         snapshot = await self.github.collect(repository, request, token)
+        return await asyncio.to_thread(self.add, run_id, snapshot, records)
+
+    def add(self, run_id, snapshot, records=None):
+        if records is not None:
+            snapshot = snapshot.model_copy(update={"storage": "database", "limitations": [
+                *snapshot.limitations, "The snapshot is stored in the database with its run and commit."]})
+            records.save_snapshot(run_id, snapshot)
+        else:
+            snapshot = snapshot.model_copy(update={"limitations": [
+                *snapshot.limitations, "In-memory snapshots are lost on restart or after 100 newer snapshots."]})
         self.snapshots[snapshot.id] = snapshot
         while len(self.snapshots) > 100:
             self.snapshots.popitem(last=False)
         return snapshot
 
-    def get(self, snapshot_id):
-        if snapshot_id not in self.snapshots:
+    def get(self, snapshot_id, records=None):
+        snapshot = self.snapshots.get(snapshot_id)
+        if snapshot is None and records is not None:
+            snapshot = records.get_snapshot(snapshot_id)
+        if snapshot is None:
             raise discovery_error(404, "SOURCE_SNAPSHOT_NOT_FOUND", "Snapshot is unknown or no longer retained.")
-        return self.snapshots[snapshot_id]
+        return snapshot

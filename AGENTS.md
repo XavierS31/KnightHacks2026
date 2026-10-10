@@ -6,7 +6,7 @@ C evolution/database/CI. Root/shared code is coordinated by A; schema changes ne
 
 ## Product invariants
 - Runtime inference uses Hugging Face Inference Providers only. No AMD, ROCm, Figma or Adobe dependency.
-- One real adapter integration; 500 personas each trial v1 and v2; ten featured 3D characters.
+- One real validated opportunity prototype (feature extension or adapter integration); 500 personas each trial v1 and v2; ten featured 3D characters.
 - Fixture mode is explicit, synthetic and in memory. It never establishes real execution, demand,
   demographic representativeness or model inference. Do not hide failures or inflate completion counts.
 - Pydantic in backend/app/shared/contracts.py is authoritative. Generate frontend types, never hand edit them.

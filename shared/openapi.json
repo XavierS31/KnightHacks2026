@@ -288,6 +288,36 @@
         "title": "BaseVersion",
         "type": "object"
       },
+      "BoundedEdit": {
+        "additionalProperties": false,
+        "description": "Replace one exact, unique text span in one product file.",
+        "properties": {
+          "find": {
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Find",
+            "type": "string"
+          },
+          "path": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Path",
+            "type": "string"
+          },
+          "replace": {
+            "maxLength": 4000,
+            "title": "Replace",
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "find",
+          "replace"
+        ],
+        "title": "BoundedEdit",
+        "type": "object"
+      },
       "CandidateVersion": {
         "additionalProperties": false,
         "properties": {
@@ -453,6 +483,229 @@
         "title": "CheckResult",
         "type": "object"
       },
+      "ComparisonReport": {
+        "additionalProperties": false,
+        "properties": {
+          "completed_pairs": {
+            "minimum": 0.0,
+            "title": "Completed Pairs",
+            "type": "integer"
+          },
+          "continuation": {
+            "$ref": "#/components/schemas/ContinuationResult"
+          },
+          "expected_identities": {
+            "minimum": 0.0,
+            "title": "Expected Identities",
+            "type": "integer"
+          },
+          "identity_mismatches": {
+            "minimum": 0.0,
+            "title": "Identity Mismatches",
+            "type": "integer"
+          },
+          "inference_changes": {
+            "items": {
+              "$ref": "#/components/schemas/ConfigurationChange"
+            },
+            "title": "Inference Changes",
+            "type": "array"
+          },
+          "inference_configuration_changed": {
+            "title": "Inference Configuration Changed",
+            "type": "boolean"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "matched_complete": {
+            "title": "Matched Complete",
+            "type": "boolean"
+          },
+          "matched_pairs": {
+            "minimum": 0.0,
+            "title": "Matched Pairs",
+            "type": "integer"
+          },
+          "missing_v2": {
+            "minimum": 0.0,
+            "title": "Missing V2",
+            "type": "integer"
+          },
+          "mode": {
+            "enum": [
+              "fixture",
+              "live"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "next_gate": {
+            "title": "Next Gate",
+            "type": "string"
+          },
+          "pairs": {
+            "items": {
+              "$ref": "#/components/schemas/PairResult"
+            },
+            "title": "Pairs",
+            "type": "array"
+          },
+          "retest_request_id": {
+            "format": "uuid",
+            "title": "Retest Request Id",
+            "type": "string"
+          },
+          "success_over_completed_pairs": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Rate"
+            },
+            "propertyNames": {
+              "enum": [
+                "v1",
+                "v2"
+              ]
+            },
+            "title": "Success Over Completed Pairs",
+            "type": "object"
+          },
+          "target_population": {
+            "const": 500,
+            "default": 500,
+            "title": "Target Population",
+            "type": "integer"
+          },
+          "transitions": {
+            "items": {
+              "$ref": "#/components/schemas/Transition"
+            },
+            "title": "Transitions",
+            "type": "array"
+          },
+          "unexpected_v2_session_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Unexpected V2 Session Ids",
+            "type": "array"
+          },
+          "v1": {
+            "$ref": "#/components/schemas/VersionResult"
+          },
+          "v2": {
+            "$ref": "#/components/schemas/VersionResult"
+          }
+        },
+        "required": [
+          "retest_request_id",
+          "mode",
+          "expected_identities",
+          "matched_pairs",
+          "completed_pairs",
+          "missing_v2",
+          "identity_mismatches",
+          "unexpected_v2_session_ids",
+          "matched_complete",
+          "v1",
+          "v2",
+          "success_over_completed_pairs",
+          "transitions",
+          "inference_configuration_changed",
+          "inference_changes",
+          "continuation",
+          "pairs",
+          "limitations",
+          "next_gate"
+        ],
+        "title": "ComparisonReport",
+        "type": "object"
+      },
+      "ComparisonSubmission": {
+        "additionalProperties": false,
+        "properties": {
+          "v1": {
+            "$ref": "#/components/schemas/ExperimentRun"
+          },
+          "v2": {
+            "$ref": "#/components/schemas/ExperimentRun"
+          }
+        },
+        "required": [
+          "v1",
+          "v2"
+        ],
+        "title": "ComparisonSubmission",
+        "type": "object"
+      },
+      "ConfigurationChange": {
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "v1_value": {
+            "title": "V1 Value"
+          },
+          "v2_value": {
+            "title": "V2 Value"
+          }
+        },
+        "required": [
+          "key",
+          "v1_value",
+          "v2_value"
+        ],
+        "title": "ConfigurationChange",
+        "type": "object"
+      },
+      "ContinuationResult": {
+        "additionalProperties": false,
+        "description": "Optional continuation attempts. They never enter the mandatory denominators.",
+        "properties": {
+          "v1_attempted": {
+            "minimum": 0.0,
+            "title": "V1 Attempted",
+            "type": "integer"
+          },
+          "v1_eligible": {
+            "minimum": 0.0,
+            "title": "V1 Eligible",
+            "type": "integer"
+          },
+          "v1_outcomes": {
+            "$ref": "#/components/schemas/OutcomeCounts"
+          },
+          "v2_attempted": {
+            "minimum": 0.0,
+            "title": "V2 Attempted",
+            "type": "integer"
+          },
+          "v2_eligible": {
+            "minimum": 0.0,
+            "title": "V2 Eligible",
+            "type": "integer"
+          },
+          "v2_outcomes": {
+            "$ref": "#/components/schemas/OutcomeCounts"
+          }
+        },
+        "required": [
+          "v1_eligible",
+          "v1_attempted",
+          "v1_outcomes",
+          "v2_eligible",
+          "v2_attempted",
+          "v2_outcomes"
+        ],
+        "title": "ContinuationResult",
+        "type": "object"
+      },
       "DiscoveryRequest": {
         "additionalProperties": false,
         "properties": {
@@ -472,7 +725,8 @@
             "default": "popular",
             "enum": [
               "popular",
-              "trending"
+              "trending",
+              "emerging"
             ],
             "title": "Discovery Mode",
             "type": "string"
@@ -565,6 +819,13 @@
             "title": "Mode",
             "type": "string"
           },
+          "momentum": {
+            "items": {
+              "$ref": "#/components/schemas/MomentumSignal"
+            },
+            "title": "Momentum",
+            "type": "array"
+          },
           "next_gate": {
             "title": "Next Gate",
             "type": "string"
@@ -604,8 +865,11 @@
             "type": "string"
           },
           "storage": {
-            "const": "in_memory",
             "default": "in_memory",
+            "enum": [
+              "in_memory",
+              "database"
+            ],
             "title": "Storage",
             "type": "string"
           }
@@ -622,6 +886,29 @@
           "next_gate"
         ],
         "title": "DiscoveryRun",
+        "type": "object"
+      },
+      "EditSubmission": {
+        "additionalProperties": false,
+        "properties": {
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "edits": {
+            "items": {
+              "$ref": "#/components/schemas/BoundedEdit"
+            },
+            "maxItems": 12,
+            "minItems": 1,
+            "title": "Edits",
+            "type": "array"
+          }
+        },
+        "required": [
+          "actor",
+          "edits"
+        ],
+        "title": "EditSubmission",
         "type": "object"
       },
       "Evidence": {
@@ -810,6 +1097,28 @@
         "title": "ExperimentCounts",
         "type": "object"
       },
+      "ExperimentRun": {
+        "additionalProperties": false,
+        "properties": {
+          "attempts": {
+            "items": {
+              "$ref": "#/components/schemas/TrialAttempt"
+            },
+            "maxItems": 1000,
+            "title": "Attempts",
+            "type": "array"
+          },
+          "experiment": {
+            "$ref": "#/components/schemas/Experiment"
+          }
+        },
+        "required": [
+          "experiment",
+          "attempts"
+        ],
+        "title": "ExperimentRun",
+        "type": "object"
+      },
       "Extraction": {
         "additionalProperties": false,
         "properties": {
@@ -863,6 +1172,15 @@
           "snapshot_id": {
             "format": "uuid",
             "title": "Snapshot Id",
+            "type": "string"
+          },
+          "storage": {
+            "default": "in_memory",
+            "enum": [
+              "in_memory",
+              "database"
+            ],
+            "title": "Storage",
             "type": "string"
           },
           "validated": {
@@ -1122,6 +1440,48 @@
         "title": "FeedbackCluster",
         "type": "object"
       },
+      "FeedbackCounts": {
+        "additionalProperties": false,
+        "properties": {
+          "chose_continue": {
+            "minimum": 0.0,
+            "title": "Chose Continue",
+            "type": "integer"
+          },
+          "missing": {
+            "minimum": 0.0,
+            "title": "Missing",
+            "type": "integer"
+          },
+          "post_trial_relevance": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "propertyNames": {
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            },
+            "title": "Post Trial Relevance",
+            "type": "object"
+          },
+          "present": {
+            "minimum": 0.0,
+            "title": "Present",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "present",
+          "missing",
+          "chose_continue",
+          "post_trial_relevance"
+        ],
+        "title": "FeedbackCounts",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -1271,8 +1631,15 @@
       },
       "IsolatedPatch": {
         "additionalProperties": false,
-        "description": "A changeset held in the run record. It is not written to the v1 tree.",
+        "description": "A changeset held in the run record. It is not written to the v1 tree.\n\nThe digest covers the files only. Edits record how the files were derived from v1.",
         "properties": {
+          "edits": {
+            "items": {
+              "$ref": "#/components/schemas/BoundedEdit"
+            },
+            "title": "Edits",
+            "type": "array"
+          },
           "files": {
             "items": {
               "$ref": "#/components/schemas/PatchFile"
@@ -1332,6 +1699,629 @@
         "title": "LifecycleEvent",
         "type": "object"
       },
+      "ModelTime": {
+        "additionalProperties": false,
+        "description": "Elapsed agent time. It is never an estimate of how long a human would take.",
+        "properties": {
+          "basis": {
+            "const": "agent wall clock between first and last recorded action; not human time",
+            "default": "agent wall clock between first and last recorded action; not human time",
+            "title": "Basis",
+            "type": "string"
+          },
+          "median_seconds": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Seconds"
+          },
+          "sessions_measured": {
+            "minimum": 0.0,
+            "title": "Sessions Measured",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sessions_measured"
+        ],
+        "title": "ModelTime",
+        "type": "object"
+      },
+      "MomentumSignal": {
+        "additionalProperties": false,
+        "properties": {
+          "baseline": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Observation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "current": {
+            "$ref": "#/components/schemas/Observation"
+          },
+          "elapsed_hours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elapsed Hours"
+          },
+          "forks_delta": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forks Delta"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "stars_delta": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stars Delta"
+          },
+          "status": {
+            "enum": [
+              "measured",
+              "insufficient_history",
+              "history_unavailable",
+              "fixture"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "current",
+          "status",
+          "note"
+        ],
+        "title": "MomentumSignal",
+        "type": "object"
+      },
+      "Observation": {
+        "additionalProperties": false,
+        "properties": {
+          "forks": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forks"
+          },
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          },
+          "observed_at": {
+            "format": "date-time",
+            "title": "Observed At",
+            "type": "string"
+          },
+          "source_reference": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Reference"
+          },
+          "stars": {
+            "minimum": 0.0,
+            "title": "Stars",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "full_name",
+          "observed_at",
+          "stars"
+        ],
+        "title": "Observation",
+        "type": "object"
+      },
+      "OpportunityCard": {
+        "additionalProperties": false,
+        "properties": {
+          "acceptance_check": {
+            "maxLength": 400,
+            "minLength": 1,
+            "title": "Acceptance Check",
+            "type": "string"
+          },
+          "audience": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Audience",
+            "type": "string"
+          },
+          "capability_citation_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "maxItems": 3,
+            "minItems": 1,
+            "title": "Capability Citation Ids",
+            "type": "array"
+          },
+          "current_value": {
+            "maxLength": 400,
+            "minLength": 1,
+            "title": "Current Value",
+            "type": "string"
+          },
+          "decision": {
+            "default": "unreviewed",
+            "enum": [
+              "unreviewed",
+              "shortlisted",
+              "rejected"
+            ],
+            "title": "Decision",
+            "type": "string"
+          },
+          "decision_note": {
+            "default": "",
+            "title": "Decision Note",
+            "type": "string"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/OpportunityCitation"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "example_input": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Example Input",
+            "type": "string"
+          },
+          "example_output": {
+            "maxLength": 400,
+            "minLength": 1,
+            "title": "Example Output",
+            "type": "string"
+          },
+          "example_status": {
+            "const": "illustrative_not_executed",
+            "default": "illustrative_not_executed",
+            "title": "Example Status",
+            "type": "string"
+          },
+          "feasibility": {
+            "const": "unreviewed",
+            "default": "unreviewed",
+            "title": "Feasibility",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "implementation_boundary": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Implementation Boundary",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "feature_extension",
+              "integration"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "need_basis": {
+            "enum": [
+              "issue_report",
+              "inferred_workflow"
+            ],
+            "title": "Need Basis",
+            "type": "string"
+          },
+          "need_citation_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "maxItems": 3,
+            "minItems": 1,
+            "title": "Need Citation Ids",
+            "type": "array"
+          },
+          "novelty": {
+            "const": "unresolved",
+            "default": "unresolved",
+            "title": "Novelty",
+            "type": "string"
+          },
+          "problem": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Problem",
+            "type": "string"
+          },
+          "proposed_value": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Proposed Value",
+            "type": "string"
+          },
+          "risk": {
+            "maxLength": 400,
+            "minLength": 1,
+            "title": "Risk",
+            "type": "string"
+          },
+          "status": {
+            "const": "hypothesis",
+            "default": "hypothesis",
+            "title": "Status",
+            "type": "string"
+          },
+          "supporting_snapshot_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 2,
+            "title": "Supporting Snapshot Ids",
+            "type": "array"
+          },
+          "title": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "why_now": {
+            "maxLength": 400,
+            "minLength": 1,
+            "title": "Why Now",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "kind",
+          "need_basis",
+          "audience",
+          "problem",
+          "current_value",
+          "proposed_value",
+          "why_now",
+          "capability_citation_ids",
+          "need_citation_ids",
+          "implementation_boundary",
+          "example_input",
+          "example_output",
+          "acceptance_check",
+          "risk",
+          "id",
+          "evidence"
+        ],
+        "title": "OpportunityCard",
+        "type": "object"
+      },
+      "OpportunityCitation": {
+        "additionalProperties": false,
+        "properties": {
+          "citation_id": {
+            "title": "Citation Id",
+            "type": "integer"
+          },
+          "collected_at": {
+            "format": "date-time",
+            "title": "Collected At",
+            "type": "string"
+          },
+          "commit_sha": {
+            "title": "Commit Sha",
+            "type": "string"
+          },
+          "issue_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issue State"
+          },
+          "kind": {
+            "enum": [
+              "readme",
+              "documentation",
+              "issue"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "quote": {
+            "title": "Quote",
+            "type": "string"
+          },
+          "reference": {
+            "title": "Reference",
+            "type": "string"
+          },
+          "repository": {
+            "title": "Repository",
+            "type": "string"
+          },
+          "snapshot_id": {
+            "format": "uuid",
+            "title": "Snapshot Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "citation_id",
+          "snapshot_id",
+          "repository",
+          "commit_sha",
+          "kind",
+          "reference",
+          "quote",
+          "collected_at"
+        ],
+        "title": "OpportunityCitation",
+        "type": "object"
+      },
+      "OpportunityDecision": {
+        "additionalProperties": false,
+        "properties": {
+          "decision": {
+            "enum": [
+              "shortlisted",
+              "rejected"
+            ],
+            "title": "Decision",
+            "type": "string"
+          },
+          "note": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Note",
+            "type": "string"
+          }
+        },
+        "required": [
+          "decision",
+          "note"
+        ],
+        "title": "OpportunityDecision",
+        "type": "object"
+      },
+      "OpportunityReport": {
+        "additionalProperties": false,
+        "properties": {
+          "anchor_commit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anchor Commit"
+          },
+          "anchor_repository": {
+            "title": "Anchor Repository",
+            "type": "string"
+          },
+          "anchor_snapshot_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anchor Snapshot Id"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "mode": {
+            "enum": [
+              "fixture",
+              "live"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "no_opportunity_reason": {
+            "title": "No Opportunity Reason",
+            "type": "string"
+          },
+          "opportunities": {
+            "items": {
+              "$ref": "#/components/schemas/OpportunityCard"
+            },
+            "title": "Opportunities",
+            "type": "array"
+          },
+          "provenance": {
+            "additionalProperties": true,
+            "title": "Provenance",
+            "type": "object"
+          },
+          "research_leads": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Research Leads",
+            "type": "array"
+          },
+          "reservation": {
+            "additionalProperties": true,
+            "title": "Reservation",
+            "type": "object"
+          },
+          "storage": {
+            "const": "in_memory",
+            "default": "in_memory",
+            "title": "Storage",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "mode",
+          "anchor_snapshot_id",
+          "anchor_repository",
+          "anchor_commit",
+          "created_at",
+          "opportunities",
+          "no_opportunity_reason",
+          "research_leads",
+          "provenance",
+          "reservation",
+          "limitations"
+        ],
+        "title": "OpportunityReport",
+        "type": "object"
+      },
+      "OpportunityRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "anchor_snapshot_id": {
+            "format": "uuid",
+            "title": "Anchor Snapshot Id",
+            "type": "string"
+          },
+          "interests": {
+            "default": "",
+            "maxLength": 300,
+            "title": "Interests",
+            "type": "string"
+          },
+          "supporting_snapshot_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 2,
+            "title": "Supporting Snapshot Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "anchor_snapshot_id"
+        ],
+        "title": "OpportunityRequest",
+        "type": "object"
+      },
+      "OutcomeCounts": {
+        "additionalProperties": false,
+        "description": "Every expected identity lands in exactly one bucket; the buckets sum to the target.",
+        "properties": {
+          "application_failure": {
+            "minimum": 0.0,
+            "title": "Application Failure",
+            "type": "integer"
+          },
+          "identity_mismatch": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Identity Mismatch",
+            "type": "integer"
+          },
+          "infrastructure_failure": {
+            "minimum": 0.0,
+            "title": "Infrastructure Failure",
+            "type": "integer"
+          },
+          "irrelevant": {
+            "minimum": 0.0,
+            "title": "Irrelevant",
+            "type": "integer"
+          },
+          "no_attempt": {
+            "minimum": 0.0,
+            "title": "No Attempt",
+            "type": "integer"
+          },
+          "not_run": {
+            "minimum": 0.0,
+            "title": "Not Run",
+            "type": "integer"
+          },
+          "success": {
+            "minimum": 0.0,
+            "title": "Success",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "success",
+          "application_failure",
+          "infrastructure_failure",
+          "irrelevant",
+          "not_run",
+          "no_attempt"
+        ],
+        "title": "OutcomeCounts",
+        "type": "object"
+      },
       "PairIdea": {
         "additionalProperties": false,
         "properties": {
@@ -1388,6 +2378,89 @@
         "title": "PairIdea",
         "type": "object"
       },
+      "PairResult": {
+        "additionalProperties": false,
+        "properties": {
+          "mismatched_fields": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Mismatched Fields",
+            "type": "array"
+          },
+          "persona_id": {
+            "format": "uuid",
+            "title": "Persona Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "matched",
+              "missing_v2",
+              "identity_mismatch"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "v1_outcome": {
+            "enum": [
+              "success",
+              "application_failure",
+              "infrastructure_failure",
+              "irrelevant",
+              "not_run"
+            ],
+            "title": "V1 Outcome",
+            "type": "string"
+          },
+          "v1_session_id": {
+            "format": "uuid",
+            "title": "V1 Session Id",
+            "type": "string"
+          },
+          "v2_outcome": {
+            "anyOf": [
+              {
+                "enum": [
+                  "success",
+                  "application_failure",
+                  "infrastructure_failure",
+                  "irrelevant",
+                  "not_run"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "V2 Outcome"
+          },
+          "v2_session_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "V2 Session Id"
+          }
+        },
+        "required": [
+          "persona_id",
+          "status",
+          "mismatched_fields",
+          "v1_session_id",
+          "v2_session_id",
+          "v1_outcome",
+          "v2_outcome"
+        ],
+        "title": "PairResult",
+        "type": "object"
+      },
       "PatchFile": {
         "additionalProperties": false,
         "properties": {
@@ -1437,6 +2510,14 @@
               }
             ]
           },
+          "component_run_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Component Run Ids",
+            "type": "array"
+          },
           "events": {
             "items": {
               "$ref": "#/components/schemas/LifecycleEvent"
@@ -1460,9 +2541,23 @@
             ],
             "title": "Implementer Id"
           },
+          "implementer_run": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoleRun"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "improvement_id": {
             "format": "uuid",
             "title": "Improvement Id",
+            "type": "string"
+          },
+          "issue": {
+            "title": "Issue",
             "type": "string"
           },
           "patch": {
@@ -1501,11 +2596,17 @@
             "default": "memory",
             "title": "Storage",
             "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
           }
         },
         "required": [
           "id",
           "improvement_id",
+          "title",
+          "issue",
           "allowed_paths",
           "acceptance_check",
           "base",
@@ -2014,6 +3115,15 @@
             "additionalProperties": true,
             "title": "Reservation",
             "type": "object"
+          },
+          "storage": {
+            "default": "in_memory",
+            "enum": [
+              "in_memory",
+              "database"
+            ],
+            "title": "Storage",
+            "type": "string"
           }
         },
         "required": [
@@ -2047,32 +3157,63 @@
         "title": "ProposalRequest",
         "type": "object"
       },
-      "RegressionSubmission": {
+      "Rate": {
         "additionalProperties": false,
+        "properties": {
+          "denominator": {
+            "minimum": 0.0,
+            "title": "Denominator",
+            "type": "integer"
+          },
+          "numerator": {
+            "minimum": 0.0,
+            "title": "Numerator",
+            "type": "integer"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "numerator",
+          "denominator"
+        ],
+        "title": "Rate",
+        "type": "object"
+      },
+      "ReleaseCreate": {
+        "additionalProperties": false,
+        "description": "A human composes two or three regression-passed runs into one v2 candidate run.",
         "properties": {
           "actor": {
             "$ref": "#/components/schemas/Actor"
           },
-          "patch_sha256": {
-            "pattern": "^[a-f0-9]{64}$",
-            "title": "Patch Sha256",
-            "type": "string"
-          },
-          "results": {
+          "run_ids": {
             "items": {
-              "$ref": "#/components/schemas/CheckResult"
+              "format": "uuid",
+              "type": "string"
             },
-            "minItems": 1,
-            "title": "Results",
+            "maxItems": 3,
+            "minItems": 2,
+            "title": "Run Ids",
             "type": "array"
           }
         },
         "required": [
           "actor",
-          "patch_sha256",
-          "results"
+          "run_ids"
         ],
-        "title": "RegressionSubmission",
+        "title": "ReleaseCreate",
         "type": "object"
       },
       "Repository": {
@@ -2140,6 +3281,135 @@
         "title": "Repository",
         "type": "object"
       },
+      "RetestRequest": {
+        "additionalProperties": false,
+        "description": "C's handoff to B: run each frozen v1 identity once on the approved v2.",
+        "properties": {
+          "base_version_id": {
+            "format": "uuid",
+            "title": "Base Version Id",
+            "type": "string"
+          },
+          "candidate_patch_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Candidate Patch Sha256",
+            "type": "string"
+          },
+          "candidate_version_id": {
+            "format": "uuid",
+            "title": "Candidate Version Id",
+            "type": "string"
+          },
+          "fixed_check_ids": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Fixed Check Ids",
+            "type": "array"
+          },
+          "fixed_checks_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Fixed Checks Sha256",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "identities": {
+            "items": {
+              "$ref": "#/components/schemas/TrialIdentity"
+            },
+            "title": "Identities",
+            "type": "array"
+          },
+          "identity_shortfall": {
+            "minimum": 0.0,
+            "title": "Identity Shortfall",
+            "type": "integer"
+          },
+          "inference_profile": {
+            "additionalProperties": true,
+            "title": "Inference Profile",
+            "type": "object"
+          },
+          "instructions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Instructions",
+            "type": "array"
+          },
+          "mode": {
+            "enum": [
+              "fixture",
+              "live"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "patch_run_id": {
+            "format": "uuid",
+            "title": "Patch Run Id",
+            "type": "string"
+          },
+          "population_id": {
+            "format": "uuid",
+            "title": "Population Id",
+            "type": "string"
+          },
+          "target_population": {
+            "const": 500,
+            "default": 500,
+            "title": "Target Population",
+            "type": "integer"
+          },
+          "v1_experiment_id": {
+            "format": "uuid",
+            "title": "V1 Experiment Id",
+            "type": "string"
+          },
+          "v1_records_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "V1 Records Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "mode",
+          "patch_run_id",
+          "base_version_id",
+          "candidate_version_id",
+          "candidate_patch_sha256",
+          "fixed_check_ids",
+          "fixed_checks_sha256",
+          "population_id",
+          "v1_experiment_id",
+          "v1_records_sha256",
+          "identities",
+          "identity_shortfall",
+          "inference_profile",
+          "instructions"
+        ],
+        "title": "RetestRequest",
+        "type": "object"
+      },
+      "RetestRequestCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "v1": {
+            "$ref": "#/components/schemas/ExperimentRun"
+          }
+        },
+        "required": [
+          "v1"
+        ],
+        "title": "RetestRequestCreate",
+        "type": "object"
+      },
       "RoleRun": {
         "additionalProperties": false,
         "description": "Provenance returned by the shared HF adapter for one structured role call.",
@@ -2178,7 +3448,8 @@
             "enum": [
               "analyst",
               "prioritizer",
-              "ux_reviewer"
+              "ux_reviewer",
+              "implementer"
             ],
             "title": "Role",
             "type": "string"
@@ -2676,6 +3947,28 @@
             "title": "Content Sha256",
             "type": "string"
           },
+          "issue_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issue State"
+          },
+          "issue_updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issue Updated At"
+          },
           "kind": {
             "enum": [
               "readme",
@@ -2819,8 +4112,11 @@
             "type": "string"
           },
           "storage": {
-            "const": "in_memory",
             "default": "in_memory",
+            "enum": [
+              "in_memory",
+              "database"
+            ],
             "title": "Storage",
             "type": "string"
           }
@@ -2896,6 +4192,150 @@
         "title": "StreamEvent",
         "type": "object"
       },
+      "Transition": {
+        "additionalProperties": false,
+        "properties": {
+          "count": {
+            "minimum": 1.0,
+            "title": "Count",
+            "type": "integer"
+          },
+          "v1_outcome": {
+            "enum": [
+              "success",
+              "application_failure",
+              "infrastructure_failure",
+              "irrelevant",
+              "not_run"
+            ],
+            "title": "V1 Outcome",
+            "type": "string"
+          },
+          "v2_outcome": {
+            "enum": [
+              "success",
+              "application_failure",
+              "infrastructure_failure",
+              "irrelevant",
+              "not_run"
+            ],
+            "title": "V2 Outcome",
+            "type": "string"
+          }
+        },
+        "required": [
+          "v1_outcome",
+          "v2_outcome",
+          "count"
+        ],
+        "title": "Transition",
+        "type": "object"
+      },
+      "TrialAttempt": {
+        "additionalProperties": false,
+        "description": "One executed (or attempted) session with the identity it ran under.\n\nMandatory attempts form the 500-person comparison. A continuation attempt is optional\nand follows a mandatory attempt whose feedback chose to continue.",
+        "properties": {
+          "identity": {
+            "$ref": "#/components/schemas/TrialIdentity"
+          },
+          "phase": {
+            "enum": [
+              "mandatory",
+              "continuation"
+            ],
+            "title": "Phase",
+            "type": "string"
+          },
+          "session": {
+            "$ref": "#/components/schemas/Session"
+          }
+        },
+        "required": [
+          "identity",
+          "phase",
+          "session"
+        ],
+        "title": "TrialAttempt",
+        "type": "object"
+      },
+      "TrialIdentity": {
+        "additionalProperties": false,
+        "description": "Everything that must stay fixed between a persona's v1 and v2 attempts.",
+        "properties": {
+          "action_budget": {
+            "maximum": 8.0,
+            "minimum": 1.0,
+            "title": "Action Budget",
+            "type": "integer"
+          },
+          "behavior_generation_version": {
+            "minLength": 1,
+            "title": "Behavior Generation Version",
+            "type": "string"
+          },
+          "check_id": {
+            "minLength": 1,
+            "title": "Check Id",
+            "type": "string"
+          },
+          "corpus_version": {
+            "minLength": 1,
+            "title": "Corpus Version",
+            "type": "string"
+          },
+          "initial_state_ref": {
+            "minLength": 1,
+            "title": "Initial State Ref",
+            "type": "string"
+          },
+          "persona_id": {
+            "format": "uuid",
+            "title": "Persona Id",
+            "type": "string"
+          },
+          "population_version": {
+            "minLength": 1,
+            "title": "Population Version",
+            "type": "string"
+          },
+          "scenario_id": {
+            "format": "uuid",
+            "title": "Scenario Id",
+            "type": "string"
+          },
+          "task_id": {
+            "format": "uuid",
+            "title": "Task Id",
+            "type": "string"
+          },
+          "task_version": {
+            "minLength": 1,
+            "title": "Task Version",
+            "type": "string"
+          },
+          "time_budget_minutes": {
+            "maximum": 60.0,
+            "minimum": 1.0,
+            "title": "Time Budget Minutes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "persona_id",
+          "population_version",
+          "behavior_generation_version",
+          "corpus_version",
+          "scenario_id",
+          "task_id",
+          "task_version",
+          "check_id",
+          "initial_state_ref",
+          "action_budget",
+          "time_budget_minutes"
+        ],
+        "title": "TrialIdentity",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -2934,6 +4374,51 @@
           "type"
         ],
         "title": "ValidationError",
+        "type": "object"
+      },
+      "VersionResult": {
+        "additionalProperties": false,
+        "properties": {
+          "experiment_id": {
+            "format": "uuid",
+            "title": "Experiment Id",
+            "type": "string"
+          },
+          "feedback": {
+            "$ref": "#/components/schemas/FeedbackCounts"
+          },
+          "infrastructure_stop_reasons": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Infrastructure Stop Reasons",
+            "type": "object"
+          },
+          "model_time": {
+            "$ref": "#/components/schemas/ModelTime"
+          },
+          "outcomes": {
+            "$ref": "#/components/schemas/OutcomeCounts"
+          },
+          "success_over_target": {
+            "$ref": "#/components/schemas/Rate"
+          },
+          "version_id": {
+            "format": "uuid",
+            "title": "Version Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version_id",
+          "experiment_id",
+          "outcomes",
+          "infrastructure_stop_reasons",
+          "success_over_target",
+          "feedback",
+          "model_time"
+        ],
+        "title": "VersionResult",
         "type": "object"
       }
     }
@@ -3309,6 +4794,27 @@
         ]
       }
     },
+    "/api/v1/integration/opportunity-demo": {
+      "post": {
+        "operationId": "opportunity_demo_api_v1_integration_opportunity_demo_post",
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Opportunity Demo",
+        "tags": [
+          "integration"
+        ]
+      }
+    },
     "/api/v1/integration/product-readiness": {
       "get": {
         "operationId": "product_readiness_api_v1_integration_product_readiness_get",
@@ -3346,6 +4852,153 @@
           }
         },
         "summary": "Summary",
+        "tags": [
+          "integration"
+        ]
+      }
+    },
+    "/api/v1/opportunity-reports": {
+      "post": {
+        "operationId": "create_opportunity_report_api_v1_opportunity_reports_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpportunityRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Opportunity Report",
+        "tags": [
+          "integration"
+        ]
+      }
+    },
+    "/api/v1/opportunity-reports/{report_id}": {
+      "get": {
+        "operationId": "get_opportunity_report_api_v1_opportunity_reports__report_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "report_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Report Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Opportunity Report",
+        "tags": [
+          "integration"
+        ]
+      }
+    },
+    "/api/v1/opportunity-reports/{report_id}/cards/{card_id}/decision": {
+      "post": {
+        "operationId": "decide_opportunity_api_v1_opportunity_reports__report_id__cards__card_id__decision_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "report_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Report Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "card_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Card Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpportunityDecision"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Decide Opportunity",
         "tags": [
           "integration"
         ]
@@ -3447,6 +5100,167 @@
         ]
       }
     },
+    "/api/v1/patch-runs/{patch_run_id}/compose": {
+      "post": {
+        "description": "The implementer applies each component's edits, in order, to frozen v1.",
+        "operationId": "compose_release_api_v1_patch_runs__patch_run_id__compose_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "patch_run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Patch Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActorRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatchRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Compose Release",
+        "tags": [
+          "evolution"
+        ]
+      }
+    },
+    "/api/v1/patch-runs/{patch_run_id}/edits": {
+      "post": {
+        "operationId": "submit_patch_edits_api_v1_patch_runs__patch_run_id__edits_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "patch_run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Patch Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditSubmission"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatchRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Submit Patch Edits",
+        "tags": [
+          "evolution"
+        ]
+      }
+    },
+    "/api/v1/patch-runs/{patch_run_id}/implement": {
+      "post": {
+        "description": "The HF implementer proposes bounded edits; the deterministic tool applies them.",
+        "operationId": "implement_patch_api_v1_patch_runs__patch_run_id__implement_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "patch_run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Patch Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActorRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatchRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Implement Patch",
+        "tags": [
+          "evolution"
+        ]
+      }
+    },
     "/api/v1/patch-runs/{patch_run_id}/patch": {
       "post": {
         "operationId": "submit_patch_api_v1_patch_runs__patch_run_id__patch_post",
@@ -3500,9 +5314,10 @@
         ]
       }
     },
-    "/api/v1/patch-runs/{patch_run_id}/regression": {
+    "/api/v1/patch-runs/{patch_run_id}/qa": {
       "post": {
-        "operationId": "record_regression_api_v1_patch_runs__patch_run_id__regression_post",
+        "description": "Run the fixed checks in an isolated workspace and record their results.",
+        "operationId": "run_patch_qa_api_v1_patch_runs__patch_run_id__qa_post",
         "parameters": [
           {
             "in": "path",
@@ -3519,7 +5334,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RegressionSubmission"
+                "$ref": "#/components/schemas/ActorRequest"
               }
             }
           },
@@ -3547,7 +5362,7 @@
             "description": "Validation Error"
           }
         },
-        "summary": "Record Regression",
+        "summary": "Run Patch Qa",
         "tags": [
           "evolution"
         ]
@@ -3601,6 +5416,59 @@
           }
         },
         "summary": "Reject Patch",
+        "tags": [
+          "evolution"
+        ]
+      }
+    },
+    "/api/v1/patch-runs/{patch_run_id}/retest-requests": {
+      "post": {
+        "operationId": "create_retest_request_api_v1_patch_runs__patch_run_id__retest_requests_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "patch_run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Patch Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RetestRequestCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetestRequest"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Retest Request",
         "tags": [
           "evolution"
         ]
@@ -3857,6 +5725,143 @@
         "summary": "Get Preview",
         "tags": [
           "integration"
+        ]
+      }
+    },
+    "/api/v1/releases": {
+      "post": {
+        "operationId": "create_release_api_v1_releases_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReleaseCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatchRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Release",
+        "tags": [
+          "evolution"
+        ]
+      }
+    },
+    "/api/v1/retest-requests/{retest_request_id}": {
+      "get": {
+        "operationId": "get_retest_request_api_v1_retest_requests__retest_request_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "retest_request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Retest Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetestRequest"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Retest Request",
+        "tags": [
+          "evolution"
+        ]
+      }
+    },
+    "/api/v1/retest-requests/{retest_request_id}/comparison": {
+      "post": {
+        "operationId": "compare_retest_api_v1_retest_requests__retest_request_id__comparison_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "retest_request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Retest Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComparisonSubmission"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComparisonReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Compare Retest",
+        "tags": [
+          "evolution"
         ]
       }
     },

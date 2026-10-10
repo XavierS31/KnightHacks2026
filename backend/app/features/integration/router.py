@@ -1,12 +1,25 @@
+from contextlib import contextmanager
+from threading import Lock
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
+from fastapi.concurrency import run_in_threadpool
 
 from backend.app.features.integration.discovery import (
     DiscoveryRequest,
     DiscoveryRun,
     DiscoveryStore,
     discovery_error,
+)
+from backend.app.features.integration.discovery_repository import DiscoveryRepository
+from backend.app.features.integration.opportunities import (
+    OpportunityDecision,
+    OpportunityReport,
+    OpportunityRequest,
+    OpportunityStore,
+    discover_opportunities,
+    fixture_report,
 )
 from backend.app.features.integration.product.handoff import ProductReadiness, readiness
 from backend.app.features.integration.proposals import (
@@ -18,6 +31,13 @@ from backend.app.features.integration.proposals import (
 )
 from backend.app.features.integration.sources import SourceRequest, SourceSnapshot, SourceStore
 from backend.app.shared.contracts import IntegrationSummary
+from backend.app.shared.database import (
+    DatabaseUnavailable,
+    NeonDatabase,
+    RecordConflict,
+    RecordInvalid,
+    RecordMissing,
+)
 from backend.app.shared.fixtures import PROPOSAL, REPOSITORIES, VERSION
 from backend.app.shared.inference import InferenceError
 from backend.app.shared.settings import Settings, get_settings
@@ -26,6 +46,35 @@ router = APIRouter(tags=["integration"])
 store = DiscoveryStore()
 source_store = SourceStore()
 interpretations = InterpretationStore()
+opportunities = OpportunityStore()
+_databases: dict[str, NeonDatabase] = {}
+_databases_lock = Lock()
+
+
+def get_records(settings: Settings = Depends(get_settings)) -> DiscoveryRepository | None:
+    """Durable I1 records in live mode with a configured database; otherwise memory only."""
+    url = settings.database_url.get_secret_value()
+    if settings.app_mode != "live" or not url:
+        return None
+    with _databases_lock:
+        if url not in _databases:
+            _databases[url] = NeonDatabase(settings)
+        return DiscoveryRepository(_databases[url])
+
+
+Records = Annotated[DiscoveryRepository | None, Depends(get_records)]
+
+
+@contextmanager
+def storage_errors():
+    try:
+        yield
+    except DatabaseUnavailable:
+        raise discovery_error(503, "DISCOVERY_STORAGE_UNAVAILABLE",
+                              "Durable discovery storage is unavailable; nothing was stored.", True) from None
+    except (RecordConflict, RecordInvalid, RecordMissing):
+        raise discovery_error(409, "DISCOVERY_RECORD_REJECTED",
+                              "Durable storage rejected the record; nothing was stored.") from None
 
 
 @router.get('/integration/product-readiness', response_model=ProductReadiness)
@@ -46,58 +95,63 @@ def inference_failure(code):
         "NO_DOCUMENTED_SOURCES": "No usable README or documentation excerpt was collected.",
         "DUPLICATE_EXTRACTION": "Select distinct extraction records.",
         "DUPLICATE_REPOSITORY": "Select distinct repositories for a proposal.",
+        "UNSUPPORTED_OPPORTUNITY_EVIDENCE": "The model used unknown or mismatched evidence or repo roles. No opportunity was retained.",
     }
     return discovery_error(409 if code in messages else 502, code,
                            messages.get(code, "HF output did not pass the required checks; no result was retained."))
 
 
 @router.post("/discovery-runs", response_model=DiscoveryRun, status_code=201)
-async def create_discovery(request: DiscoveryRequest, settings: Settings = Depends(get_settings)):
+async def create_discovery(request: DiscoveryRequest, records: Records,
+                           settings: Settings = Depends(get_settings)):
     if request.mode == "live" and settings.app_mode != "live":
         raise discovery_error(409, "LIVE_DISCOVERY_DISABLED", "Set APP_MODE=live on the server to enable real GitHub reads.")
-    return await store.create(request, settings.github_token.get_secret_value())
+    with storage_errors():
+        return await store.create(request, settings.github_token.get_secret_value(), settings.artifact_root, records)
 
 
 @router.get("/discovery-runs/{run_id}", response_model=DiscoveryRun)
-def get_discovery(run_id: UUID):
-    return store.get(run_id)
+def get_discovery(run_id: UUID, records: Records):
+    with storage_errors():
+        return store.get(run_id, records)
 
 
 @router.get("/integration/summary", response_model=IntegrationSummary)
 def summary(settings: Settings = Depends(get_settings)):
-    product = readiness(settings.artifact_root)
     return IntegrationSummary(mode="fixture", repositories=REPOSITORIES,
                               proposals=[PROPOSAL], versions=[VERSION],
-                              next_gate=("Use SourceTable's separate validated handoff with B and connect C's durable storage."
-                                         if product.version else "Build and verify the separate SourceTable product; these candidate records remain fixtures."))
+                              next_gate="Discover opportunities around an anchor repo; SourceTable is a preserved earlier experiment, not an automatically selected idea.")
 
 
 @router.post("/discovery-runs/{run_id}/repositories/{repository_id}/sources",
              response_model=SourceSnapshot, status_code=201)
-async def collect_sources(run_id: UUID, repository_id: UUID, request: SourceRequest,
+async def collect_sources(run_id: UUID, repository_id: UUID, request: SourceRequest, records: Records,
                           settings: Settings = Depends(get_settings)):
-    run = store.get(run_id)
+    run = await run_in_threadpool(get_discovery, run_id, records)
     if settings.app_mode != "live" or run.mode != "live":
         raise discovery_error(409, "LIVE_SOURCES_DISABLED", "Source collection requires a live discovery run and server mode.")
     repository = next((repo for repo in run.repositories if repo.id == repository_id), None)
     if repository is None:
         raise discovery_error(404, "REPOSITORY_NOT_FOUND", "Repository does not belong to this discovery run.")
-    return await source_store.create(repository, request, settings.github_token.get_secret_value())
+    with storage_errors():
+        return await source_store.create(run_id, repository, request,
+                                         settings.github_token.get_secret_value(), records)
 
 
 @router.get("/source-snapshots/{snapshot_id}", response_model=SourceSnapshot)
-def get_sources(snapshot_id: UUID):
-    return source_store.get(snapshot_id)
+def get_sources(snapshot_id: UUID, records: Records):
+    with storage_errors():
+        return source_store.get(snapshot_id, records)
 
 
 @router.post("/source-snapshots/{snapshot_id}/extractions", response_model=Extraction, status_code=201)
-async def extract_sources(snapshot_id: UUID, settings: Settings = Depends(get_settings)):
-    snapshot = source_store.get(snapshot_id)
+async def extract_sources(snapshot_id: UUID, records: Records, settings: Settings = Depends(get_settings)):
+    snapshot = await run_in_threadpool(get_sources, snapshot_id, records)
     service = IntegrationInference(settings)
     try:
         result = await service.extract(snapshot)
-        interpretations.retain(interpretations.extractions, result)
-        return result
+        with storage_errors():
+            return await run_in_threadpool(interpretations.add_extraction, result, records)
     except InferenceError as exc:
         raise inference_failure(exc.code) from None
     finally:
@@ -105,20 +159,24 @@ async def extract_sources(snapshot_id: UUID, settings: Settings = Depends(get_se
 
 
 @router.get("/extractions/{extraction_id}", response_model=Extraction)
-def get_extraction(extraction_id: UUID):
-    if extraction_id not in interpretations.extractions:
+def get_extraction(extraction_id: UUID, records: Records):
+    with storage_errors():
+        extraction = interpretations.get_extraction(extraction_id, records)
+    if extraction is None:
         raise discovery_error(404, "EXTRACTION_NOT_FOUND", "Extraction is unknown or no longer retained.")
-    return interpretations.extractions[extraction_id]
+    return extraction
 
 
 @router.post("/proposal-previews", response_model=ProposalPreview, status_code=201)
-async def preview_proposals(request: ProposalRequest, settings: Settings = Depends(get_settings)):
-    extractions = [get_extraction(identity) for identity in request.extraction_ids]
+async def preview_proposals(request: ProposalRequest, records: Records,
+                            settings: Settings = Depends(get_settings)):
+    extractions = [await run_in_threadpool(get_extraction, identity, records)
+                   for identity in request.extraction_ids]
     service = IntegrationInference(settings)
     try:
         result = await service.propose(extractions)
-        interpretations.retain(interpretations.previews, result)
-        return result
+        with storage_errors():
+            return await run_in_threadpool(interpretations.add_preview, result, records)
     except InferenceError as exc:
         raise inference_failure(exc.code) from None
     finally:
@@ -126,7 +184,51 @@ async def preview_proposals(request: ProposalRequest, settings: Settings = Depen
 
 
 @router.get("/proposal-previews/{preview_id}", response_model=ProposalPreview)
-def get_preview(preview_id: UUID):
-    if preview_id not in interpretations.previews:
+def get_preview(preview_id: UUID, records: Records):
+    with storage_errors():
+        preview = interpretations.get_preview(preview_id, records)
+    if preview is None:
         raise discovery_error(404, "PROPOSAL_PREVIEW_NOT_FOUND", "Proposal preview is unknown or no longer retained.")
-    return interpretations.previews[preview_id]
+    return preview
+
+
+@router.post("/opportunity-reports", response_model=OpportunityReport, status_code=201)
+async def create_opportunity_report(request: OpportunityRequest, settings: Settings = Depends(get_settings)):
+    snapshots = [source_store.get(identity) for identity in [request.anchor_snapshot_id, *request.supporting_snapshot_ids]]
+    # More substantial structured proposals need time; keep B's shared defaults unchanged.
+    service = IntegrationInference(settings.model_copy(update={
+        "hf_request_timeout_seconds": max(60, settings.hf_request_timeout_seconds),
+    }))
+    try:
+        report = await discover_opportunities(service, request, snapshots)
+        opportunities.retain(report)
+        return report
+    except InferenceError as exc:
+        raise inference_failure(exc.code) from None
+    finally:
+        await service.close()
+
+
+@router.post("/integration/opportunity-demo", response_model=OpportunityReport, status_code=201)
+def opportunity_demo():
+    report = fixture_report()
+    opportunities.retain(report)
+    return report
+
+
+@router.get("/opportunity-reports/{report_id}", response_model=OpportunityReport)
+def get_opportunity_report(report_id: UUID):
+    if report_id not in opportunities.reports:
+        raise discovery_error(404, "OPPORTUNITY_REPORT_NOT_FOUND", "Report is unknown or no longer retained.")
+    return opportunities.reports[report_id]
+
+
+@router.post("/opportunity-reports/{report_id}/cards/{card_id}/decision", response_model=OpportunityReport)
+def decide_opportunity(report_id: UUID, card_id: UUID, request: OpportunityDecision):
+    report = get_opportunity_report(report_id)
+    card = next((item for item in report.opportunities if item.id == card_id), None)
+    if card is None:
+        raise discovery_error(404, "OPPORTUNITY_CARD_NOT_FOUND", "Card does not belong to this report.")
+    card.decision = request.decision
+    card.decision_note = request.note
+    return report

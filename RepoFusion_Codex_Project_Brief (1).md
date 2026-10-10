@@ -1,3 +1,5 @@
+> Historical planning input. The user-approved 2026-10-10 discovery revision is defined in [docs/opportunity-discovery.md](docs/opportunity-discovery.md). Repository pairing is optional; current ownership/runtime contracts govern implementation. The original text below is preserved for provenance.
+
 # RepoFusion: Codex Planning Brief
 
 Consolidated October 10, 2026. Working name only; final project name is undecided.

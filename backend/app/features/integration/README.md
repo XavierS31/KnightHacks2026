@@ -45,8 +45,10 @@ No code, Markdown HTML, links from repository content or model instructions are 
 Missing/invalid/oversized files and issue failures yield a visible partial snapshot; failure to
 resolve a commit prevents collection. Rate limiting stops remaining optional requests.
 
-`GET /api/v1/source-snapshots/{id}` reads one of at most 100 process-local snapshots. Restart or
-retention eviction removes snapshots. This is not durable Neon storage. The UI offers inspection
+`GET /api/v1/source-snapshots/{id}` reads one of at most 100 process-local snapshots. In live mode
+with `DATABASE_URL`, live runs, snapshots, extractions and proposal previews are also stored in the
+database (`discovery_repository.py`, migration 004). Their `storage` field is then `database`, and a
+read falls back to the database after a restart. Otherwise records stay in memory. The UI offers inspection
 for real candidates and shows source excerpts, provenance, missing files and collection limitations.
 
 Next gates: coordinate persistence with C, use B's verified HF adapter for cited capability/proposal
