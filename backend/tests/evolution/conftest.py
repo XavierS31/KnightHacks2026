@@ -1,4 +1,3 @@
-import os
 import json
 import os
 from datetime import UTC, datetime
@@ -10,6 +9,7 @@ import psycopg
 import pytest
 from pydantic import SecretStr
 
+from backend.app.shared.contracts import Action, Feedback, Session
 from backend.app.shared.database import NeonDatabase
 from backend.app.shared.settings import Settings
 from backend.migrations.runner import apply, discover
@@ -51,11 +51,7 @@ def migrated(isolated):
                            (experiment_id, uuid4(), version_id, uuid4()))
     return {"settings": settings, "database": database,
             "version_id": version_id, "experiment_id": experiment_id}
-from backend.app.shared.contracts import Action, Feedback, Session
-from backend.app.shared.settings import Settings
 
-# A disposable TLS PostgreSQL URL. Each test uses its own schema and drops it afterwards.
-TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL", "")
 INITIAL_MIGRATION = Path(__file__).parents[2] / "migrations" / "001_initial.sql"
 LIVE_HF = dict(hf_token="test-secret-never-log", hf_model_id="test/model",
                hf_provider="hf-inference", experiment_budget_limit=1)
