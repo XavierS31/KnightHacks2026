@@ -1,5 +1,7 @@
 # Developer B kickoff — AI personas and world
 
+Latest online data/pilot evidence: [B online data report](developer-b-online-data-report.md). Fresh Neon HTTPS readback fed one review-linked population record to guarded Hugging Face inference. The response validated exact IDs; zero browser trials completed. Normal Python Neon transport and A's local product runtime still gate the pilot.
+
 Use `developer_b_personas` and `$repofusion-personas`. Read root AGENTS.md, ownership, architecture, runtime/data contracts and roadmap. Inspect current files before repeating completed starter work.
 
 Read [software behavior](../software-behavior.md). Every live persona requires real-review-informed software behavior. B owns source collection, corpus deduplication, HF extraction/assignment and provenance UI; C owns durable storage. Five SourceTable-relevant reports, independent support approval and 500 real HF-generated fictional profiles are evidenced and saved locally and verified in Neon dev. Native backend connectivity and product-backed execution remain gated. See the [population report](developer-b-population-report.md) for current changes, checks and remaining work; the [runtime report](developer-b-runtime-report.md) covers the earlier foundation slice.

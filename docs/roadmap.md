@@ -1,5 +1,7 @@
 # Three-phase roadmap
 
+2026-10-10 B online-data update: a fresh exact Neon HTTPS readback of the 500-record frozen population fed one review-linked persona/task context to guarded Hugging Face inference. The structured response cited the supplied pattern/review IDs; completed trials remain zero. B's one-pilot lease, fixed-check and durable evidence wiring is prepared. Native Python Neon connectivity, A's locally verified product process and durable experiment registration still gate a real pilot. P1/P2/P4 remain partial and P3 unexecuted. See the [online data report](tasks/developer-b-online-data-report.md).
+
 2026-10-10 B population follow-up: five real upstream reports and independent support
 review now inform 500 HF-generated fictional personas, saved locally and verified
 in Neon dev through the authorized HTTPS operator workflow. A's
