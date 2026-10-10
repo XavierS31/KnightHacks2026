@@ -1,6 +1,5 @@
--- Initial persistent pipeline. Apply only to an authorized configured database.
--- Transactional DDL; record checksum in schema_migrations after review.
-BEGIN;
+-- Initial persistent pipeline. Apply only through backend.migrations.runner to an authorized database.
+-- The runner wraps this file and its schema_migrations record in one transaction.
 
 CREATE TABLE IF NOT EXISTS schema_migrations (
     version text PRIMARY KEY,
@@ -85,4 +84,3 @@ CREATE INDEX jobs_claimable ON jobs (status, created_at) WHERE status = 'queued'
 CREATE INDEX jobs_expired_leases ON jobs (lease_expires_at) WHERE status = 'running';
 CREATE INDEX sessions_experiment ON sessions (experiment_id, persona_id);
 
-COMMIT;
