@@ -293,7 +293,8 @@ async def analyze_with_roles(experiment_id: UUID, sessions: list[Session],
             "Severity and effort are prioritizer estimates; affected share and evidence strength are "
             "computed from cited records.",
             "Denominator is persisted sessions with feedback for this experiment.",
-            "Role provenance is returned in this report; analysis records are not yet persisted.",
+            "Role provenance is returned in this report; the live API persists the checked report "
+            "before returning proposals.",
         ],
         next_gate="Human review of supported proposals before the improvement lifecycle.",
     )

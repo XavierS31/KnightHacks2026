@@ -120,7 +120,7 @@ def migrated_settings():
 @pytest.fixture(autouse=True)
 def synthetic_prototype(request, monkeypatch):
     # Only lifecycle/router/implementer tests inject a selected prototype. Runtime defaults stay empty.
-    if request.node.path.name not in {"test_lifecycle.py", "test_retest.py", "test_implementer.py"}:
+    if request.node.path.name not in {"test_lifecycle.py", "test_retest.py", "test_implementer.py", "test_improvement_intake.py"}:
         return
     from backend.app.features.evolution import router
     from backend.tests.prototype_fixtures import SOURCES, handoff

@@ -139,7 +139,8 @@ class PatchLifecycle:
                     return run.candidate.id
             return base_version_id
 
-    def propose(self, improvement: Improvement, base: BaseVersion, actor: Actor) -> PatchRun:
+    def propose(self, improvement: Improvement, base: BaseVersion, actor: Actor,
+                analysis_record_id: UUID | None = None) -> PatchRun:
         _require_role(actor, "prioritizer", "human_reviewer")
         if improvement.status != "proposed":
             raise TransitionNotAllowed("Only a proposed, non-fixture improvement can start a patch run.")
@@ -149,8 +150,10 @@ class PatchLifecycle:
             validate_patch_paths(improvement.allowed_paths)
         except ValueError as exc:
             raise PatchOutsideScope(str(exc)) from None
-        event = LifecycleEvent(state="proposed", actor=actor, at=datetime.now(UTC),
-                               note=improvement.title)
+        note = improvement.title
+        if analysis_record_id is not None:
+            note += f"\nE1 analysis record: {analysis_record_id}; proposal: {improvement.id}"
+        event = LifecycleEvent(state="proposed", actor=actor, at=datetime.now(UTC), note=note)
         run = PatchRun(id=uuid4(), improvement_id=improvement.id, title=improvement.title,
                        issue=improvement.issue, allowed_paths=list(improvement.allowed_paths),
                        acceptance_check=improvement.acceptance_check,

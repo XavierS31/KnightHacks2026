@@ -2,6 +2,15 @@
 
 Current selection gate (2026-10-10): no prototype is selected. Shared historical records remain untouched. Earlier environment/population evidence below is historical and cannot establish new prototype readiness or task compatibility.
 
+2026-10-10 issue #13 follow-up: checked live E1 reports now persist, and live patch intake
+requires a matching supported proposal plus unchanged executed frozen-v1 evidence. A
+read-only query of the configured Neon database succeeded and found zero live sessions,
+feedback, analysis and version records. The frozen v1 Docker image is absent locally; HF
+is unconfigured in this checkout. No real improvement or v2 approval occurred. See
+[the evidence-linked handoff](tasks/issue-13-handoff.md) for checks and remaining gates.
+
+2026-10-10 B online-data checkpoint: official Neon HTTPS readback confirmed the immutable 500-record population and supplied one review-linked persona/task context to guarded Hugging Face inference. The structured response validated exact persona/task/pattern/review IDs and simulated initial relevance. Conservative charge `$0.00018378` for the diagnostic; zero browser trials. B's one-pilot lease, A fixed-check and C session/action/frame wiring is prepared but unexecuted. Native Python Neon transport and A's local frozen product runtime remain blocked on this host. See [B online data report](tasks/developer-b-online-data-report.md). P1/P2/P4 partial; P3 unexecuted.
+
 2026-10-10 B online-data checkpoint: official Neon HTTPS readback confirmed the immutable 500-record population and supplied one review-linked persona/task context to guarded Hugging Face inference. The structured response validated exact persona/task/pattern/review IDs and simulated initial relevance. Conservative charge `$0.00018378` for the diagnostic; zero browser trials. B's one-pilot lease, A fixed-check and C session/action/frame wiring is prepared but unexecuted. Native Python Neon transport and the selected-prototype runtime gate remain blocked on this host. See [B online data report](tasks/developer-b-online-data-report.md). P1/P2/P4 partial; P3 unexecuted.
 
 | Area | Current status | Evidence required to advance |
@@ -158,3 +167,5 @@ recorded 004_integration_records sha256=c26ee9128697ff444baebc49884ed07b1d707128
 Validation after merging master 71cbb6b: 568 backend tests passed, 65 environment-gated tests skipped with browser/product opt-ins enabled. Ruff, agent validation, OpenAPI/type drift, TypeScript and production build passed (existing persona bundle-size warning). Desktop and 390px mobile verified with no overflow or manual source-inspection action. A real GitHub/HF run researched Codex-Dream-Skin from README and additional pinned docs, produced a mechanism/interface summary, searched equivalents and rejected an incremental theming proposal. No prototype or persona trial was executed. Automatic studies now pass the configured existing DiscoveryRepository through discovery and SourceStore; a parent-run/snapshot persistence regression test passes. This does not establish new Neon study persistence; reports/briefs/critics remain process-local.
 
 2026-10-10 C Q1 slice (#15): a read-only demo evidence report checks v1 source preservation, labeled fixture analysis and, in live mode, Neon usage, stored v1/v2 rows and session stream labels. A non-Neon host fails the Neon check. CI pins fixture mode and empty credentials. The UI smoke passes again, including after an API restart, on a development Mac. Neon usage is still not established: no Neon URL was configured.
+
+2026-10-10 A quality/cleanup validation: source-ranked emerging shortlist, bounded replacement, large-file extraction, shared GitHub cache/quota handling and distinct research/selection/evaluation counters are implemented. No prototype is selected; B/C generic infrastructure and current PR #34/#35 work are preserved. See [validation](research/developer-a-validation-2026-10-10.md) for real flow, local/UI checks, model limitations and the remaining $0.18 A reservation allowance.

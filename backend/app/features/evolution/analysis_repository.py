@@ -1,11 +1,16 @@
 """Append-only analysis role records. Every cited session and action must resolve in-experiment."""
 
-from uuid import UUID
+import hashlib
+import json
+from datetime import UTC
+from uuid import NAMESPACE_URL, UUID, uuid5
 
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
-from backend.app.features.evolution.models import AnalysisRecord
+from backend.app.features.evolution.evidence import validate_session_evidence
+from backend.app.features.evolution.models import AnalysisRecord, AnalysisReport
+from backend.app.shared.contracts import Session
 from backend.app.shared.database import (
     RecordConflict,
     RecordInvalid,
@@ -29,9 +34,74 @@ def _canonical(record: AnalysisRecord) -> AnalysisRecord:
                                      "action_ids": sorted(set(record.action_ids))})
 
 
+def session_fingerprints(sessions: list[Session]) -> dict[str, str]:
+    fingerprints = {}
+    for session in sessions:
+        actions = []
+        for action in sorted(session.actions, key=lambda item: item.sequence):
+            if action.timestamp.tzinfo is None:
+                raise RecordInvalid("Executed action timestamps must include a timezone.")
+            actions.append(action.model_copy(update={
+                "timestamp": action.timestamp.astimezone(UTC)}))
+        payload = session.model_copy(update={"actions": actions}).model_dump(mode="json")
+        fingerprints[str(session.id)] = hashlib.sha256(json.dumps(
+            payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    return fingerprints
+
+
 class AnalysisRepository:
     def __init__(self, database):
         self.database = database
+
+    def save_report(self, report: AnalysisReport, sessions: list[Session]) -> UUID | None:
+        """Persist the checked report and all role provenance before returning live proposals."""
+        if report.mode != "live":
+            raise RecordInvalid("Fixture analysis reports stay in memory.")
+        evidence = validate_session_evidence(report.experiment_id, sessions, "live")
+        if not report.inference_used:
+            if report.proposals or report.clusters or report.role_runs:
+                raise RecordInvalid("An analysis without inference cannot contain role proposals.")
+            return None
+        if not evidence.feedback or report.sessions_seen != len(sessions):
+            raise RecordInvalid("A live report must describe the evidence it analyzed.")
+        if [run.role for run in report.role_runs] not in (
+                ["analyst"], ["analyst", "prioritizer"],
+                ["analyst", "prioritizer", "ux_reviewer"]):
+            raise RecordInvalid("A report requires the ordered E1 engineering roles.")
+        payload = {"analysis_report": report.model_dump(mode="json"),
+                   "session_fingerprints": session_fingerprints(sessions)}
+        digest = hashlib.sha256(json.dumps(payload, sort_keys=True,
+                                           separators=(",", ":")).encode()).hexdigest()
+        last = report.role_runs[-1]
+        return self.save(AnalysisRecord(
+            id=uuid5(NAMESPACE_URL, f"repofusion:analysis-report:{digest}"),
+            experiment_id=report.experiment_id, role=last.role, method=report.method,
+            prompt_version=last.prompt_version, inference=last.model_dump(mode="json"),
+            session_ids=sorted(evidence.sessions), action_ids=sorted(evidence.actions),
+            output=payload))
+
+    def report_for_proposal(self, proposal_id: UUID) -> tuple[AnalysisRecord, AnalysisReport]:
+        """Only server-persisted report outputs can supply E2 proposals."""
+        records = self._load("r.role = 'ux_reviewer' AND r.method = 'structured_hf_roles' "
+                             "AND r.output @> %s", (Jsonb({"analysis_report": {
+                                 "proposals": [{"id": str(proposal_id)}]}}),), latest=True)
+        if not records:
+            raise RecordMissing("No stored E1 analysis contains this improvement proposal.")
+        record = records[-1]
+        report = AnalysisReport.model_validate(record.output["analysis_report"])
+        if (report.mode != "live" or not report.inference_used
+                or report.experiment_id != record.experiment_id
+                or not report.role_runs or report.role_runs[-1].role != "ux_reviewer"
+                or record.inference != report.role_runs[-1].model_dump(mode="json")):
+            raise RecordInvalid("Stored analysis provenance disagrees with its report.")
+        return record, report
+
+    def validate_report_evidence(self, record: AnalysisRecord, sessions: list[Session]) -> None:
+        if (set(record.session_ids) != {session.id for session in sessions}
+                or set(record.action_ids) != {action.id for session in sessions
+                                             for action in session.actions}
+                or record.output.get("session_fingerprints") != session_fingerprints(sessions)):
+            raise RecordInvalid("Session evidence changed since E1 analysis; analyze it again.")
 
     def save(self, record: AnalysisRecord) -> UUID:
         """Store a role output once. An identical retry is accepted; a different one conflicts."""
@@ -81,9 +151,10 @@ class AnalysisRepository:
     def list_for_experiment(self, experiment_id: UUID) -> list[AnalysisRecord]:
         return self._load("r.experiment_id = %s", (experiment_id,))
 
-    def _load(self, condition: str, params: tuple) -> list[AnalysisRecord]:
+    def _load(self, condition: str, params: tuple, *, latest: bool = False) -> list[AnalysisRecord]:
         with self.database.connection() as connection:
             with connection.cursor(row_factory=dict_row) as cursor:
-                cursor.execute(SELECT_RECORDS + f"WHERE {condition} ORDER BY r.created_at, r.id",
-                               params)
+                order = (" ORDER BY r.created_at DESC, r.id DESC LIMIT 1" if latest
+                         else " ORDER BY r.created_at, r.id")
+                cursor.execute(SELECT_RECORDS + f"WHERE {condition}" + order, params)
                 return [AnalysisRecord(**row) for row in cursor.fetchall()]

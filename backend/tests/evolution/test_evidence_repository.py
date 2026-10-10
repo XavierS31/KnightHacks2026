@@ -16,6 +16,7 @@ from backend.app.main import app
 from backend.app.shared.database import NeonDatabase
 from backend.app.shared.inference import HuggingFaceInference
 from backend.app.shared.settings import get_settings
+from backend.migrations.runner import discover
 
 FINDINGS = [{"category": "product", "issue": "Upload button is hidden", "feedback_refs": ["F1", "F2"],
              "action_refs": ["A1", "A3"], "rationale": "Both personas could not find upload."},
@@ -34,7 +35,7 @@ def rows(live_sessions):
     experiment = {"id": live_sessions[0].experiment_id, "fixture": False}
     sessions = [{"id": s.id, "experiment_id": s.experiment_id, "persona_id": s.persona_id,
                  "product_version_id": s.product_version_id, "status": s.status, "outcome": s.outcome,
-                 "provenance": {"stream_mode": s.stream_mode, "stop_reason": s.stop_reason},
+                 "stream_mode": s.stream_mode, "stop_reason": s.stop_reason,
                  "fixture": False} for s in live_sessions]
     actions = [{"id": a.id, "session_id": a.session_id, "sequence": a.sequence, "occurred_at": a.timestamp,
                 "payload": {"kind": a.kind, "target": a.target, "result": a.result},
@@ -70,7 +71,7 @@ def test_disagreeing_or_orphaned_rows_are_rejected(rows, corrupt):
     elif corrupt == "feedback_payload":
         feedback[0]["payload"]["decision"] = "maybe"
     else:
-        del sessions[0]["provenance"]["stream_mode"]
+        del sessions[0]["stream_mode"]
     with pytest.raises(EvidenceMismatch):
         assemble_sessions(experiment, sessions, actions, feedback)
 
@@ -82,7 +83,15 @@ def corrupt():
 
 @pytest.fixture
 def stored(migrated_settings, live_sessions, corrupt):
-    """Persist live_sessions, with any requested faulty reference, into the 001 tables."""
+    """Persist synthetic test sessions using the current worker-written columns."""
+    database = NeonDatabase(migrated_settings)
+    try:
+        with database.connection() as connection:
+            # migrated_settings intentionally creates 001 directly for historical test cases.
+            for migration in discover()[1:]:
+                connection.execute(migration.sql)
+    finally:
+        database.close()
     if corrupt == "missing_action":
         live_sessions[0].feedback.evidence_action_ids.append(uuid4())
     elif corrupt == "cross_session":
@@ -101,11 +110,12 @@ def stored(migrated_settings, live_sessions, corrupt):
         for index, session in enumerate(live_sessions):
             connection.execute(
                 "INSERT INTO sessions (id, experiment_id, persona_id, task_id, product_version_id, "
-                "attempt, status, outcome, provenance, created_at) "
-                "VALUES (%s, %s, %s, %s, %s, 1, %s, %s, %s, now() + %s * interval '1 second')",
+                "attempt, status, outcome, provenance, stream_mode, stop_reason, created_at) "
+                "VALUES (%s, %s, %s, %s, %s, 1, %s, %s, %s, %s, %s, "
+                "now() + %s * interval '1 second')",
                 (session.id, session.experiment_id, session.persona_id, uuid4(),
                  session.product_version_id, session.status, session.outcome,
-                 Jsonb({"stream_mode": session.stream_mode, "stop_reason": session.stop_reason}),
+                 Jsonb({"worker": "synthetic-test"}), session.stream_mode, session.stop_reason,
                  index))
             for action in session.actions:
                 connection.execute(
