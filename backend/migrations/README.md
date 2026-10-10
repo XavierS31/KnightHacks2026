@@ -2,6 +2,14 @@
 
 Developer C owns migration order. `001_initial.sql` establishes product-version, experiment/task-configuration, session-attempt, action, feedback and durable-job provenance. `002_persistence_checks.sql` adds an append-only table for the write/read gate. `003_records_and_job_leases.sql` adds job attempt limits, session lifecycle columns, screenshot-safe action limits and analysis role records. `004_integration_records.sql` adds A's discovery records and the catalog of frozen product versions. 001 to 004 are applied to the Neon `dev` branch (see `docs/status.md`). The `production` branch has no migrations.
 
+`005_review_populations.sql` adds B's immutable corpus, per-corpus review evidence,
+independent approval and population/persona/scenario/task storage. B reviewed the
+consumer schema. It was applied to dev by the authorized C-coordinated HTTPS
+operator workflow after exact verification of the already-applied 001–004 checksums.
+Production is unchanged. The normal ordered runner also owns its transaction and
+checksum; native Python connectivity on B's host remains blocked. See
+`docs/tasks/developer-b-population-report.md` for exact write/read/retry/rollback evidence. Source evidence remains versioned even when the canonical review ID repeats.
+
 ## Runner
 
 `python -m backend.migrations.runner` lists each `NNN_name.sql` file and its SHA-256. It makes no database request. Numbers must be contiguous from 001.

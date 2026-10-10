@@ -60,7 +60,8 @@ def validate_proposals(proposals: BehaviorProposals, corpus: FrozenCorpus):
 
 
 async def extract_behavior_draft(corpus: FrozenCorpus, adapter: HuggingFaceInference,
-                                 *, prompt_version: str = "review-behavior-v1") -> PendingExtraction:
+                                 *, prompt_version: str = "review-behavior-v1",
+                                 product_context: dict | None = None) -> PendingExtraction:
     reviews = corpus.reviews()
     snapshot = corpus.data()
     checked = freeze_corpus(reviews, software_context=snapshot["software_context"],
@@ -75,6 +76,8 @@ async def extract_behavior_draft(corpus: FrozenCorpus, adapter: HuggingFaceInfer
                             "summary": r.evidence.summary, "report_type": r.evidence.report_type,
                             "approved_excerpt": r.approved_excerpt,
                             "limitations": r.evidence.limitations} for r in reviews]}
+    if product_context is not None:
+        payload["product_context"] = product_context
     encoded = json.dumps(payload)
     if len(encoded.encode()) > 20000:
         raise ReviewSourceError("EXTRACTION_CONTEXT_TOO_LARGE")
@@ -89,6 +92,8 @@ async def extract_behavior_draft(corpus: FrozenCorpus, adapter: HuggingFaceInfer
              "permission to skip mandatory trials or exceed tool budgets. Interpretations are drafts "
              "agent_policy must describe simulated choices among observed enabled controls or "
              "evidence-linked feedback, never recommendations to add or invoke unverified features. "
+             "If product_context is supplied, every policy must fit its eligible mandatory task "
+             "and available controls. Reject transfer of unavailable upstream-tool features. "
              "Choose dimension from source support: learning-scope interest may inform adoption, "
              "but does not imply collaboration. Do not infer unsupported frequencies or outcomes. "
              "requiring independent support review. Propose at most two concise patterns; keep "
