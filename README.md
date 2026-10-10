@@ -91,6 +91,23 @@ and a tested provider; a positive experiment budget is required before paid exec
 is the pooled Neon Postgres URL. `VIEWER_TOKEN` protects authenticated viewing when configured.
 Provider/model availability and quotas must be verified before promising 1,000 completed sessions.
 
+### Neon database
+
+The Neon project is `KnightHacks` (`delicate-lab-50091983`). Work on the `dev` branch. Do not
+change `production` until the demo migration. Ask the project owner for access, then run:
+
+```bash
+npm i -g neon@latest
+neon login
+neon link --project-id delicate-lab-50091983 --branch dev -y
+```
+
+`neon link` writes `.neon` and `.env.local`; git ignores both. Settings read `.env` and then
+`.env.local`, so no copy step is needed. Keep `APP_MODE=fixture` for normal work. Set
+`APP_MODE=live` only for the command that must reach Neon. Developer C owns migration order: see
+`backend/migrations/README.md`. To test a risky migration, make your own branch from `dev` with
+`neon branches create --name <you>-test --parent dev`, then `neon checkout <you>-test`.
+
 Docker is required for isolated selected-source execution; install/check it before the real integration
 gate. Playwright's browser is installed separately with:
 
