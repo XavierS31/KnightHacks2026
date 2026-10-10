@@ -141,7 +141,7 @@ class DiscoveryStore:
             limitations=["In-memory run records expire on restart or after 100 newer runs.",
                          "Popular means star-sorted search; this is not Trending.",
                          "Metadata does not prove capability, feasibility, novelty or integration.",
-                         "Commit pinning, docs/issues collection and proposal inference are still required."],
+                         "Search metadata excludes source inspection and proposal inference; inspect candidates separately."],
             next_gate="Inspect source interfaces and pin commits before proposing a real adapter.",
         )
         if request.mode == "fixture":

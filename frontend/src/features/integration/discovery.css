@@ -5,3 +5,11 @@
 .discovery-candidate { border-top: 1px solid #dce4de; padding-top: 14px; margin-top: 14px; }
 .discovery-candidate a { color: #21543b; }
 @media (max-width: 700px) { .discovery-form { grid-template-columns: 1fr; } }
+
+.source-excerpt { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 24rem; overflow: auto; }
+
+.source-controls { display: flex; align-items: end; flex-wrap: wrap; gap: 1rem; margin: 1rem 0; }
+.source-controls label { display: grid; gap: .5rem; flex: 1 1 16rem; }
+.source-controls input { width: 100%; min-width: 0; padding: .65rem; border: 1px solid var(--line); border-radius: 4px; }
+.source-inspector details { margin: .75rem 0; }
+.source-inspector summary { cursor: pointer; overflow-wrap: anywhere; }

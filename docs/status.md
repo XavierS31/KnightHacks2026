@@ -23,3 +23,7 @@ Fixture responses, synthetic character animation and development feedback are us
 
 2026-10-10 software-behavior update verified: 99 backend tests (28 new provenance/behavior cases), backend lint, OpenAPI/TypeScript drift checks, typecheck/build and desktop/mobile fixture smoke pass. The viewer exposes behavior/source lineage, and the persona grid handles desktop-to-mobile resizing. Agent definitions and both updated persona/evolution skills validate. Real reviews and live behavior extraction remain P1 milestone work; no migration or paid inference was run.
 
+
+2026-10-10 A source inspection: commit-pinned README/license/explicit documentation reads and bounded issue snapshots are implemented with visible partial failures and memory-only retention. A real psf/requests collection returned pinned files and three issue records without HF inference or code execution. 121 backend tests, lint, OpenAPI/type drift checks, frontend typecheck/build passed. This verifies source collection only; it does not establish a selected pair, licensing approval, proposal extraction, durable Neon storage or a validated adapter. Docker CLI is present; the daemon was unavailable during local readiness checking.
+
+Source inspection desktop/mobile browser check passed, including expanded source excerpts and no horizontal overflow at 390px. Local captures are under ignored artifacts/.

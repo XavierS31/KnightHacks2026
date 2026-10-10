@@ -55,6 +55,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/discovery-runs/{run_id}/repositories/{repository_id}/sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Collect Sources */
+        post: operations["collect_sources_api_v1_discovery_runs__run_id__repositories__repository_id__sources_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/evolution/summary": {
         parameters: {
             query?: never;
@@ -166,6 +183,23 @@ export interface paths {
         };
         /** Session Detail */
         get: operations["session_detail_api_v1_sessions__session_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/source-snapshots/{snapshot_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Sources */
+        get: operations["get_sources_api_v1_source_snapshots__snapshot_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -896,6 +930,86 @@ export interface components {
             /** Summary */
             summary: string;
         };
+        /** SourceDocument */
+        SourceDocument: {
+            /** Blob Sha */
+            blob_sha?: string | null;
+            /**
+             * Collected At
+             * Format: date-time
+             */
+            collected_at: string;
+            /** Content Sha256 */
+            content_sha256: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "readme" | "license" | "documentation" | "issue";
+            /** Path */
+            path?: string | null;
+            /** Reference */
+            reference: string;
+            /** Request Reference */
+            request_reference: string;
+            /** Text */
+            text: string;
+            /** Truncated */
+            truncated: boolean;
+        };
+        /** SourceRequest */
+        SourceRequest: {
+            /** Documentation Paths */
+            documentation_paths?: string[];
+            /**
+             * Issue Limit
+             * @default 5
+             */
+            issue_limit: number;
+        };
+        /** SourceSnapshot */
+        SourceSnapshot: {
+            /**
+             * Collected At
+             * Format: date-time
+             */
+            collected_at: string;
+            /** Commit Reference */
+            commit_reference: string;
+            /** Commit Sha */
+            commit_sha: string;
+            /** Documents */
+            documents: components["schemas"]["SourceDocument"][];
+            /** Failures */
+            failures: string[];
+            /** Full Name */
+            full_name: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** License Spdx */
+            license_spdx: string | null;
+            /** Limitations */
+            limitations: string[];
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "collected" | "partial";
+            /**
+             * Storage
+             * @default in_memory
+             * @constant
+             */
+            storage: "in_memory";
+        };
         /** StreamEvent */
         StreamEvent: {
             /**
@@ -1018,6 +1132,42 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DiscoveryRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    collect_sources_api_v1_discovery_runs__run_id__repositories__repository_id__sources_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+                repository_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SourceRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceSnapshot"];
                 };
             };
             /** @description Validation Error */
@@ -1195,6 +1345,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Session"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_sources_api_v1_source_snapshots__snapshot_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                snapshot_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceSnapshot"];
                 };
             };
             /** @description Validation Error */
