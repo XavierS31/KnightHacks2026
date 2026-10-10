@@ -1,5 +1,12 @@
 # Three-phase roadmap
 
+2026-10-10 B population follow-up: five real upstream reports and independent support
+review now inform 500 HF-generated fictional personas, durably saved locally. A's
+normal6 task is consumed and bound; local runtime verification and error7/recovery9
+alternatives remain open. C's immutable storage migration/repository is implemented;
+Neon execution awaits DATABASE_URL. P1/P2/P4 stay partial and P3 unexecuted; no
+configured record counts as a trial. See [population report](tasks/developer-b-population-report.md).
+
 This is the implementation roadmap. The [product backlog](product-backlog.md) tracks prioritized implementation work, owners and acceptance; status evidence lives in [status](status.md). The skeleton is a starting point; production feature milestones below remain open until demonstrated.
 
 ## Phase 1 — Project scraping and integration (A)

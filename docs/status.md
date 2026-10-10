@@ -1,5 +1,16 @@
 # Implementation status
 
+Current SourceTable population update: five upstream reviews collected and one tentative
+source-inspection pattern independently approved. 500 real HF-generated fictional
+persona/scenario/task records are frozen locally; 100 successful batch requests,
+zero completed trials. C migration/repository implemented and consumer-reviewed,
+but DATABASE_URL missing and no Neon write/readback. Normal6 catalog consumed;
+runtime verification and error7/recovery9 alternatives remain open. 476 backend tests
+pass with Chromium; six unavailable DB/Docker checks skipped. Lint, OpenAPI/types,
+frontend typecheck/build pass. Aggregate conservative spend $0.05753544/$4.
+See [B population report](tasks/developer-b-population-report.md). P1/P2/P4 partial,
+P3 unexecuted. Earlier updates below describe their historical evidence.
+
 Status dated 2026-10-10. Update this file with evidence after each milestone; do not infer production completion from fixture counts.
 
 Current B runtime update: bounded corpus/population/approval, single-process spend accounting,

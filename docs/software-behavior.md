@@ -2,7 +2,7 @@
 
 Every persona requires `software_behavior`. Production personas must have `status: review_informed` and patterns grounded in real people's software reviews or discussions. Reddit, Hacker News, GitHub issues, app-store reviews, review sites and general forums are supported source categories. This is required P0 work within population milestone P1, separate from optional demographic enrichment.
 
-The schema, linked fixture example, API response and viewer are implemented. B now has tested source-intake, curation, immutable in-memory corpus and HF extraction-draft library helpers. **No real reviews have been ingested or extracted through those helpers, and the ten scaffold personas remain explicit fixtures.** Extractions remain pending independent support review; no approved behavior assignment or production population generator is implemented. A source URL and syntactically valid hash do not establish retrieval or prove the model's interpretation; ingestion and extraction acceptance checks must establish those facts.
+The schema, fixture API and viewer are implemented. B has collected five real SourceTable-relevant upstream reports, extracted through HF and independently approved one tentative compatible source-inspection pattern, then generated and durably saved 500 fictional review-informed profiles locally. See the [population report](tasks/developer-b-population-report.md) for source checks, frozen versions and limitations. Neon write/readback and hosted reviewer authentication remain blocked; the running fixture UI still exposes fixtures. A source URL alone does not establish retrieval or semantic support.
 
 ## Expected schema
 
@@ -37,7 +37,7 @@ Freeze corpus snapshot, source mappings, behavior patterns and generation config
 
 ## Collection and implementation acceptance
 
-B owns source adapters, extraction, persona assignment, provenance display and tests. C owns the coordinated Neon migration/storage for review corpora, evidence and immutable persona profiles. A supplies the product/category context. No review-source endpoint, durable corpus table or automatic collection job is implemented yet.
+B owns source adapters, extraction, persona assignment, provenance display and tests. C owns the coordinated Neon migration/storage for review corpora, evidence and immutable persona profiles. A supplies the product/category context. B's bounded HN/GitHub intake and generation CLI are implemented; C's migration/repository are implemented but not applied or exercised against Neon. Hosted review-source endpoints and automatic collection jobs remain open.
 
 1. Collect bounded reviews relevant to the selected software/category and record query/thread/date-window criteria, provider IDs, permalinks, dates and normalized-content hashes. Verify permitted access and reuse before collection. Record unavailable sources honestly; an accessible alternative or permitted export can supply evidence.
 2. Remove author identifiers and irrelevant sensitive details from model context. Keep bounded paraphrases rather than republishing full reviews. Handle deleted/unavailable records and mark corpus validity before freezing a new population.

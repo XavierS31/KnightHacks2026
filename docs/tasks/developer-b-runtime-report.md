@@ -1,5 +1,8 @@
 # Developer B runtime progress — 2026-10-10
 
+Historical PR #6 foundation report. The subsequent [SourceTable population report](developer-b-population-report.md)
+supersedes source/approval/population counts and the remaining-work list below.
+
 This follows the mock handoff and corpus work in merged PRs #3 and #4. Available runtime
 foundations are implemented; P1/P2/P4 remain partial and P3 remains unexecuted. No real product
 trial, Neon write, 500-person live population, full experiment or v2 promotion is claimed.

@@ -2,7 +2,7 @@
 
 Use `developer_b_personas` and `$repofusion-personas`. Read root AGENTS.md, ownership, architecture, runtime/data contracts and roadmap. Inspect current files before repeating completed starter work.
 
-Read [software behavior](../software-behavior.md). Every live persona requires real-review-informed software behavior. B owns source collection, corpus deduplication, HF extraction/assignment and provenance UI; C owns durable storage. B's bounded intake/extraction/population/runtime foundations now exist. Real source intake and HF smoke are demonstrated; approved behavior and product-backed execution remain gated. See the [runtime report](developer-b-runtime-report.md) for changes, checks and remaining work.
+Read [software behavior](../software-behavior.md). Every live persona requires real-review-informed software behavior. B owns source collection, corpus deduplication, HF extraction/assignment and provenance UI; C owns durable storage. Five SourceTable-relevant reports, independent support approval and 500 real HF-generated fictional profiles are evidenced and saved locally. Neon persistence and product-backed execution remain gated. See the [population report](developer-b-population-report.md) for current changes, checks and remaining work; the [runtime report](developer-b-runtime-report.md) covers the earlier foundation slice.
 
 ## Boundaries and inputs
 
@@ -21,6 +21,15 @@ HF credentials/model/budget and A's real product are live gates. Fixture develop
 Test session isolation, bounded actions/stopping, evidence references, worker recovery and stream selection. Run relevant pytest and frontend typecheck/build. Coordinate and regenerate schemas. Preserve persona/behavior/corpus/task/check identity for C's v2 retest. Review patterns guide available-action choices and relevance; they cannot skip the mandatory trial or serve as defect evidence in feedback. Keep feedback synthetic and linked to executed session actions.
 
 ## Progress log
+
+2026-10-10 SourceTable population: five actual upstream reports collected; one tentative
+source-inspection policy independently approved after rejecting incompatible drafts.
+500 fictional review-informed personas/scenarios/tasks generated through 100 successful
+HF batches and frozen in local durable files, zero trials. A normal6 task consumed;
+error7/recovery9 templates excluded. C immutable migration/repository coordinated and
+tested; DATABASE_URL absent, no Neon write. 476 backend tests pass with Chromium,
+six unavailable Docker/DB skips; lint/type/build/contracts pass. Aggregate conservative
+spending $0.05753544/$4. P1/P2/P4 partial, P3 unexecuted. See the population report.
 
 2026-10-10 runtime foundation follow-up: population/independent support review, conservative spend
 reservations, bounded executor/HF action+feedback policy and exact selected mock captures are built.
