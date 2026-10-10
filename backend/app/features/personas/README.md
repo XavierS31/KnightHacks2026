@@ -79,3 +79,45 @@ Remove-Item Env:B_BROWSER_TESTS
 Chromium checks cover success, application failure, unresponsive UI, invented targets, cancellation,
 bounded actions, fresh-context isolation and rerunning after a failed attempt. Fixture tests enforce
 source/capability honesty, task/check/state lineage, unique deterministic IDs and live fixture rejection.
+
+## Review-corpus slice (library helpers; no mounted routes or storage)
+
+`review_corpus.py` provides:
+
+- `collect_hn_item`: one explicitly selected item from the fixed official HN API. Requests have a
+  ten-second timeout and 64 KiB response cap; redirects, missing/deleted/dead records, mismatched IDs
+  and invalid source data fail with sanitized codes. Authors/votes are not retained. HTML becomes
+  normalized plain text. Callers must supply relevant software/selection context and a documented
+  access basis; this does not automatically approve reuse of every retrieved review.
+- `CollectedReview`: a bounded import format for manual/permitted exports from other supported
+  categories. It preserves source identity, original permalink, dates, context and normalized source
+  text in memory. Callers must verify retrieval and permission independently; a valid payload alone
+  cannot prove these. Raw imported source text must already be plain text.
+- `curate_review`: an explicit manual paraphrase/excerpt/privacy step. The excerpt must occur in the
+  normalized original text. The source hash is computed from that text, never from the summary.
+  Obvious email/handle/token patterns are rejected from model context; manual review must also remove
+  author names and other sensitive information. Paraphrase accuracy requires independent review.
+- `freeze_corpus`: up to 100 curated real-source records; reject repeated source IDs, URLs, hashes,
+  fixture leakage and context mismatch. Selection limitations are mandatory. Snapshot order is stable;
+  its SHA-256 version binds timestamps, source hashes, excerpts, context and curation metadata. All
+  returned objects are detached copies of immutable canonical JSON. No durable state is claimed.
+
+`behavior_extraction.py` sends only reviewed excerpts/paraphrases/context through B's shared HF
+adapter, caps model input at 20 KiB, and checks returned schema, source IDs, duplicate patterns and
+literal excerpt support. It retains corpus version and adapter prompt/model/configuration provenance.
+The result is **pending independent support review**, not an approved `SoftwareBehaviorProfile`.
+Matching an excerpt does not establish the correctness of a tendency, trigger or trial policy.
+It neither generates live personas nor bypasses budgets/review. Source text is untrusted prompt data.
+
+HN documentation: https://github.com/HackerNews/API . No additional HN API key is required by this
+public item endpoint. Reddit has no automatic adapter here; verified access or a permitted manual
+export remains necessary. C owns eventual storage/migrations; no database change is included.
+
+```powershell
+.venv/Scripts/python -m pytest backend/tests/personas/test_review_corpus.py -q
+```
+
+Tests use invented source records and fake HTTP/HF clients, never real reviews or paid inference.
+No live collection/extraction was performed. Next: authorize a representative HF smoke budget,
+select relevant real reviews, independently review curation/extractions, and coordinate persistence
+and the 500-person generator before production trials.

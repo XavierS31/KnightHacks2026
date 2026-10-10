@@ -38,3 +38,12 @@ The opt-in HF smoke command is prepared, not executed. Doctor still reports HF a
 and Docker absent from PATH. Production population, review ingestion/extraction, spend enforcement,
 durable jobs, real A integration, session feedback/streams and the 1,000-session experiment remain open.
 
+2026-10-10 B review-corpus follow-up verified: 182 combined backend tests pass with Chromium checks
+enabled, including 33 new offline corpus/extraction checks. Lint, OpenAPI/type drift, frontend
+typecheck and build pass. Feature-local HN/manual intake, privacy/excerpt curation, deduplication,
+immutable canonical snapshots and HF draft extraction are prepared. All source responses and HF
+outputs in verification were mocked; no real review ingestion or live model request is established.
+Extractions remain pending independent semantic-support review and cannot become approved live
+persona behavior through these helpers. HF configuration is now present locally, but live mode and
+positive authorized budget are absent. C persistence and full population/trial gates remain open.
+
