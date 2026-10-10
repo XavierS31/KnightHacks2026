@@ -159,17 +159,13 @@ async def test_blob_integrity_and_timeout_are_visible():
 
 
 @pytest.mark.asyncio
-async def test_store_retention(monkeypatch):
+async def test_store_retention():
     snapshot = await GitHubSources().collect(repository(), SourceRequest(), transport=transport())
     store = SourceStore()
-
-    async def collect(*args):
-        return snapshot.model_copy(update={'id': uuid4()})
-
-    monkeypatch.setattr(store.github, 'collect', collect)
-    first = await store.create(repository(), SourceRequest())
+    first = store.add(uuid4(), snapshot)
+    assert first.storage == 'in_memory' and first.limitations[-1].startswith('In-memory')
     for _ in range(100):
-        await store.create(repository(), SourceRequest())
+        store.add(uuid4(), snapshot.model_copy(update={'id': uuid4()}))
     assert len(store.snapshots) == 100
     with pytest.raises(HTTPException):
         store.get(first.id)

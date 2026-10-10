@@ -1000,9 +1000,9 @@ export interface components {
             /**
              * Storage
              * @default in_memory
-             * @constant
+             * @enum {string}
              */
-            storage: "in_memory";
+            storage: "in_memory" | "database";
         };
         /** EditSubmission */
         EditSubmission: {
@@ -1137,6 +1137,12 @@ export interface components {
              * Format: uuid
              */
             snapshot_id: string;
+            /**
+             * Storage
+             * @default in_memory
+             * @enum {string}
+             */
+            storage: "in_memory" | "database";
             /**
              * Validated
              * @default false
@@ -1901,6 +1907,12 @@ export interface components {
             reservation: {
                 [key: string]: unknown;
             };
+            /**
+             * Storage
+             * @default in_memory
+             * @enum {string}
+             */
+            storage: "in_memory" | "database";
         };
         /** ProposalRequest */
         ProposalRequest: {
@@ -2305,9 +2317,9 @@ export interface components {
             /**
              * Storage
              * @default in_memory
-             * @constant
+             * @enum {string}
              */
-            storage: "in_memory";
+            storage: "in_memory" | "database";
         };
         /** StreamEvent */
         StreamEvent: {

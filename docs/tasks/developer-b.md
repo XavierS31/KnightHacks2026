@@ -2,7 +2,7 @@
 
 Use `developer_b_personas` and `$repofusion-personas`. Read root AGENTS.md, ownership, architecture, runtime/data contracts and roadmap. Inspect current files before repeating completed starter work.
 
-Read [software behavior](../software-behavior.md). Every live persona requires real-review-informed software behavior. B owns source collection, corpus deduplication, HF extraction/assignment and provenance UI; C owns durable storage. Five SourceTable-relevant reports, independent support approval and 500 real HF-generated fictional profiles are evidenced and saved locally. Neon persistence and product-backed execution remain gated. See the [population report](developer-b-population-report.md) for current changes, checks and remaining work; the [runtime report](developer-b-runtime-report.md) covers the earlier foundation slice.
+Read [software behavior](../software-behavior.md). Every live persona requires real-review-informed software behavior. B owns source collection, corpus deduplication, HF extraction/assignment and provenance UI; C owns durable storage. Five SourceTable-relevant reports, independent support approval and 500 real HF-generated fictional profiles are evidenced and saved locally and verified in Neon dev. Native backend connectivity and product-backed execution remain gated. See the [population report](developer-b-population-report.md) for current changes, checks and remaining work; the [runtime report](developer-b-runtime-report.md) covers the earlier foundation slice.
 
 ## Boundaries and inputs
 
@@ -29,6 +29,15 @@ HF credentials/model/budget and A's real product are live gates. Fixture develop
 Test session isolation, bounded actions/stopping, evidence references, worker recovery and stream selection. Run relevant pytest and frontend typecheck/build. Coordinate and regenerate schemas. Preserve persona/behavior/corpus/task/check identity for C's v2 retest. Review patterns guide available-action choices and relevance; they cannot skip the mandatory trial or serve as defect evidence in feedback. Keep feedback synthetic and linked to executed session actions.
 
 ## Progress log
+
+2026-10-10 Neon follow-up: authorized branch connection saved in ignored `.env`;
+fixture mode retained. C-coordinated migration 005 follows already-applied 001–004.
+Official HTTPS driver persisted the real corpus/approval/population; fresh exact
+500-record readback, idempotent retry and two rollback probes passed. Zero new HF
+calls and zero trials. Native Python port-5432 connectivity remains blocked;
+hosted reviewer identity and durable worker wiring remain open. Latest-master
+verification: 554 passed, 66 environment-gated skips; lint/contracts/typecheck/build pass.
+See the population report for hashes, remaining work and transport limitations.
 
 2026-10-10 SourceTable population: five actual upstream reports collected; one tentative
 source-inspection policy independently approved after rejecting incompatible drafts.

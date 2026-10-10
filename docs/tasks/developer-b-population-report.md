@@ -1,8 +1,9 @@
 # Developer B — SourceTable review-informed population
 
 2026-10-10. The requested collection → HF extraction → independent support review →
-500-person generation is complete **with durable local files**. Neon write/readback
-is blocked by missing server-side `DATABASE_URL`. No browser trial was executed.
+500-person generation is complete **with durable local files and verified Neon dev storage**.
+The authorized operator HTTPS workflow persisted and read back the exact frozen bundle.
+Native Python/Postgres connectivity remains blocked on this host. No browser trial was executed.
 
 ## Actual evidence
 
@@ -69,33 +70,60 @@ or 1,000-session experiment was authorized or performed.
 
 B added bounded GitHub issue intake, exact frozen A-manifest consumption, contextual
 extraction, checkpointed five-record generation, exclusive local spend accounting,
-whole-run forecast and a generation/persistence CLI. C implemented migration 003
+whole-run forecast and a generation/persistence CLI. C implemented migration 005
 and an atomic immutable corpus/approval/population repository with readback checks,
 bounded SQL batches and separately versioned evidence per corpus. B reviewed the
 consumer schema; repeated source IDs can appear in new corpora without rewriting old evidence.
 
-Latest merged C work was integrated before PR preparation. C's migration 002 is
-preserved; the population migration is 003, with no independent transaction wrappers.
-The runner lists all three checksums without contacting a database. A documentation
-merge retained both owners' progress. Windows checkout CRLF was reconciled locally
-by restoring three UI files from Git blobs proven to match A's frozen fingerprints,
-without changing their tracked content. Coordinated C QA writes now use UTF-8/LF,
-and comparison tests explicitly read UTF-8. No fixed check or fingerprint was weakened.
+Latest A/C master work (1faddd8) was integrated before updating PR #29. Existing
+Neon migrations 001–004 and their canonical checksums were preserved. The unapplied
+population migration was serialized as **005_review_populations**, checksum
+`e379d80d72e53e6e7c653f187d6f8af56c5c9585cf92aab05b1d66d40ea19775`.
+History mismatches were refused before writes, including A's newly applied 004.
+No applied migration was rewritten. Windows checkout CRLF was reconciled locally
+from matching Git blobs; no frozen fingerprint or fixed check was weakened.
 
-523 backend tests passed with real local Chromium checks enabled; 18 unavailable
-Docker/database checks skipped. Ruff, OpenAPI drift, generated TypeScript drift,
-frontend typecheck and build passed. TypeScript was regenerated to normalize checkout
-line endings; no schema/API change was introduced. Existing test-client deprecation
-and large frontend chunk warnings remain. No UI behavior changed in this slice.
+554 backend tests passed with local Chromium enabled and a process-only empty
+DATABASE_URL override; 66 database/Docker/environment-gated checks skipped. Ruff,
+OpenAPI drift, generated TypeScript drift, frontend typecheck and build passed.
+Generated types were regenerated from canonical OpenAPI after the A merge. Existing
+test-client deprecation and large frontend chunk warnings remain.
+
+## Neon persistence evidence — 2026-10-10
+
+The user signed into Neon and authorized retrieving the intended branch connection
+settings. DATABASE_URL is saved only in ignored server-side `.env`; APP_MODE remains
+fixture. Project KnightHacks (`delicate-lab-50091983`), branch dev
+(`br-wandering-block-b4xue5mz`), database neondb, PostgreSQL 18.6 were verified.
+Production was not changed.
+
+Native psycopg pooled/direct requests timed out; bounded network probes returned
+connection refusal on port 5432. The official `@neondatabase/serverless` 1.2.0 HTTPS
+driver connected successfully. A C-owned ignored operator workflow validated the
+actual frozen inputs and canonical migration prefix, then atomically applied only
+005 and atomically saved the immutable bundle using bounded parameterized SQL.
+This is actual Neon data persistence, but it does not prove that the production
+Python NeonDatabase connection or repository execution path works on this host.
+
+Fresh HTTPS requests verified exact population/corpus/approval snapshot hashes,
+all 500 normalized persona/scenario/task payloads and their identity relationships,
+and all five curated review payloads. An identical save was idempotent. A deliberately
+failing transaction left its job probe absent; an immutable-persona conflict also
+rolled back the entire transaction and left its probe absent. The population ID is
+`0361b64e-75aa-5e0d-bc5c-b721a631ba9b`, with configured_count 500 and completed_trials 0.
+Local sanitized evidence is `artifacts/sourcetable-generation/neon-http-persistence.json`;
+operator scripts and frozen data stay ignored, outside the PR. No further HF request
+ran. Reviewer attestation remains an independent model plus authorized local operator;
+authenticated_human_identity is false.
 
 ## Remaining work, sequentially
 
-1. **Neon gate (#3 partial):** set intended server-side `DATABASE_URL` in ignored
-   `.env`; apply C's reviewed ordered migrations 001, 002 and 003 with recorded checksums;
-   save the frozen bundle and prove readback/rollback. Repository tests currently use
-   fake connections; no live Neon success is claimed. Hosted authenticated reviewer
-   identity, atomic multiworker spend, leases and durable action/frame/feedback sinks
-   remain separate work.
+1. **Neon gate (#3 partial):** the real corpus/approval/500-person bundle is now
+   persisted and verified on dev, including retry and rollback. Restore native backend
+   PostgreSQL connectivity on this host and exercise C's Python repository there;
+   the operator HTTPS procedure is not a production transport implementation. Hosted
+   authenticated reviewer identity, atomic multiworker spend and B wiring to C's
+   existing leases/session/action/feedback repositories remain open.
 2. **Runtime gate (#2 partial):** the frozen SourceTable catalog is consumed and
    its normal check is bound to all 500 exact scenarios. Local image/hash/process
    verification is still missing on this Windows host. Error/recovery checks require
@@ -109,11 +137,11 @@ and large frontend chunk warnings remain. No UI behavior changed in this slice.
    trials; show ten exact real sessions. Human-reviewed v2 promotion and all 500
    matched v2 trials follow. **Completed mandatory trials remain zero.**
 
-P1/P2/P4 remain partial; P3 is unexecuted. Population generation is complete locally,
-not completion of all production persistence or trial acceptance criteria.
+P1/P2/P4 remain partial; P3 is unexecuted. Population generation and Neon bundle
+persistence are evidenced; production backend and trial acceptance gates remain open.
 
-To validate/reuse the existing local snapshot and attempt Neon persistence after
-configuration/migrations, use the same directory and original authorization boundary:
+To validate/reuse the existing local snapshot and exercise native Python persistence
+after the host PostgreSQL connection is repaired, use the same directory and original authorization boundary:
 
 ```powershell
 .venv/Scripts/python -m backend.app.features.personas.source_population_run --run --remaining-budget 3.98163286 --corpus artifacts/sourcetable-review-corpus.json --directory artifacts/sourcetable-generation --persist-neon

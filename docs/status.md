@@ -2,14 +2,18 @@
 
 Current SourceTable population update: five upstream reviews collected and one tentative
 source-inspection pattern independently approved. 500 real HF-generated fictional
-persona/scenario/task records are frozen locally; 100 successful batch requests,
-zero completed trials. C migration/repository implemented and consumer-reviewed,
-but DATABASE_URL missing and no Neon write/readback. Normal6 catalog consumed;
-runtime verification and error7/recovery9 alternatives remain open. 523 backend tests
-pass with Chromium; 18 unavailable DB/Docker checks skipped. Lint, OpenAPI/types,
-frontend typecheck/build pass. Aggregate conservative spend $0.05753544/$4.
-See [B population report](tasks/developer-b-population-report.md). P1/P2/P4 partial,
-P3 unexecuted. Earlier updates below describe their historical evidence.
+persona/scenario/task records are frozen locally and persisted in Neon dev. Official
+HTTPS operator write, fresh exact snapshot/normalized readback, idempotent retry and
+SQL-error/immutable-conflict rollback passed. Migration 005 follows exact canonical
+applied 001–004. Native Python port-5432 connectivity remains blocked on this host;
+production database transport and hosted human reviewer identity are not established
+by the operator workflow. Completed trials remain zero. Normal6 catalog consumed;
+runtime verification and error7/recovery9 alternatives remain open. Latest-master
+verification: 554 backend tests pass with Chromium; 66 environment-gated cases skip.
+Lint, OpenAPI/types, frontend typecheck/build pass. No new HF calls; aggregate
+conservative spend $0.05753544/$4. See [B population report](tasks/developer-b-population-report.md)
+for exact hashes, population ID and remaining work. P1/P2/P4 partial, P3 unexecuted.
+Earlier updates below describe their historical evidence.
 
 Status dated 2026-10-10. Update this file with evidence after each milestone; do not infer production completion from fixture counts.
 
@@ -27,7 +31,7 @@ accounting and dependency-ordered remaining work: [B runtime report](tasks/devel
 | Live repository integration | SourceTable v1: pinned pdfplumber/Frictionless adapter passed fixed normal/error/compatibility/timeout checks and real browser flow | Broader PDF coverage, portable environment verification and C durable storage |
 | Hosted HF inference | A authenticated Qwen/Qwen3-32B through DeepInfra; 26 cited repository interpretations and five proposal hypotheses retained locally | Complete role-output support review; B/C flows and experiment accounting remain separate |
 | Review-informed persona behavior | Required schema, citation/provenance validation, fixture examples and viewer implemented; real ingestion/extraction not established | B collects relevant real software reviews, verifies HF extraction support and persists immutable source-linked population profiles with C |
-| Neon persistence | Migrations 001–003 applied on the Neon `dev` branch; write/read/rollback gate passed after 002; session/action/feedback and analysis repositories and the job claim/lease queue verified on a throwaway Neon branch (41 real-database tests); `production` branch has no migrations | B wires the worker to `JobQueue`/`SessionRepository` (#17); C persists analysis records; migrate `production` before the demo |
+| Neon persistence | Migrations 001–004 applied on the Neon `dev` branch; write/read/rollback gate passed after 002; session/action/feedback and analysis repositories and the job claim/lease queue verified on a throwaway Neon branch (41 real-database tests); `production` branch has no migrations | A runs `version_repository --live` on `dev` with the frozen v1 image (#16 gate); B wires the worker to `JobQueue`/`SessionRepository` (#17); C persists analysis records; migrate `production` before the demo |
 | Persona browser execution | Production path not established | Real Playwright task and retained action/output evidence |
 | Hosted HF inference | A authenticated Qwen3-32B/DeepInfra with 26 repository interpretations and five hypotheses; B's configuration smoke validated, behavior extraction quality/reliability unresolved | Independent role-output support review; representative B/C roles, durable experiment accounting and measured pilots |
 | Review-informed persona behavior | Bounded corpus/approval/population foundations; two real public reviews; extraction rejected then provider failure; no approved live profiles | Product-relevant corpus, independently supported behavior and C-persisted frozen 500-person population |
@@ -162,3 +166,24 @@ enabled; Ruff, frontend type/build and generated-contract drift passed. C featur
 Verification before latest C merge: 493 combined backend tests passed with browser/Docker opt-ins (16 environment-gated cases skipped), 14 final opportunity regression cases passed, lint/contracts/typecheck/build passed. Desktop/mobile real-browser fixture preview/review/export checks passed with no horizontal overflow at 390px; exported JSON retained decision and illustrative status. A fresh emerging GitHub read collected star/fork metadata with honest insufficient-history status. Fresh browser-use/video-use sources were pinned to 43cfc566833548093455c9d4a46bd69913b7e552; a live Qwen3-32B/DeepInfra call returned a cited feature-extension hypothesis. Earlier provider failure and unsupported-evidence output were rejected, not recorded as successes. This is discovery evidence, not an approved opportunity, executed new prototype or persona trial. Existing-solution automation, linked-issue/PR verification, new opportunity Neon persistence and a selected new prototype remain open.
 
 Final combined verification after merging C PR #20 (origin master 4080170): 512 backend tests passed with browser/Docker opt-ins; 32 environment-gated Docker/Neon cases skipped. Lint, generated contracts, typecheck and production build passed. Real dashboard GitHub discovery → pinned source collection → HF opportunity report → cited illustrative preview → JSON export passed for browser-use/video-use. The final report proposed an audio-fade feature extension, with novelty/feasibility/execution/simulation still pending. Qwen reported 1,124 prompt + 715 completion tokens for the successful response. The local A ledger reserves $1.00 total (not billed spend), including failed/rejected requests; no budget increase was needed. Local API currently runs with APP_MODE=live for this check, while the ignored .env default remains unchanged.
+
+2026-10-10 A discovery records and v1 catalog (#16): `004_integration_records.sql` stores live discovery runs, ranked candidates, commit-pinned source snapshots, extractions and proposal previews as append-only rows. In live mode with `DATABASE_URL`, the API writes these records through `DiscoveryRepository` and reads them back after a restart. `VersionRepository` now also stores the v1 initial states, fixed checks, source commits, implementation fingerprints and image ID. A trigger refuses any change to a non-draft product version and to its catalog. Against a disposable local PostgreSQL 14.18 with TLS, the live command saved v1, read it back with exact equality and confirmed the refused rewrite. That run used a stand-in image ID file, because no product image is built on this computer. With `TEST_DATABASE_URL`: 291 passed, 8 skipped. Without it: 240 passed, 59 skipped. This is not Neon evidence. No Neon URL was configured.
+
+2026-10-10 #16 merge with #30 and Neon tests: #27 was merged with `master`, which now has #30's `emerging` discovery mode and momentum signals. `004_integration_records.sql` allowed only `popular` and `trending` runs, so every live `emerging` run failed to store with `DISCOVERY_STORAGE_UNAVAILABLE`. 004 now also allows `emerging`, and a new test stores and reads back an `emerging` run with measured momentum. Without the fix that test fails. 004 is not applied to any shared database yet, so the change is safe. On a throwaway Neon branch made from `dev` (deleted afterwards), the full backend suite gave 545 passed and 30 skipped (browser/Docker opt-ins); the discovery and version repository files gave 39 passed. Offline: 489 passed, 86 skipped. Ruff, OpenAPI drift, contract check, typecheck, build and agent validation pass. #30's opportunity reports and decisions still stay in memory; #16 does not cover them. Open: apply 004 on Neon `dev` after merge, then run the version repository live command there with A's real image ID file.
+
+2026-10-10 Neon `dev` migration 004: after #27 merged, the runner applied 004 to `dev`. `production` was not changed. Output:
+
+```text
+$ APP_MODE=live python -m backend.migrations.runner --live
+file 001_initial sha256=5eb7a9eb6b71139f2d18e8bd532e714a9f006410b1303ec40af2532902b8be4e
+file 002_persistence_checks sha256=ccba8bfe1e777d72d51f6880cf59ca44b1b04af12b6ebc4d56c6e860e6d22203
+file 003_records_and_job_leases sha256=28b5581f942b653a55dd20e937f83cd0c5a6a3560a2e9e0d3c6833a00f4826e7
+file 004_integration_records sha256=c26ee9128697ff444baebc49884ed07b1d707128753d9409d49469471503ef9c
+Applied now: 004_integration_records
+recorded 001_initial sha256=5eb7a9eb6b71139f2d18e8bd532e714a9f006410b1303ec40af2532902b8be4e
+recorded 002_persistence_checks sha256=ccba8bfe1e777d72d51f6880cf59ca44b1b04af12b6ebc4d56c6e860e6d22203
+recorded 003_records_and_job_leases sha256=28b5581f942b653a55dd20e937f83cd0c5a6a3560a2e9e0d3c6833a00f4826e7
+recorded 004_integration_records sha256=c26ee9128697ff444baebc49884ed07b1d707128753d9409d49469471503ef9c
+```
+
+`dev` now has 20 public tables and 20 triggers. The #16 gate is still open: `version_repository --live` has not run on Neon. It needs A's frozen v1 image (`sha256:998df8c083e6…`). This computer has only a local rebuild (`9defc8bf9def`), and a stand-in image ID file would not be evidence. A runs it after `neon link` to `dev`, with `APP_MODE=live` for that command only.
