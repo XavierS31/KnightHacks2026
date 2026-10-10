@@ -1,7 +1,6 @@
 """Group supplied fixture feedback without inventing evidence or calling inference."""
 
 from collections import defaultdict
-from pathlib import PurePosixPath, PureWindowsPath
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 from backend.app.features.evolution.models import AnalysisReport, FeedbackCluster
@@ -10,19 +9,6 @@ from backend.app.shared.contracts import Session
 
 class EvidenceMismatch(ValueError):
     """The submitted feedback cannot be grounded in its own session."""
-
-
-def validate_patch_paths(paths: list[str]) -> None:
-    """Limit future product patches to relative product/ descendants."""
-    if not paths:
-        raise ValueError("A non-empty approved product path list is required.")
-    for raw in paths:
-        normalized = raw.replace("\\", "/")
-        path = PurePosixPath(normalized)
-        windows_path = PureWindowsPath(raw)
-        if (path.is_absolute() or windows_path.drive or ".." in path.parts
-                or not path.parts or path.parts[0] != "product" or len(path.parts) < 2):
-            raise ValueError("Patch paths must stay within relative product/ descendants.")
 
 
 def analyze_fixture_sessions(experiment_id: UUID, sessions: list[Session]) -> AnalysisReport:

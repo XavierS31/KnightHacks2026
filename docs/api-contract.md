@@ -16,7 +16,14 @@ The backend Pydantic models in `backend/app/shared/contracts.py` and exported `s
 | `WS /api/v1/sessions/{id}/stream` | First-message token authentication or local fixture access, origin check, fixture state/heartbeat only; no browser frames or execution |
 | `GET /api/v1/contracts/stream-event` | Registers `StreamEvent` for OpenAPI generation; returns `409 SCHEMA_ONLY`, no live frames |
 | `POST /api/v1/experiments/{id}/analysis` | Known fixture experiment only; optional `AnalysisRequest` with explicit fixture sessions; synchronous `200 AnalysisReport`, deterministic grouping and no inference/persistence |
-| `POST /api/v1/patch-runs/{id}/approve` | Always `409 REVIEW_REQUIRED` in starter; no patch is promoted |
+| `POST /api/v1/improvements/{id}/patch-runs` | `PatchRunCreate` (actor + `proposed` improvement with session evidence) → `201 PatchRun` in `proposed`, based on A's frozen v1 manifest and its fixed check IDs; in-memory only |
+| `GET /api/v1/patch-runs/{id}` | Stored in-memory `PatchRun` with state, events, patch, regression results and v2 candidate |
+| `POST /api/v1/patch-runs/{id}/review` | Human reviewer accepts the scope: `proposed` → `reviewed` |
+| `POST /api/v1/patch-runs/{id}/patch` | Implementer submits files inside the approved paths: `reviewed` → `patched`; the patch is held in the record, not written to v1 |
+| `POST /api/v1/patch-runs/{id}/regression` | QA reviewer (not the implementer) records one result per fixed v1 check for the patch digest: → `regression_passed` or `regression_failed` |
+| `POST /api/v1/patch-runs/{id}/approve` | Human reviewer (not the implementer) approves `regression_passed` → `approved` and registers a v2 candidate; one active v2 per base |
+| `POST /api/v1/patch-runs/{id}/reject` | Human reviewer rejects any open run → `rejected` |
+| `POST /api/v1/patch-runs/{id}/rollback` | Human reviewer retires an approved v2 → `rolled_back`; v1 is active again |
 
 Owners may add bounded starter routes while development proceeds; the generated OpenAPI remains current truth.
 

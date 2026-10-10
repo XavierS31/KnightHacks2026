@@ -140,6 +140,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/improvements/{improvement_id}/patch-runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Patch Run */
+        post: operations["create_patch_run_api_v1_improvements__improvement_id__patch_runs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/integration/product-readiness": {
         parameters: {
             query?: never;
@@ -174,6 +191,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/patch-runs/{patch_run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Patch Run */
+        get: operations["get_patch_run_api_v1_patch_runs__patch_run_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/patch-runs/{patch_run_id}/approve": {
         parameters: {
             query?: never;
@@ -185,6 +219,91 @@ export interface paths {
         put?: never;
         /** Approve Patch */
         post: operations["approve_patch_api_v1_patch_runs__patch_run_id__approve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/patch-runs/{patch_run_id}/patch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Patch */
+        post: operations["submit_patch_api_v1_patch_runs__patch_run_id__patch_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/patch-runs/{patch_run_id}/regression": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Record Regression */
+        post: operations["record_regression_api_v1_patch_runs__patch_run_id__regression_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/patch-runs/{patch_run_id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject Patch */
+        post: operations["reject_patch_api_v1_patch_runs__patch_run_id__reject_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/patch-runs/{patch_run_id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Review Patch Run */
+        post: operations["review_patch_run_api_v1_patch_runs__patch_run_id__review_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/patch-runs/{patch_run_id}/rollback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Rollback Patch */
+        post: operations["rollback_patch_api_v1_patch_runs__patch_run_id__rollback_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -328,6 +447,28 @@ export interface components {
              */
             timestamp: string;
         };
+        /**
+         * Actor
+         * @description Caller-asserted identity; production must bind it to authentication.
+         */
+        Actor: {
+            /** Id */
+            id: string;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "prioritizer" | "implementer" | "qa_reviewer" | "human_reviewer";
+        };
+        /** ActorRequest */
+        ActorRequest: {
+            actor: components["schemas"]["Actor"];
+            /**
+             * Note
+             * @default
+             */
+            note: string;
+        };
         /** AnalysisReport */
         AnalysisReport: {
             /** Clusters */
@@ -377,6 +518,42 @@ export interface components {
             /** Sessions */
             sessions?: components["schemas"]["Session"][] | null;
         };
+        /**
+         * BaseVersion
+         * @description Frozen v1 identity and its fixed checks. A patch run never changes it.
+         */
+        BaseVersion: {
+            /** Fixed Check Ids */
+            fixed_check_ids: string[];
+            /** Fixed Checks Sha256 */
+            fixed_checks_sha256: string;
+            /** Label */
+            label: string;
+            /**
+             * Version Id
+             * Format: uuid
+             */
+            version_id: string;
+        };
+        /** CandidateVersion */
+        CandidateVersion: {
+            /**
+             * Base Version Id
+             * Format: uuid
+             */
+            base_version_id: string;
+            /** Fixed Checks Sha256 */
+            fixed_checks_sha256: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Label */
+            label: string;
+            /** Patch Sha256 */
+            patch_sha256: string;
+        };
         /** Capability */
         Capability: {
             /** Description */
@@ -418,6 +595,15 @@ export interface components {
             source_reference: string;
             /** Uncertainty */
             uncertainty: string;
+        };
+        /** CheckResult */
+        CheckResult: {
+            /** Check Id */
+            check_id: string;
+            /** Evidence */
+            evidence: string;
+            /** Passed */
+            passed: boolean;
         };
         /** DiscoveryRequest */
         DiscoveryRequest: {
@@ -767,6 +953,32 @@ export interface components {
             /** Versions */
             versions: components["schemas"]["ProductVersion"][];
         };
+        /**
+         * IsolatedPatch
+         * @description A changeset held in the run record. It is not written to the v1 tree.
+         */
+        IsolatedPatch: {
+            /** Files */
+            files: components["schemas"]["PatchFile"][];
+            /** Sha256 */
+            sha256: string;
+        };
+        /** LifecycleEvent */
+        LifecycleEvent: {
+            actor: components["schemas"]["Actor"];
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Note */
+            note: string;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "proposed" | "reviewed" | "patched" | "regression_passed" | "regression_failed" | "approved" | "rejected" | "rolled_back";
+        };
         /** PairIdea */
         PairIdea: {
             /** Adapter Boundary */
@@ -789,6 +1001,61 @@ export interface components {
             title: string;
             /** Uncertainty */
             uncertainty: string;
+        };
+        /** PatchFile */
+        PatchFile: {
+            /** Content */
+            content: string;
+            /** Path */
+            path: string;
+        };
+        /** PatchRun */
+        PatchRun: {
+            /** Acceptance Check */
+            acceptance_check: string;
+            /** Allowed Paths */
+            allowed_paths: string[];
+            base: components["schemas"]["BaseVersion"];
+            candidate?: components["schemas"]["CandidateVersion"] | null;
+            /** Events */
+            events: components["schemas"]["LifecycleEvent"][];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Implementer Id */
+            implementer_id?: string | null;
+            /**
+             * Improvement Id
+             * Format: uuid
+             */
+            improvement_id: string;
+            patch?: components["schemas"]["IsolatedPatch"] | null;
+            /** Regression */
+            regression?: components["schemas"]["CheckResult"][];
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "proposed" | "reviewed" | "patched" | "regression_passed" | "regression_failed" | "approved" | "rejected" | "rolled_back";
+            /**
+             * Storage
+             * @default memory
+             * @constant
+             */
+            storage: "memory";
+        };
+        /** PatchRunCreate */
+        PatchRunCreate: {
+            actor: components["schemas"]["Actor"];
+            improvement: components["schemas"]["Improvement"];
+        };
+        /** PatchSubmission */
+        PatchSubmission: {
+            actor: components["schemas"]["Actor"];
+            /** Files */
+            files: components["schemas"]["PatchFile"][];
         };
         /** Persona */
         Persona: {
@@ -958,6 +1225,14 @@ export interface components {
         ProposalRequest: {
             /** Extraction Ids */
             extraction_ids: string[];
+        };
+        /** RegressionSubmission */
+        RegressionSubmission: {
+            actor: components["schemas"]["Actor"];
+            /** Patch Sha256 */
+            patch_sha256: string;
+            /** Results */
+            results: components["schemas"]["CheckResult"][];
         };
         /** Repository */
         Repository: {
@@ -1522,6 +1797,41 @@ export interface operations {
             };
         };
     };
+    create_patch_run_api_v1_improvements__improvement_id__patch_runs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                improvement_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PatchRunCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     product_readiness_api_v1_integration_product_readiness_get: {
         parameters: {
             query?: never;
@@ -1562,7 +1872,7 @@ export interface operations {
             };
         };
     };
-    approve_patch_api_v1_patch_runs__patch_run_id__approve_post: {
+    get_patch_run_api_v1_patch_runs__patch_run_id__get: {
         parameters: {
             query?: never;
             header?: never;
@@ -1579,7 +1889,217 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["PatchRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    approve_patch_api_v1_patch_runs__patch_run_id__approve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patch_run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActorRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_patch_api_v1_patch_runs__patch_run_id__patch_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patch_run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PatchSubmission"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    record_regression_api_v1_patch_runs__patch_run_id__regression_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patch_run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegressionSubmission"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reject_patch_api_v1_patch_runs__patch_run_id__reject_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patch_run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActorRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_patch_run_api_v1_patch_runs__patch_run_id__review_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patch_run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActorRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rollback_patch_api_v1_patch_runs__patch_run_id__rollback_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patch_run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActorRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchRun"];
                 };
             };
             /** @description Validation Error */
