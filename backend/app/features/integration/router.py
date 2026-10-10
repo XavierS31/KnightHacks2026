@@ -64,10 +64,12 @@ def get_discovery(run_id: UUID):
 
 
 @router.get("/integration/summary", response_model=IntegrationSummary)
-def summary():
+def summary(settings: Settings = Depends(get_settings)):
+    product = readiness(settings.artifact_root)
     return IntegrationSummary(mode="fixture", repositories=REPOSITORIES,
                               proposals=[PROPOSAL], versions=[VERSION],
-                              next_gate="Select a real pair and run both repositories independently.")
+                              next_gate=("Use SourceTable's separate validated handoff with B and connect C's durable storage."
+                                         if product.version else "Build and verify the separate SourceTable product; these candidate records remain fixtures."))
 
 
 @router.post("/discovery-runs/{run_id}/repositories/{repository_id}/sources",

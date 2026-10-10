@@ -136,6 +136,14 @@ async def test_real_adapter_known_invalid_and_incompatible():
         await executor.execute(payload(pdf_base64=base64.b64encode(b'%PDF-broken').decode()))
     with pytest.raises(ExecutionError, match='EXECUTION_TIMEOUT'):
         await DockerExecutor(image, timeout=.001).execute(payload())
+    different = fixture_pdf(rows=[('City', 'People', 'Observed date'),
+                                   ('Paris', '9', '2026-10-10'), ('Rome', '12', '2026-10-11')])
+    other = await executor.execute(payload(pdf_base64=base64.b64encode(different).decode(), columns=[
+        {'name': 'City', 'type': 'string', 'required': True},
+        {'name': 'People', 'type': 'integer', 'required': True},
+        {'name': 'Observed date', 'type': 'date', 'required': True}]))
+    assert other.status == 'valid'
+    assert other.rows == [['Paris', '9', '2026-10-10'], ['Rome', '12', '2026-10-11']]
 
 
 def test_manifest_missing_and_wrong_runtime_are_not_validated(tmp_path):

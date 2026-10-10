@@ -29,3 +29,17 @@ The current manifest freezes the validated computer's local image identity. Rebu
 ## Budget boundary
 
 This adapter and its validation make no HF calls. The earlier discovery/proposal ledger reserves $0.92 against A’s approved $2 allowance; that is reserved capacity, not billed spend. The user permits increasing A’s allowance if needed, but no increase or additional calls were necessary here. B must separately forecast/enforce population/trial use; A’s approval does not launch the paid full experiment.
+
+## Prepared version repository
+
+A’s `backend/app/features/integration/version_repository.py` consumes C’s existing `product_versions` table and pooled `NeonDatabase` helper. It stores only validated live handoffs, uses bound SQL/JSONB values and short statement/lock timeouts, performs idempotent inserts, and rejects any attempt to rewrite a frozen identity. Reads reject fixture records and header/manifest disagreements. It creates no tables, changes no migration, and makes no connection at import.
+
+Once C has configured the intended Neon database and applied its reviewed schema, explicitly run:
+
+```sh
+.venv/bin/python -m backend.app.features.integration.version_repository --live
+```
+
+The command requires `APP_MODE=live` and a server-side `DATABASE_URL`; it then saves the locally verified v1 and reads back exact equality. It refuses fixture/missing configuration before any request. Current checks: eight offline repository cases plus real roundtrip/idempotency/conflict/concurrent-save checks against a disposable local PostgreSQL 17.11 instance. That local test is not Neon connection evidence. The test container was removed afterward. Candidate/source/proposal persistence still requires C’s feature-table/storage contract.
+
+Additional product verification used a different uploaded PDF with City/People/date headers and Paris/Rome rows. Both the real adapter and upload UI returned the expected values; the real-Docker regression covers this alternate input, including date validation. This did not change frozen v1 implementation bytes or use HF credits.
