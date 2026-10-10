@@ -99,3 +99,5 @@ now-available [SourceTable handoff](handoffs/developer-a-v1.md), not waiting for
 PR #6 also reconciled C's merged improvement-lifecycle PR #21 by regenerating combined contracts.
 Latest verification: **387 backend tests passed, one opt-in Docker test skipped**, Chromium checks
 enabled; Ruff, frontend type/build and generated-contract drift passed. C feature code was preserved.
+
+2026-10-10 C structured role analysis: live analysis reads persisted session evidence and runs the analyst, prioritizer and UX reviewer roles through the shared HF adapter, with deterministic reference and category checks. 269 backend tests pass (real-database cases against a disposable local PostgreSQL; HF responses from a scripted provider client). Lint, OpenAPI/type drift, typecheck, build and a 1280px/390px browser render of the heuristic inputs pass. No Neon request or live HF analysis has run; analysis records are not yet persisted.

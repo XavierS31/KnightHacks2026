@@ -148,8 +148,6 @@
             "type": "integer"
           },
           "inference_used": {
-            "const": false,
-            "default": false,
             "title": "Inference Used",
             "type": "boolean"
           },
@@ -161,14 +159,18 @@
             "type": "array"
           },
           "method": {
-            "const": "deterministic_evidence_grouping",
-            "default": "deterministic_evidence_grouping",
+            "enum": [
+              "deterministic_evidence_grouping",
+              "structured_hf_roles"
+            ],
             "title": "Method",
             "type": "string"
           },
           "mode": {
-            "const": "fixture",
-            "default": "fixture",
+            "enum": [
+              "fixture",
+              "live"
+            ],
             "title": "Mode",
             "type": "string"
           },
@@ -176,18 +178,52 @@
             "title": "Next Gate",
             "type": "string"
           },
+          "priority_formula": {
+            "const": "severity \u00d7 affected_share \u00d7 evidence_strength \u00f7 estimated_effort_hours",
+            "title": "Priority Formula",
+            "type": "string"
+          },
+          "proposals": {
+            "items": {
+              "$ref": "#/components/schemas/ProposalDraft"
+            },
+            "title": "Proposals",
+            "type": "array"
+          },
+          "role_runs": {
+            "items": {
+              "$ref": "#/components/schemas/RoleRun"
+            },
+            "title": "Role Runs",
+            "type": "array"
+          },
           "sessions_seen": {
             "minimum": 0.0,
             "title": "Sessions Seen",
             "type": "integer"
+          },
+          "unclustered_feedback_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Unclustered Feedback Ids",
+            "type": "array"
           }
         },
         "required": [
           "experiment_id",
+          "mode",
+          "method",
+          "inference_used",
           "sessions_seen",
           "feedback_present",
           "denominator",
+          "priority_formula",
           "clusters",
+          "unclustered_feedback_ids",
+          "proposals",
+          "role_runs",
           "limitations",
           "next_gate"
         ],
@@ -196,13 +232,8 @@
       },
       "AnalysisRequest": {
         "additionalProperties": false,
+        "description": "Submitted sessions are accepted only in fixture mode; live analysis reads persisted rows.",
         "properties": {
-          "mode": {
-            "const": "fixture",
-            "default": "fixture",
-            "title": "Mode",
-            "type": "string"
-          },
           "sessions": {
             "anyOf": [
               {
@@ -965,6 +996,17 @@
             "title": "Affected Share",
             "type": "number"
           },
+          "analyst_rationale": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Analyst Rationale"
+          },
           "category": {
             "enum": [
               "product",
@@ -972,6 +1014,14 @@
               "relevance"
             ],
             "title": "Category",
+            "type": "string"
+          },
+          "effort_source": {
+            "enum": [
+              "kickoff_default",
+              "prioritizer_role"
+            ],
+            "title": "Effort Source",
             "type": "string"
           },
           "estimated_effort_hours": {
@@ -1006,6 +1056,17 @@
             "title": "Patch Eligible",
             "type": "boolean"
           },
+          "priority_rationale": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Priority Rationale"
+          },
           "priority_score": {
             "minimum": 0.0,
             "title": "Priority Score",
@@ -1016,6 +1077,22 @@
             "minimum": 1.0,
             "title": "Severity",
             "type": "integer"
+          },
+          "severity_source": {
+            "enum": [
+              "kickoff_default",
+              "prioritizer_role"
+            ],
+            "title": "Severity Source",
+            "type": "string"
+          },
+          "supporting_feedback_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Supporting Feedback Ids",
+            "type": "array"
           },
           "supporting_session_ids": {
             "items": {
@@ -1031,11 +1108,14 @@
           "category",
           "issue",
           "supporting_session_ids",
+          "supporting_feedback_ids",
           "evidence_action_ids",
           "severity",
+          "severity_source",
           "affected_share",
           "evidence_strength",
           "estimated_effort_hours",
+          "effort_source",
           "priority_score",
           "patch_eligible"
         ],
@@ -1813,6 +1893,76 @@
         "title": "Proposal",
         "type": "object"
       },
+      "ProposalDraft": {
+        "additionalProperties": false,
+        "description": "A UX reviewer draft. Only supported drafts may enter later lifecycle review.",
+        "properties": {
+          "acceptance_check": {
+            "title": "Acceptance Check",
+            "type": "string"
+          },
+          "change": {
+            "title": "Change",
+            "type": "string"
+          },
+          "cluster_id": {
+            "format": "uuid",
+            "title": "Cluster Id",
+            "type": "string"
+          },
+          "evidence_action_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Evidence Action Ids",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "problem": {
+            "title": "Problem",
+            "type": "string"
+          },
+          "support_note": {
+            "title": "Support Note",
+            "type": "string"
+          },
+          "supported": {
+            "title": "Supported",
+            "type": "boolean"
+          },
+          "supporting_session_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Supporting Session Ids",
+            "type": "array"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "cluster_id",
+          "title",
+          "problem",
+          "change",
+          "acceptance_check",
+          "supporting_session_ids",
+          "evidence_action_ids",
+          "supported",
+          "support_note"
+        ],
+        "title": "ProposalDraft",
+        "type": "object"
+      },
       "ProposalPreview": {
         "additionalProperties": false,
         "properties": {
@@ -1988,6 +2138,63 @@
           "evidence"
         ],
         "title": "Repository",
+        "type": "object"
+      },
+      "RoleRun": {
+        "additionalProperties": false,
+        "description": "Provenance returned by the shared HF adapter for one structured role call.",
+        "properties": {
+          "configuration_hash": {
+            "title": "Configuration Hash",
+            "type": "string"
+          },
+          "latency_ms": {
+            "minimum": 0.0,
+            "title": "Latency Ms",
+            "type": "integer"
+          },
+          "model_id": {
+            "title": "Model Id",
+            "type": "string"
+          },
+          "prompt_version": {
+            "title": "Prompt Version",
+            "type": "string"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "string"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "retry_count": {
+            "minimum": 0.0,
+            "title": "Retry Count",
+            "type": "integer"
+          },
+          "role": {
+            "enum": [
+              "analyst",
+              "prioritizer",
+              "ux_reviewer"
+            ],
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "role",
+          "request_id",
+          "model_id",
+          "provider",
+          "prompt_version",
+          "configuration_hash",
+          "latency_ms",
+          "retry_count"
+        ],
+        "title": "RoleRun",
         "type": "object"
       },
       "Scenario": {

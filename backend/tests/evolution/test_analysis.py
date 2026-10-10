@@ -3,7 +3,8 @@ from uuid import uuid4
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.app.features.evolution.analysis import EvidenceMismatch, analyze_fixture_sessions
+from backend.app.features.evolution.analysis import analyze_fixture_sessions
+from backend.app.features.evolution.evidence import EvidenceMismatch
 from backend.app.main import app
 from backend.app.shared.contracts import Action, Feedback
 from backend.app.shared.fixtures import EXPERIMENT, FIXTURE_TIME, SESSIONS
