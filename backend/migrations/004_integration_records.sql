@@ -29,7 +29,7 @@ CREATE TRIGGER product_versions_frozen BEFORE UPDATE OR DELETE ON product_versio
 -- One live discovery run. record holds the exact DiscoveryRun contract.
 CREATE TABLE discovery_runs (
     id uuid PRIMARY KEY,
-    discovery_mode text NOT NULL CHECK (discovery_mode IN ('popular', 'trending')),
+    discovery_mode text NOT NULL CHECK (discovery_mode IN ('popular', 'trending', 'emerging')),
     source_collected_at timestamptz NOT NULL,
     record jsonb NOT NULL CHECK (record->>'mode' = 'live' AND record->>'storage' = 'database'
                                  AND octet_length(record::text) <= 262144),

@@ -1,3 +1,4 @@
+from datetime import date, timedelta
 from uuid import uuid4
 
 import psycopg
@@ -7,8 +8,9 @@ from psycopg.types.json import Jsonb
 from pydantic import SecretStr
 
 from backend.app.features.integration import router
-from backend.app.features.integration.discovery import DiscoveryStore
+from backend.app.features.integration.discovery import DiscoveryRequest, DiscoveryStore
 from backend.app.features.integration.discovery_repository import DiscoveryRepository
+from backend.app.features.integration.momentum import MomentumSignal, Observation
 from backend.app.features.integration.proposals import InterpretationStore
 from backend.app.features.integration.sources import SourceStore
 from backend.app.main import create_app
@@ -49,6 +51,22 @@ def test_records_round_trip_with_exact_equality_and_idempotent_retry(
     assert stored.save_extraction(extractions[0]) == extractions[0].id
     assert stored.save_preview(preview) == preview.id
     assert stored.get_run(uuid4()) is None and stored.get_preview(uuid4()) is None
+
+
+def test_emerging_run_with_measured_momentum_round_trips(records, run):
+    observed = run.source_collected_at
+    emerging = run.model_copy(update={
+        "request": DiscoveryRequest(mode="live", discovery_mode="emerging", limit=2,
+                                    created_after=date(2026, 7, 12), pushed_after=date(2026, 9, 10)),
+        "momentum": [MomentumSignal(
+            current=Observation(full_name=repository.full_name, observed_at=observed, stars=12, forks=3),
+            baseline=Observation(full_name=repository.full_name, observed_at=observed - timedelta(days=2),
+                                 stars=10, forks=3),
+            status="measured", stars_delta=2, forks_delta=0, elapsed_hours=48.0,
+            note="Net count change over the displayed interval.") for repository in run.repositories],
+    })
+    records.save_run(emerging)
+    assert records.get_run(emerging.id) == emerging
 
 
 def test_different_record_under_a_stored_identity_conflicts_and_nothing_changes(
