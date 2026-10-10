@@ -130,15 +130,18 @@ def stored_pipeline(migrated_settings):
     return {"url": url, "v2_id": v2_id, "experiment_id": experiment_id}
 
 
-def test_local_postgres_is_not_neon_evidence(stored_pipeline, migrated_settings):
+def test_stored_pipeline_off_a_neon_host_is_not_neon_evidence(stored_pipeline, migrated_settings):
     database = NeonDatabase(migrated_settings)
     checks = {check.name: check for check in live_checks(migrated_settings, database, HANDOFF)}
+    snapshot = database_snapshot(database)
     database.close()
-    assert checks["neon_usage"].status == "fail"
-    assert checks["neon_usage"].facts["neon_host"] is False
+    assert checks["neon_usage"].facts["neon_host"] is neon_host(migrated_settings)
     assert checks["v1_registered"].status == "pass"
     assert checks["v2_registered"].status == "pass"
     assert checks["replay_labeled"].status == "pass"
+    check = neon_usage_check(snapshot, on_neon_host=False)
+    assert check.status == "fail"
+    assert check.facts["neon_host"] is False
 
 
 def test_stored_pipeline_on_a_neon_host_is_usage_evidence(stored_pipeline, migrated_settings):
