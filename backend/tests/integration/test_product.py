@@ -179,3 +179,18 @@ def test_browser_check_requires_visible_output_and_correct_source():
     assert not evaluate('sourcetable-normal-v1', {**observed, 'rows': []})
     assert not evaluate('unknown', observed)
     assert not evaluate('sourcetable-type-error-v1', observed)
+
+
+def test_frozen_handoff_rejects_image_and_source_drift(tmp_path, monkeypatch):
+    from backend.app.features.integration.product import freeze, handoff
+    record = json.loads(handoff.MANIFEST.read_text())
+    runtime = tmp_path / 'integration-product-runtime.json'
+    runtime.write_text(json.dumps({'image_id': record['image_id']}))
+    assert handoff.verified_handoff(tmp_path).version.status == 'validated'
+    runtime.write_text(json.dumps({'image_id': 'sha256:'+'d'*64}))
+    with pytest.raises(ExecutionError, match='VERSION_NOT_VALIDATED'):
+        handoff.verified_handoff(tmp_path)
+    runtime.write_text(json.dumps({'image_id': record['image_id']}))
+    monkeypatch.setattr(freeze, 'implementation_hashes', lambda: {})
+    with pytest.raises(ExecutionError, match='VERSION_NOT_VALIDATED'):
+        handoff.verified_handoff(tmp_path)
