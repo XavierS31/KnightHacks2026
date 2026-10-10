@@ -140,6 +140,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/integration/product-readiness": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Product Readiness */
+        get: operations["product_readiness_api_v1_integration_product_readiness_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/integration/summary": {
         parameters: {
             query?: never;
@@ -830,6 +847,19 @@ export interface components {
              */
             target_population: 500;
         };
+        /** ProductReadiness */
+        ProductReadiness: {
+            /** Message */
+            message: string;
+            /**
+             * Runtime Url
+             * @default http://127.0.0.1:8001
+             */
+            runtime_url: string;
+            /** Status */
+            status: string;
+            version?: components["schemas"]["ProductVersion"] | null;
+        };
         /** ProductVersion */
         ProductVersion: {
             /** Briefing */
@@ -1488,6 +1518,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    product_readiness_api_v1_integration_product_readiness_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductReadiness"];
                 };
             };
         };

@@ -7,17 +7,19 @@ from importlib.metadata import distribution, version
 from pathlib import Path
 
 
-def fixture_pdf():
+def fixture_pdf(rows=None, ruled=True):
     # A machine-generated one-page table with explicit ruling lines and ASCII cells.
     content = ['0.5 w']
-    for x in [50, 250, 330, 430]:
-        content.append(f'{x} 650 m {x} 740 l S')
-    for y in [650, 680, 710, 740]:
-        content.append(f'50 {y} m 430 {y} l S')
-    rows = [('Item', 'Quantity', 'Unit price'), ('Apples', '2', '1.25'), ('Oranges', '3', '2.00')]
+    if ruled:
+        for x in [50, 250, 330, 430]:
+            content.append(f'{x} 650 m {x} 740 l S')
+        for y in [650, 680, 710, 740]:
+            content.append(f'50 {y} m 430 {y} l S')
+    rows = rows or [('Item', 'Quantity', 'Unit price'), ('Apples', '2', '1.25'), ('Oranges', '3', '2.00')]
     for row, y in zip(rows, [720, 690, 660], strict=True):
         for text, x in zip(row, [60, 260, 340], strict=True):
-            content.append(f'BT /F1 12 Tf {x} {y} Td ({text}) Tj ET')
+            escaped = text.replace('\\', '\\\\').replace('(', '\\(').replace(')', '\\)')
+            content.append(f'BT /F1 12 Tf {x} {y} Td ({escaped}) Tj ET')
     stream = '\n'.join(content).encode('ascii')
     objects = [b'<< /Type /Catalog /Pages 2 0 R >>',
                b'<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
