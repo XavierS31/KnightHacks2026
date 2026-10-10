@@ -483,6 +483,229 @@
         "title": "CheckResult",
         "type": "object"
       },
+      "ComparisonReport": {
+        "additionalProperties": false,
+        "properties": {
+          "completed_pairs": {
+            "minimum": 0.0,
+            "title": "Completed Pairs",
+            "type": "integer"
+          },
+          "continuation": {
+            "$ref": "#/components/schemas/ContinuationResult"
+          },
+          "expected_identities": {
+            "minimum": 0.0,
+            "title": "Expected Identities",
+            "type": "integer"
+          },
+          "identity_mismatches": {
+            "minimum": 0.0,
+            "title": "Identity Mismatches",
+            "type": "integer"
+          },
+          "inference_changes": {
+            "items": {
+              "$ref": "#/components/schemas/ConfigurationChange"
+            },
+            "title": "Inference Changes",
+            "type": "array"
+          },
+          "inference_configuration_changed": {
+            "title": "Inference Configuration Changed",
+            "type": "boolean"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "matched_complete": {
+            "title": "Matched Complete",
+            "type": "boolean"
+          },
+          "matched_pairs": {
+            "minimum": 0.0,
+            "title": "Matched Pairs",
+            "type": "integer"
+          },
+          "missing_v2": {
+            "minimum": 0.0,
+            "title": "Missing V2",
+            "type": "integer"
+          },
+          "mode": {
+            "enum": [
+              "fixture",
+              "live"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "next_gate": {
+            "title": "Next Gate",
+            "type": "string"
+          },
+          "pairs": {
+            "items": {
+              "$ref": "#/components/schemas/PairResult"
+            },
+            "title": "Pairs",
+            "type": "array"
+          },
+          "retest_request_id": {
+            "format": "uuid",
+            "title": "Retest Request Id",
+            "type": "string"
+          },
+          "success_over_completed_pairs": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Rate"
+            },
+            "propertyNames": {
+              "enum": [
+                "v1",
+                "v2"
+              ]
+            },
+            "title": "Success Over Completed Pairs",
+            "type": "object"
+          },
+          "target_population": {
+            "const": 500,
+            "default": 500,
+            "title": "Target Population",
+            "type": "integer"
+          },
+          "transitions": {
+            "items": {
+              "$ref": "#/components/schemas/Transition"
+            },
+            "title": "Transitions",
+            "type": "array"
+          },
+          "unexpected_v2_session_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Unexpected V2 Session Ids",
+            "type": "array"
+          },
+          "v1": {
+            "$ref": "#/components/schemas/VersionResult"
+          },
+          "v2": {
+            "$ref": "#/components/schemas/VersionResult"
+          }
+        },
+        "required": [
+          "retest_request_id",
+          "mode",
+          "expected_identities",
+          "matched_pairs",
+          "completed_pairs",
+          "missing_v2",
+          "identity_mismatches",
+          "unexpected_v2_session_ids",
+          "matched_complete",
+          "v1",
+          "v2",
+          "success_over_completed_pairs",
+          "transitions",
+          "inference_configuration_changed",
+          "inference_changes",
+          "continuation",
+          "pairs",
+          "limitations",
+          "next_gate"
+        ],
+        "title": "ComparisonReport",
+        "type": "object"
+      },
+      "ComparisonSubmission": {
+        "additionalProperties": false,
+        "properties": {
+          "v1": {
+            "$ref": "#/components/schemas/ExperimentRun"
+          },
+          "v2": {
+            "$ref": "#/components/schemas/ExperimentRun"
+          }
+        },
+        "required": [
+          "v1",
+          "v2"
+        ],
+        "title": "ComparisonSubmission",
+        "type": "object"
+      },
+      "ConfigurationChange": {
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "v1_value": {
+            "title": "V1 Value"
+          },
+          "v2_value": {
+            "title": "V2 Value"
+          }
+        },
+        "required": [
+          "key",
+          "v1_value",
+          "v2_value"
+        ],
+        "title": "ConfigurationChange",
+        "type": "object"
+      },
+      "ContinuationResult": {
+        "additionalProperties": false,
+        "description": "Optional continuation attempts. They never enter the mandatory denominators.",
+        "properties": {
+          "v1_attempted": {
+            "minimum": 0.0,
+            "title": "V1 Attempted",
+            "type": "integer"
+          },
+          "v1_eligible": {
+            "minimum": 0.0,
+            "title": "V1 Eligible",
+            "type": "integer"
+          },
+          "v1_outcomes": {
+            "$ref": "#/components/schemas/OutcomeCounts"
+          },
+          "v2_attempted": {
+            "minimum": 0.0,
+            "title": "V2 Attempted",
+            "type": "integer"
+          },
+          "v2_eligible": {
+            "minimum": 0.0,
+            "title": "V2 Eligible",
+            "type": "integer"
+          },
+          "v2_outcomes": {
+            "$ref": "#/components/schemas/OutcomeCounts"
+          }
+        },
+        "required": [
+          "v1_eligible",
+          "v1_attempted",
+          "v1_outcomes",
+          "v2_eligible",
+          "v2_attempted",
+          "v2_outcomes"
+        ],
+        "title": "ContinuationResult",
+        "type": "object"
+      },
       "DiscoveryRequest": {
         "additionalProperties": false,
         "properties": {
@@ -863,6 +1086,28 @@
         "title": "ExperimentCounts",
         "type": "object"
       },
+      "ExperimentRun": {
+        "additionalProperties": false,
+        "properties": {
+          "attempts": {
+            "items": {
+              "$ref": "#/components/schemas/TrialAttempt"
+            },
+            "maxItems": 1000,
+            "title": "Attempts",
+            "type": "array"
+          },
+          "experiment": {
+            "$ref": "#/components/schemas/Experiment"
+          }
+        },
+        "required": [
+          "experiment",
+          "attempts"
+        ],
+        "title": "ExperimentRun",
+        "type": "object"
+      },
       "Extraction": {
         "additionalProperties": false,
         "properties": {
@@ -1175,6 +1420,48 @@
         "title": "FeedbackCluster",
         "type": "object"
       },
+      "FeedbackCounts": {
+        "additionalProperties": false,
+        "properties": {
+          "chose_continue": {
+            "minimum": 0.0,
+            "title": "Chose Continue",
+            "type": "integer"
+          },
+          "missing": {
+            "minimum": 0.0,
+            "title": "Missing",
+            "type": "integer"
+          },
+          "post_trial_relevance": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "propertyNames": {
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            },
+            "title": "Post Trial Relevance",
+            "type": "object"
+          },
+          "present": {
+            "minimum": 0.0,
+            "title": "Present",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "present",
+          "missing",
+          "chose_continue",
+          "post_trial_relevance"
+        ],
+        "title": "FeedbackCounts",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -1392,6 +1679,92 @@
         "title": "LifecycleEvent",
         "type": "object"
       },
+      "ModelTime": {
+        "additionalProperties": false,
+        "description": "Elapsed agent time. It is never an estimate of how long a human would take.",
+        "properties": {
+          "basis": {
+            "const": "agent wall clock between first and last recorded action; not human time",
+            "default": "agent wall clock between first and last recorded action; not human time",
+            "title": "Basis",
+            "type": "string"
+          },
+          "median_seconds": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Seconds"
+          },
+          "sessions_measured": {
+            "minimum": 0.0,
+            "title": "Sessions Measured",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sessions_measured"
+        ],
+        "title": "ModelTime",
+        "type": "object"
+      },
+      "OutcomeCounts": {
+        "additionalProperties": false,
+        "description": "Every expected identity lands in exactly one bucket; the buckets sum to the target.",
+        "properties": {
+          "application_failure": {
+            "minimum": 0.0,
+            "title": "Application Failure",
+            "type": "integer"
+          },
+          "identity_mismatch": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Identity Mismatch",
+            "type": "integer"
+          },
+          "infrastructure_failure": {
+            "minimum": 0.0,
+            "title": "Infrastructure Failure",
+            "type": "integer"
+          },
+          "irrelevant": {
+            "minimum": 0.0,
+            "title": "Irrelevant",
+            "type": "integer"
+          },
+          "no_attempt": {
+            "minimum": 0.0,
+            "title": "No Attempt",
+            "type": "integer"
+          },
+          "not_run": {
+            "minimum": 0.0,
+            "title": "Not Run",
+            "type": "integer"
+          },
+          "success": {
+            "minimum": 0.0,
+            "title": "Success",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "success",
+          "application_failure",
+          "infrastructure_failure",
+          "irrelevant",
+          "not_run",
+          "no_attempt"
+        ],
+        "title": "OutcomeCounts",
+        "type": "object"
+      },
       "PairIdea": {
         "additionalProperties": false,
         "properties": {
@@ -1446,6 +1819,89 @@
           "uncertainty"
         ],
         "title": "PairIdea",
+        "type": "object"
+      },
+      "PairResult": {
+        "additionalProperties": false,
+        "properties": {
+          "mismatched_fields": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Mismatched Fields",
+            "type": "array"
+          },
+          "persona_id": {
+            "format": "uuid",
+            "title": "Persona Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "matched",
+              "missing_v2",
+              "identity_mismatch"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "v1_outcome": {
+            "enum": [
+              "success",
+              "application_failure",
+              "infrastructure_failure",
+              "irrelevant",
+              "not_run"
+            ],
+            "title": "V1 Outcome",
+            "type": "string"
+          },
+          "v1_session_id": {
+            "format": "uuid",
+            "title": "V1 Session Id",
+            "type": "string"
+          },
+          "v2_outcome": {
+            "anyOf": [
+              {
+                "enum": [
+                  "success",
+                  "application_failure",
+                  "infrastructure_failure",
+                  "irrelevant",
+                  "not_run"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "V2 Outcome"
+          },
+          "v2_session_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "V2 Session Id"
+          }
+        },
+        "required": [
+          "persona_id",
+          "status",
+          "mismatched_fields",
+          "v1_session_id",
+          "v2_session_id",
+          "v1_outcome",
+          "v2_outcome"
+        ],
+        "title": "PairResult",
         "type": "object"
       },
       "PatchFile": {
@@ -2135,6 +2591,40 @@
         "title": "ProposalRequest",
         "type": "object"
       },
+      "Rate": {
+        "additionalProperties": false,
+        "properties": {
+          "denominator": {
+            "minimum": 0.0,
+            "title": "Denominator",
+            "type": "integer"
+          },
+          "numerator": {
+            "minimum": 0.0,
+            "title": "Numerator",
+            "type": "integer"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "numerator",
+          "denominator"
+        ],
+        "title": "Rate",
+        "type": "object"
+      },
       "ReleaseCreate": {
         "additionalProperties": false,
         "description": "A human composes two or three regression-passed runs into one v2 candidate run.",
@@ -2223,6 +2713,135 @@
           "evidence"
         ],
         "title": "Repository",
+        "type": "object"
+      },
+      "RetestRequest": {
+        "additionalProperties": false,
+        "description": "C's handoff to B: run each frozen v1 identity once on the approved v2.",
+        "properties": {
+          "base_version_id": {
+            "format": "uuid",
+            "title": "Base Version Id",
+            "type": "string"
+          },
+          "candidate_patch_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Candidate Patch Sha256",
+            "type": "string"
+          },
+          "candidate_version_id": {
+            "format": "uuid",
+            "title": "Candidate Version Id",
+            "type": "string"
+          },
+          "fixed_check_ids": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Fixed Check Ids",
+            "type": "array"
+          },
+          "fixed_checks_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Fixed Checks Sha256",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "identities": {
+            "items": {
+              "$ref": "#/components/schemas/TrialIdentity"
+            },
+            "title": "Identities",
+            "type": "array"
+          },
+          "identity_shortfall": {
+            "minimum": 0.0,
+            "title": "Identity Shortfall",
+            "type": "integer"
+          },
+          "inference_profile": {
+            "additionalProperties": true,
+            "title": "Inference Profile",
+            "type": "object"
+          },
+          "instructions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Instructions",
+            "type": "array"
+          },
+          "mode": {
+            "enum": [
+              "fixture",
+              "live"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "patch_run_id": {
+            "format": "uuid",
+            "title": "Patch Run Id",
+            "type": "string"
+          },
+          "population_id": {
+            "format": "uuid",
+            "title": "Population Id",
+            "type": "string"
+          },
+          "target_population": {
+            "const": 500,
+            "default": 500,
+            "title": "Target Population",
+            "type": "integer"
+          },
+          "v1_experiment_id": {
+            "format": "uuid",
+            "title": "V1 Experiment Id",
+            "type": "string"
+          },
+          "v1_records_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "V1 Records Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "mode",
+          "patch_run_id",
+          "base_version_id",
+          "candidate_version_id",
+          "candidate_patch_sha256",
+          "fixed_check_ids",
+          "fixed_checks_sha256",
+          "population_id",
+          "v1_experiment_id",
+          "v1_records_sha256",
+          "identities",
+          "identity_shortfall",
+          "inference_profile",
+          "instructions"
+        ],
+        "title": "RetestRequest",
+        "type": "object"
+      },
+      "RetestRequestCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "v1": {
+            "$ref": "#/components/schemas/ExperimentRun"
+          }
+        },
+        "required": [
+          "v1"
+        ],
+        "title": "RetestRequestCreate",
         "type": "object"
       },
       "RoleRun": {
@@ -2982,6 +3601,150 @@
         "title": "StreamEvent",
         "type": "object"
       },
+      "Transition": {
+        "additionalProperties": false,
+        "properties": {
+          "count": {
+            "minimum": 1.0,
+            "title": "Count",
+            "type": "integer"
+          },
+          "v1_outcome": {
+            "enum": [
+              "success",
+              "application_failure",
+              "infrastructure_failure",
+              "irrelevant",
+              "not_run"
+            ],
+            "title": "V1 Outcome",
+            "type": "string"
+          },
+          "v2_outcome": {
+            "enum": [
+              "success",
+              "application_failure",
+              "infrastructure_failure",
+              "irrelevant",
+              "not_run"
+            ],
+            "title": "V2 Outcome",
+            "type": "string"
+          }
+        },
+        "required": [
+          "v1_outcome",
+          "v2_outcome",
+          "count"
+        ],
+        "title": "Transition",
+        "type": "object"
+      },
+      "TrialAttempt": {
+        "additionalProperties": false,
+        "description": "One executed (or attempted) session with the identity it ran under.\n\nMandatory attempts form the 500-person comparison. A continuation attempt is optional\nand follows a mandatory attempt whose feedback chose to continue.",
+        "properties": {
+          "identity": {
+            "$ref": "#/components/schemas/TrialIdentity"
+          },
+          "phase": {
+            "enum": [
+              "mandatory",
+              "continuation"
+            ],
+            "title": "Phase",
+            "type": "string"
+          },
+          "session": {
+            "$ref": "#/components/schemas/Session"
+          }
+        },
+        "required": [
+          "identity",
+          "phase",
+          "session"
+        ],
+        "title": "TrialAttempt",
+        "type": "object"
+      },
+      "TrialIdentity": {
+        "additionalProperties": false,
+        "description": "Everything that must stay fixed between a persona's v1 and v2 attempts.",
+        "properties": {
+          "action_budget": {
+            "maximum": 8.0,
+            "minimum": 1.0,
+            "title": "Action Budget",
+            "type": "integer"
+          },
+          "behavior_generation_version": {
+            "minLength": 1,
+            "title": "Behavior Generation Version",
+            "type": "string"
+          },
+          "check_id": {
+            "minLength": 1,
+            "title": "Check Id",
+            "type": "string"
+          },
+          "corpus_version": {
+            "minLength": 1,
+            "title": "Corpus Version",
+            "type": "string"
+          },
+          "initial_state_ref": {
+            "minLength": 1,
+            "title": "Initial State Ref",
+            "type": "string"
+          },
+          "persona_id": {
+            "format": "uuid",
+            "title": "Persona Id",
+            "type": "string"
+          },
+          "population_version": {
+            "minLength": 1,
+            "title": "Population Version",
+            "type": "string"
+          },
+          "scenario_id": {
+            "format": "uuid",
+            "title": "Scenario Id",
+            "type": "string"
+          },
+          "task_id": {
+            "format": "uuid",
+            "title": "Task Id",
+            "type": "string"
+          },
+          "task_version": {
+            "minLength": 1,
+            "title": "Task Version",
+            "type": "string"
+          },
+          "time_budget_minutes": {
+            "maximum": 60.0,
+            "minimum": 1.0,
+            "title": "Time Budget Minutes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "persona_id",
+          "population_version",
+          "behavior_generation_version",
+          "corpus_version",
+          "scenario_id",
+          "task_id",
+          "task_version",
+          "check_id",
+          "initial_state_ref",
+          "action_budget",
+          "time_budget_minutes"
+        ],
+        "title": "TrialIdentity",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -3020,6 +3783,51 @@
           "type"
         ],
         "title": "ValidationError",
+        "type": "object"
+      },
+      "VersionResult": {
+        "additionalProperties": false,
+        "properties": {
+          "experiment_id": {
+            "format": "uuid",
+            "title": "Experiment Id",
+            "type": "string"
+          },
+          "feedback": {
+            "$ref": "#/components/schemas/FeedbackCounts"
+          },
+          "infrastructure_stop_reasons": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Infrastructure Stop Reasons",
+            "type": "object"
+          },
+          "model_time": {
+            "$ref": "#/components/schemas/ModelTime"
+          },
+          "outcomes": {
+            "$ref": "#/components/schemas/OutcomeCounts"
+          },
+          "success_over_target": {
+            "$ref": "#/components/schemas/Rate"
+          },
+          "version_id": {
+            "format": "uuid",
+            "title": "Version Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version_id",
+          "experiment_id",
+          "outcomes",
+          "infrastructure_stop_reasons",
+          "success_over_target",
+          "feedback",
+          "model_time"
+        ],
+        "title": "VersionResult",
         "type": "object"
       }
     }
@@ -3854,6 +4662,59 @@
         ]
       }
     },
+    "/api/v1/patch-runs/{patch_run_id}/retest-requests": {
+      "post": {
+        "operationId": "create_retest_request_api_v1_patch_runs__patch_run_id__retest_requests_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "patch_run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Patch Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RetestRequestCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetestRequest"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Retest Request",
+        "tags": [
+          "evolution"
+        ]
+      }
+    },
     "/api/v1/patch-runs/{patch_run_id}/review": {
       "post": {
         "operationId": "review_patch_run_api_v1_patch_runs__patch_run_id__review_post",
@@ -4144,6 +5005,102 @@
           }
         },
         "summary": "Create Release",
+        "tags": [
+          "evolution"
+        ]
+      }
+    },
+    "/api/v1/retest-requests/{retest_request_id}": {
+      "get": {
+        "operationId": "get_retest_request_api_v1_retest_requests__retest_request_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "retest_request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Retest Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetestRequest"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Retest Request",
+        "tags": [
+          "evolution"
+        ]
+      }
+    },
+    "/api/v1/retest-requests/{retest_request_id}/comparison": {
+      "post": {
+        "operationId": "compare_retest_api_v1_retest_requests__retest_request_id__comparison_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "retest_request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Retest Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComparisonSubmission"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComparisonReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Compare Retest",
         "tags": [
           "evolution"
         ]
