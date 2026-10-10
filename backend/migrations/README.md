@@ -35,6 +35,7 @@ Repositories run every write in one `NeonDatabase` transaction with statement an
 
 - `backend/app/shared/session_records.py` (`SessionRepository`): B's worker creates a queued or running session, appends actions in strict sequence, records one feedback, and finishes the session. A finished session cannot be replaced or extended. Feedback must cite at least one action, and every cited action must belong to the same session and persona.
 - `backend/app/features/evolution/analysis_repository.py` (`AnalysisRepository`): stores one output of the analyst, prioritizer or UX reviewer role. Every cited session must belong to the experiment, and every cited action must belong to a cited session. Records are append-only; an identical retry is accepted.
+- The live analysis API uses `save_report` to store the final checked E1 report in those existing tables. The last role's metadata accompanies the full report, which retains every role's provenance, and session fingerprints preserve the exact analyzed input. `report_for_proposal` supplies the newest stored report for E2 intake; the live patch endpoint rechecks its evidence and refuses caller-edited improvements. No additional migration is needed. Patch-run/v2 persistence remains separate unfinished work.
 - No row holds screenshot bytes. `artifact_ref` must be a short relative path under `ARTIFACT_ROOT`. The repository rejects `data:` URIs, absolute paths and `..`. The schema also rejects `data:` references and action payloads over 16 KiB.
 
 ## A's discovery records and frozen versions

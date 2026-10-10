@@ -1,5 +1,10 @@
 # Developer C kickoff — feedback and improvement
 
+Current issue #13 follow-up: [evidence-linked E1 → E2 handoff](issue-13-handoff.md).
+Live analysis now persists its checked report; live improvements must match a supported
+stored proposal and unchanged executed frozen-v1 evidence. Patch-run/version persistence,
+real trial inputs, A's boundary review, frozen-image QA and human v2 approval remain open.
+
 Use `developer_c_evolution` and `$repofusion-evolution`. Read root AGENTS.md, ownership, architecture, API/data/runtime contracts and roadmap. Inspect current files before selecting the first unfinished task.
 
 ## Boundaries and inputs

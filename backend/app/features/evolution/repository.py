@@ -1,7 +1,7 @@
 """Read one experiment's persisted sessions, actions and feedback from the 001 tables.
 
 Stored row convention (writers in the persistence tasks must follow it):
-- sessions.provenance holds {"stream_mode": ..., "stop_reason": ...}.
+- sessions.stream_mode and sessions.stop_reason are the authoritative worker-written columns.
 - actions.payload holds {"kind": ..., "target": ..., "result": ...}; occurred_at is the timestamp.
 - feedback.payload holds the full Feedback contract; its id and session_id must equal the columns.
 """
@@ -48,8 +48,8 @@ def assemble_sessions(experiment: dict[str, Any], session_rows: list[dict[str, A
         return [Session(
             id=row["id"], experiment_id=row["experiment_id"], persona_id=row["persona_id"],
             product_version_id=row["product_version_id"], status=row["status"],
-            outcome=row["outcome"], stop_reason=row["provenance"].get("stop_reason"),
-            stream_mode=row["provenance"]["stream_mode"],
+            outcome=row["outcome"], stop_reason=row["stop_reason"],
+            stream_mode=row["stream_mode"],
             actions=sorted(actions[row["id"]], key=lambda action: action.sequence),
             feedback=feedback.get(row["id"]),
         ) for row in session_rows]
@@ -73,7 +73,7 @@ class SessionEvidenceRepository:
                     raise ExperimentNotFound("No persisted experiment has this ID.")
                 cursor.execute(
                     "SELECT id, experiment_id, persona_id, product_version_id, status, outcome, "
-                    "provenance, fixture FROM sessions WHERE experiment_id = %s "
+                    "stop_reason, stream_mode, fixture FROM sessions WHERE experiment_id = %s "
                     "ORDER BY created_at, id", (experiment_id,))
                 sessions = cursor.fetchall()
                 cursor.execute(

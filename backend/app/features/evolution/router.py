@@ -5,6 +5,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 
 from backend.app.features.evolution.analysis import analyze_fixture_sessions
+from backend.app.features.evolution.analysis_repository import AnalysisRepository
 from backend.app.features.evolution.boundary import (
     PATCHABLE_PATHS,
     BoundaryDrift,
@@ -12,6 +13,7 @@ from backend.app.features.evolution.boundary import (
 )
 from backend.app.features.evolution.evidence import EvidenceMismatch
 from backend.app.features.evolution.implementer import apply_edits, propose_edits
+from backend.app.features.evolution.improvement_intake import validate_improvement
 from backend.app.features.evolution.lifecycle import (
     LifecycleError,
     PatchLifecycle,
@@ -50,7 +52,13 @@ from backend.app.features.evolution.role_analysis import (
 )
 from backend.app.features.integration.product.handoff import MANIFEST, ProductHandoff
 from backend.app.shared.contracts import EvolutionSummary
-from backend.app.shared.database import DatabaseUnavailable, NeonDatabase
+from backend.app.shared.database import (
+    DatabaseUnavailable,
+    NeonDatabase,
+    RecordConflict,
+    RecordInvalid,
+    RecordMissing,
+)
 from backend.app.shared.fixtures import EXPERIMENT, IMPROVEMENT, SESSIONS
 from backend.app.shared.inference import HuggingFaceInference, InferenceError
 from backend.app.shared.settings import Settings, get_settings
@@ -74,6 +82,12 @@ def get_evidence_repository(
     database: Annotated[NeonDatabase, Depends(get_database)],
 ) -> SessionEvidenceRepository:
     return SessionEvidenceRepository(database)
+
+
+def get_analysis_repository(
+    database: Annotated[NeonDatabase, Depends(get_database)],
+) -> AnalysisRepository:
+    return AnalysisRepository(database)
 
 
 def failure(status: int, code: str, message: str, retryable: bool = False) -> HTTPException:
@@ -139,6 +153,7 @@ async def analyze(
     settings: Annotated[Settings, Depends(get_settings)],
     inference: Annotated[HuggingFaceInference, Depends(get_inference)],
     repository: Annotated[SessionEvidenceRepository, Depends(get_evidence_repository)],
+    analyses: Annotated[AnalysisRepository, Depends(get_analysis_repository)],
     request: AnalysisRequest | None = None,
 ):
     submitted = None if request is None else request.sessions
@@ -151,7 +166,9 @@ async def analyze(
             raise failure(422, "SUBMITTED_SESSIONS_FORBIDDEN",
                           "Live analysis reads persisted sessions only.")
         sessions = repository.load(experiment_id)
-        return await analyze_with_roles(experiment_id, sessions, inference)
+        report = await analyze_with_roles(experiment_id, sessions, inference)
+        analyses.save_report(report, sessions)
+        return report
     except EvidenceMismatch as exc:
         raise failure(422, "EVIDENCE_MISMATCH", str(exc)) from None
     except ExperimentNotFound as exc:
@@ -166,14 +183,39 @@ async def analyze(
                       retryable=exc.retryable) from None
     except RoleOutputRejected as exc:
         raise failure(502, "ROLE_OUTPUT_REJECTED", f"{exc.code}: {exc}") from None
+    except (RecordInvalid, RecordConflict, RecordMissing) as exc:
+        raise failure(409, "ANALYSIS_STORAGE_REJECTED", str(exc)) from None
 
 
 @router.post("/improvements/{improvement_id}/patch-runs", response_model=PatchRun, status_code=201)
-def create_patch_run(improvement_id: UUID, request: PatchRunCreate):
+def create_patch_run(
+    improvement_id: UUID, request: PatchRunCreate,
+    settings: Annotated[Settings, Depends(get_settings)],
+    analyses: Annotated[AnalysisRepository, Depends(get_analysis_repository)],
+    repository: Annotated[SessionEvidenceRepository, Depends(get_evidence_repository)],
+):
     if request.improvement.id != improvement_id:
         raise HTTPException(status_code=422, detail={
             "code": "IMPROVEMENT_MISMATCH", "message": "Body improvement ID must match the route."})
-    return lifecycle_call(lifecycle.propose, request.improvement, frozen_v1_base(), request.actor)
+    base = frozen_v1_base()
+    analysis_record_id = None
+    if settings.app_mode == "live":
+        try:
+            record, report = analyses.report_for_proposal(improvement_id)
+            sessions = repository.load(report.experiment_id)
+            analyses.validate_report_evidence(record, sessions)
+            validate_improvement(request.improvement, report, sessions, base.version_id)
+            analysis_record_id = record.id
+        except RecordMissing as exc:
+            raise failure(409, "E1_PROPOSAL_REQUIRED", str(exc)) from None
+        except (RecordInvalid, EvidenceMismatch, ValueError) as exc:
+            raise failure(422, "E1_EVIDENCE_MISMATCH", str(exc)) from None
+        except ExperimentNotFound as exc:
+            raise failure(409, "E1_PROPOSAL_REQUIRED", str(exc)) from None
+        except DatabaseUnavailable as exc:
+            raise failure(503, "DATABASE_UNAVAILABLE", str(exc), retryable=True) from None
+    return lifecycle_call(lifecycle.propose, request.improvement, base, request.actor,
+                          analysis_record_id)
 
 
 @router.get("/patch-runs/{patch_run_id}", response_model=PatchRun)

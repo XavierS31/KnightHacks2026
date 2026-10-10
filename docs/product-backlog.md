@@ -76,6 +76,11 @@ Owner: **C**, using `developer_c_evolution` and `$repofusion-evolution`. B owns 
 
 ### Next tasks for C
 
+Issue #13 handoff foundation now persists checked E1 reports and validates live E2 proposals
+against their frozen-v1 session/action evidence. This does not supply missing real trials or
+approve a release. Current gate evidence and the operator sequence are in
+[issue #13 handoff](tasks/issue-13-handoff.md).
+
 - [ ] **E1:** Apply the reviewed migration to the intended Neon database and prove persistent write/read/rollback; implement feature repositories and job claim/lease recovery.
 - [ ] **E1:** Connect real session evidence to structured HF analyst, prioritizer and UX workflows.
 - [ ] **E2:** Implement isolated patch/regression/review states and reviewed v2 registration. In-memory states, isolated QA and release composition are done. Open: A reviews the `product/ui` boundary; supported E1 drafts start runs; QA runs on the frozen v1 image; a human approves v2; runs and v2 candidates persist.
