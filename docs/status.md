@@ -16,11 +16,10 @@ accounting and dependency-ordered remaining work: [B runtime report](tasks/devel
 | Live repository integration | SourceTable v1: pinned pdfplumber/Frictionless adapter passed fixed normal/error/compatibility/timeout checks and real browser flow | Broader PDF coverage, portable environment verification and C durable storage |
 | Hosted HF inference | A authenticated Qwen/Qwen3-32B through DeepInfra; 26 cited repository interpretations and five proposal hypotheses retained locally | Complete role-output support review; B/C flows and experiment accounting remain separate |
 | Review-informed persona behavior | Required schema, citation/provenance validation, fixture examples and viewer implemented; real ingestion/extraction not established | B collects relevant real software reviews, verifies HF extraction support and persists immutable source-linked population profiles with C |
-| Neon persistence | Migration runner, write/read/rollback gate, session/action/feedback and analysis repositories and the job claim/lease queue verified on local TLS PostgreSQL; Neon connection not established | Run the gate in `backend/migrations/README.md` against Neon, then the repository and job tests with `TEST_DATABASE_URL` on a Neon branch, and record the output |
+| Neon persistence | Migrations 001–003 applied on the Neon `dev` branch; write/read/rollback gate passed after 002; session/action/feedback and analysis repositories and the job claim/lease queue verified on local TLS PostgreSQL only; `production` branch has no migrations | Run the repository and job tests with `TEST_DATABASE_URL` on a Neon branch and record the output; migrate `production` before the demo |
 | Persona browser execution | Production path not established | Real Playwright task and retained action/output evidence |
 | Hosted HF inference | A authenticated Qwen3-32B/DeepInfra with 26 repository interpretations and five hypotheses; B's configuration smoke validated, behavior extraction quality/reliability unresolved | Independent role-output support review; representative B/C roles, durable experiment accounting and measured pilots |
 | Review-informed persona behavior | Bounded corpus/approval/population foundations; two real public reviews; extraction rejected then provider failure; no approved live profiles | Product-relevant corpus, independently supported behavior and C-persisted frozen 500-person population |
-| Neon persistence | Connection not established | Actual durable write/read/migration evidence |
 | Persona browser execution | Bounded executor/runtime policy and local mock task/captured-frame viewer verified; production path gated | A validated product plus C durable evidence/jobs; one real checked task |
 | 500 v1 + 500 v2 trials | Not executed | Per-persona mandatory attempt + feedback on both versions |
 | Product v2 | Not promoted. Three bounded UI patches passed the fixed checks in isolated QA on a local image rebuild | Evidence-linked proposals, QA on the frozen v1 image and human approval |
@@ -94,7 +93,42 @@ Remaining cross-owner gates: C must provide Neon-backed evidence/version persist
 
 2026-10-10 C Neon gate preparation (E1): added an ordered, checksummed migration runner (`python -m backend.migrations.runner`) and a write/read/rollback gate (`python -m backend.migrations.roundtrip`), both through `NeonDatabase`. `001_initial.sql` no longer holds its own `BEGIN`/`COMMIT`, so each file and its `schema_migrations` row commit together. `002_persistence_checks.sql` adds an append-only probe table. Against a disposable local PostgreSQL 14.18 with TLS, both files applied, a rerun applied none, an edited checksum was refused, a failed file rolled back all pending files, and the gate read a committed row through a new pool and found the aborted row absent. Seven new checks pass with `TEST_DATABASE_URL` set (four skip without it). This is not Neon evidence. No Neon URL was configured, so no migration ran against Neon. A and B persistence stays blocked until someone runs the gate on Neon and records its output here.
 
+2026-10-10 Neon gate run (E1): the Neon project `KnightHacks` (`delicate-lab-50091983`) has a `dev` branch made from `production`. The runner and the gate ran against `dev` through the pooled `*.neon.tech` URL. `production` was not changed and has no tables. Output:
+
+```text
+$ APP_MODE=live python -m backend.migrations.runner --live
+file 001_initial sha256=5eb7a9eb6b71139f2d18e8bd532e714a9f006410b1303ec40af2532902b8be4e
+file 002_persistence_checks sha256=ccba8bfe1e777d72d51f6880cf59ca44b1b04af12b6ebc4d56c6e860e6d22203
+Applied now: 001_initial, 002_persistence_checks
+recorded 001_initial sha256=5eb7a9eb6b71139f2d18e8bd532e714a9f006410b1303ec40af2532902b8be4e
+recorded 002_persistence_checks sha256=ccba8bfe1e777d72d51f6880cf59ca44b1b04af12b6ebc4d56c6e860e6d22203
+
+$ APP_MODE=live python -m backend.migrations.roundtrip --live
+Neon host: yes; PostgreSQL 18.6 (c021049); database neondb
+recorded 001_initial sha256=5eb7a9eb6b71139f2d18e8bd532e714a9f006410b1303ec40af2532902b8be4e
+recorded 002_persistence_checks sha256=ccba8bfe1e777d72d51f6880cf59ca44b1b04af12b6ebc4d56c6e860e6d22203
+Durable write 0e85ca35-f114-4fb0-8e99-7e74b442b265 at 2026-10-10T14:30:11.216471+00:00 read back through a new pool.
+Rollback probe e330c96f-47a1-4981-9aa1-9e4d96bff5cb was visible in its transaction and absent after.
+```
+
+After the run, `dev` has eight public tables: `actions`, `experiments`, `feedback`, `jobs`, `persistence_checks`, `product_versions`, `schema_migrations` and `sessions`. One durable probe row stays in `persistence_checks`. This proves a Neon connection, migration and write/read/rollback. It does not prove feature persistence: no A, B or C repository has written to Neon yet. Settings now read `.env` and then `.env.local`, so the URL that `neon link` writes is used directly.
+
 2026-10-10 C repositories and durable jobs (E1, #10): `003_records_and_job_leases.sql` adds job attempt limits, session lifecycle columns, screenshot-safe action constraints and analysis role records. `SessionRepository` (shared) stores live sessions, sequenced actions and single feedback. Feedback must cite actions from its own session and persona. `AnalysisRepository` (evolution) stores append-only analyst/prioritizer/UX outputs whose cited sessions and actions resolve inside the experiment. `JobQueue` (shared) claims with `FOR UPDATE SKIP LOCKED`, fences each lease by owner and attempt, and recovers expired leases. Recovery requeues the job while attempts remain and fails it visibly after that. Against a disposable local PostgreSQL 14.18 with TLS, 24 claims from four pools on five jobs leased each job exactly once, a 0.5-second lease expired and was reclaimed as attempt 2 while the old holder was refused, and invalid cross-session evidence was rejected with nothing written. Removing the row lock made the race test fail (8 claims for 5 jobs), and removing `SKIP LOCKED` made the locked-row test fail. With `TEST_DATABASE_URL`: 261 passed, 8 skipped. Without it: 241 passed, 28 skipped. This is not Neon evidence. No Neon URL was configured.
+
+2026-10-10 Neon `dev` migration 003: after #20 merged, the runner applied 003 to the same `dev` branch. `production` was not changed. Output:
+
+```text
+$ APP_MODE=live python -m backend.migrations.runner --live
+file 001_initial sha256=5eb7a9eb6b71139f2d18e8bd532e714a9f006410b1303ec40af2532902b8be4e
+file 002_persistence_checks sha256=ccba8bfe1e777d72d51f6880cf59ca44b1b04af12b6ebc4d56c6e860e6d22203
+file 003_records_and_job_leases sha256=28b5581f942b653a55dd20e937f83cd0c5a6a3560a2e9e0d3c6833a00f4826e7
+Applied now: 003_records_and_job_leases
+recorded 001_initial sha256=5eb7a9eb6b71139f2d18e8bd532e714a9f006410b1303ec40af2532902b8be4e
+recorded 002_persistence_checks sha256=ccba8bfe1e777d72d51f6880cf59ca44b1b04af12b6ebc4d56c6e860e6d22203
+recorded 003_records_and_job_leases sha256=28b5581f942b653a55dd20e937f83cd0c5a6a3560a2e9e0d3c6833a00f4826e7
+```
+
+`dev` now has eleven public tables; the new ones are `analysis_records`, `analysis_record_sessions` and `analysis_record_actions`. `jobs` has `max_attempts` and `last_error`. The repository and job tests have not run against Neon yet.
 PR #6 merge reconciliation with A PRs #7/#8 preserves the frozen product and both owners' evidence.
 A coordinated test-only Windows portability fixes: bounded pytest IDs and synthetic temporary
 manifest/source fingerprints, with image/set/content drift rejection retained. This does not validate
