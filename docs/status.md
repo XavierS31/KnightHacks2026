@@ -1,5 +1,12 @@
 # Implementation status
 
+2026-10-10 issue #13 follow-up: checked live E1 reports now persist, and live patch intake
+requires a matching supported proposal plus unchanged executed frozen-v1 evidence. A
+read-only query of the configured Neon database succeeded and found zero live sessions,
+feedback, analysis and version records. The frozen v1 Docker image is absent locally; HF
+is unconfigured in this checkout. No real improvement or v2 approval occurred. See
+[the evidence-linked handoff](tasks/issue-13-handoff.md) for checks and remaining gates.
+
 2026-10-10 B online-data checkpoint: official Neon HTTPS readback confirmed the immutable 500-record population and supplied one review-linked persona/task context to guarded Hugging Face inference. The structured response validated exact persona/task/pattern/review IDs and simulated initial relevance. Conservative charge `$0.00018378` for the diagnostic; zero browser trials. B's one-pilot lease, A fixed-check and C session/action/frame wiring is prepared but unexecuted. Native Python Neon transport and A's local frozen product runtime remain blocked on this host. See [B online data report](tasks/developer-b-online-data-report.md). P1/P2/P4 partial; P3 unexecuted.
 
 Current SourceTable population update: five upstream reviews collected and one tentative

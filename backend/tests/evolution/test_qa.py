@@ -138,6 +138,21 @@ async def test_regressing_patch_fails_its_fixed_check():
 
 
 @real
+async def test_noop_extract_cannot_pass_any_fixed_check():
+    files = apply_edits([BoundedEdit(
+        path=APP_JS, find="$('execute').onclick=async()=>{clearResult();",
+        replace="$('execute').onclick=async()=>{return;clearResult();")],
+        [APP_JS], frozen_v1_sources())
+    before = frozen_v1_sources()
+    results = await run_regression(frozen_v1_base(), IsolatedPatch(files=files, sha256="0" * 64),
+                                   IMAGE)
+    assert [result.check_id for result in results] == frozen_v1_base().fixed_check_ids
+    assert not any(result.passed for result in results)
+    assert all("click #execute" in result.evidence for result in results)
+    assert frozen_v1_sources() == before
+
+
+@real
 async def test_stale_status_acceptance():
     files = apply_edits(STALE_STATUS.edits, STALE_STATUS.allowed_paths, frozen_v1_sources())
     async with serve_patch(IsolatedPatch(files=files, sha256="0" * 64), IMAGE) as origin:

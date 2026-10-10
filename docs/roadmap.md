@@ -58,6 +58,14 @@ blockers. Real review grounding is P0; freeze versions before v1 and preserve th
 
 ## Phase 3 — Feedback agents and improvement (C)
 
+2026-10-10 issue #13 follow-up: live E1 reports now persist with inference provenance and
+session/action fingerprints. Live E2 intake requires an exact supported stored proposal,
+executed frozen-v1 feedback and a bounded UI scope; caller-edited or changed evidence is
+rejected. Native read-only Neon access succeeded, but the queried database has zero live
+sessions/feedback/analysis/version records. The frozen image is absent locally. E2 remains
+partial: no evidence-backed improvement or human-approved v2 was created. See
+[the issue #13 handoff](tasks/issue-13-handoff.md).
+
 | ID | Priority | Deliverable | Dependency and acceptance |
 | --- | --- | --- | --- |
 | E1 | P0 | Analyst, prioritizer and UX roles | P3 evidence; valid session/action references and explicit categories |
