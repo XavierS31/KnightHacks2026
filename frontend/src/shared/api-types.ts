@@ -341,39 +341,41 @@ export interface components {
             experiment_id: string;
             /** Feedback Present */
             feedback_present: number;
-            /**
-             * Inference Used
-             * @default false
-             * @constant
-             */
-            inference_used: false;
+            /** Inference Used */
+            inference_used: boolean;
             /** Limitations */
             limitations: string[];
             /**
              * Method
-             * @default deterministic_evidence_grouping
-             * @constant
+             * @enum {string}
              */
-            method: "deterministic_evidence_grouping";
+            method: "deterministic_evidence_grouping" | "structured_hf_roles";
             /**
              * Mode
-             * @default fixture
-             * @constant
+             * @enum {string}
              */
-            mode: "fixture";
+            mode: "fixture" | "live";
             /** Next Gate */
             next_gate: string;
-            /** Sessions Seen */
-            sessions_seen: number;
-        };
-        /** AnalysisRequest */
-        AnalysisRequest: {
             /**
-             * Mode
-             * @default fixture
+             * Priority Formula
              * @constant
              */
-            mode: "fixture";
+            priority_formula: "severity × affected_share × evidence_strength ÷ estimated_effort_hours";
+            /** Proposals */
+            proposals: components["schemas"]["ProposalDraft"][];
+            /** Role Runs */
+            role_runs: components["schemas"]["RoleRun"][];
+            /** Sessions Seen */
+            sessions_seen: number;
+            /** Unclustered Feedback Ids */
+            unclustered_feedback_ids: string[];
+        };
+        /**
+         * AnalysisRequest
+         * @description Submitted sessions are accepted only in fixture mode; live analysis reads persisted rows.
+         */
+        AnalysisRequest: {
             /** Sessions */
             sessions?: components["schemas"]["Session"][] | null;
         };
@@ -688,11 +690,18 @@ export interface components {
         FeedbackCluster: {
             /** Affected Share */
             affected_share: number;
+            /** Analyst Rationale */
+            analyst_rationale?: string | null;
             /**
              * Category
              * @enum {string}
              */
             category: "product" | "infrastructure" | "relevance";
+            /**
+             * Effort Source
+             * @enum {string}
+             */
+            effort_source: "kickoff_default" | "prioritizer_role";
             /** Estimated Effort Hours */
             estimated_effort_hours: number;
             /** Evidence Action Ids */
@@ -708,10 +717,19 @@ export interface components {
             issue: string;
             /** Patch Eligible */
             patch_eligible: boolean;
+            /** Priority Rationale */
+            priority_rationale?: string | null;
             /** Priority Score */
             priority_score: number;
             /** Severity */
             severity: number;
+            /**
+             * Severity Source
+             * @enum {string}
+             */
+            severity_source: "kickoff_default" | "prioritizer_role";
+            /** Supporting Feedback Ids */
+            supporting_feedback_ids: string[];
             /** Supporting Session Ids */
             supporting_session_ids: string[];
         };
@@ -920,6 +938,38 @@ export interface components {
             /** Title */
             title: string;
         };
+        /**
+         * ProposalDraft
+         * @description A UX reviewer draft. Only supported drafts may enter later lifecycle review.
+         */
+        ProposalDraft: {
+            /** Acceptance Check */
+            acceptance_check: string;
+            /** Change */
+            change: string;
+            /**
+             * Cluster Id
+             * Format: uuid
+             */
+            cluster_id: string;
+            /** Evidence Action Ids */
+            evidence_action_ids: string[];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Problem */
+            problem: string;
+            /** Support Note */
+            support_note: string;
+            /** Supported */
+            supported: boolean;
+            /** Supporting Session Ids */
+            supporting_session_ids: string[];
+            /** Title */
+            title: string;
+        };
         /** ProposalPreview */
         ProposalPreview: {
             /** Extraction Ids */
@@ -983,6 +1033,31 @@ export interface components {
             stars: number;
             /** Url */
             url: string;
+        };
+        /**
+         * RoleRun
+         * @description Provenance returned by the shared HF adapter for one structured role call.
+         */
+        RoleRun: {
+            /** Configuration Hash */
+            configuration_hash: string;
+            /** Latency Ms */
+            latency_ms: number;
+            /** Model Id */
+            model_id: string;
+            /** Prompt Version */
+            prompt_version: string;
+            /** Provider */
+            provider: string;
+            /** Request Id */
+            request_id: string;
+            /** Retry Count */
+            retry_count: number;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "analyst" | "prioritizer" | "ux_reviewer";
         };
         /** Scenario */
         Scenario: {
