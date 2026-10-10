@@ -60,10 +60,10 @@ def test_combined_improvements_build(tmp_path):
     files = apply_edits([edit for item in BOUNDED_IMPROVEMENTS for edit in item.edits],
                         ["product/ui"], frozen_v1_sources())
     script = tmp_path / "app.js"
-    script.write_text(files[0].content)
+    script.write_text(files[0].content, encoding="utf-8", newline="\n")
 
     assert subprocess.run(["node", "--check", str(script)], capture_output=True).returncode == 0
-    assert frozen_v1_sources()[APP_JS] == (ROOT / PRODUCT_BOUNDARY[APP_JS]).read_text()
+    assert frozen_v1_sources()[APP_JS] == (ROOT / PRODUCT_BOUNDARY[APP_JS]).read_text(encoding="utf-8")
 
 
 @pytest.mark.parametrize("edit,error", [

@@ -103,7 +103,7 @@ async def test_preview_serves_patched_ui_over_unchanged_api_and_checks_origin():
                                     headers={"origin": origin})
 
     assert RERUN_STATUS in script.text
-    assert page.text == (ROOT / PRODUCT_BOUNDARY["product/ui/index.html"]).read_text()
+    assert page.text == (ROOT / PRODUCT_BOUNDARY["product/ui/index.html"]).read_text(encoding="utf-8")
     assert sample.json()["columns"][0]["name"] == "Item"
     assert hidden.status_code == 404
     assert foreign.status_code == 403

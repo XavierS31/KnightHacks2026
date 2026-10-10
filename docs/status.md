@@ -1,5 +1,20 @@
 # Implementation status
 
+Current SourceTable population update: five upstream reviews collected and one tentative
+source-inspection pattern independently approved. 500 real HF-generated fictional
+persona/scenario/task records are frozen locally and persisted in Neon dev. Official
+HTTPS operator write, fresh exact snapshot/normalized readback, idempotent retry and
+SQL-error/immutable-conflict rollback passed. Migration 005 follows exact canonical
+applied 001–004. Native Python port-5432 connectivity remains blocked on this host;
+production database transport and hosted human reviewer identity are not established
+by the operator workflow. Completed trials remain zero. Normal6 catalog consumed;
+runtime verification and error7/recovery9 alternatives remain open. Latest-master
+verification: 554 backend tests pass with Chromium; 66 environment-gated cases skip.
+Lint, OpenAPI/types, frontend typecheck/build pass. No new HF calls; aggregate
+conservative spend $0.05753544/$4. See [B population report](tasks/developer-b-population-report.md)
+for exact hashes, population ID and remaining work. P1/P2/P4 partial, P3 unexecuted.
+Earlier updates below describe their historical evidence.
+
 Status dated 2026-10-10. Update this file with evidence after each milestone; do not infer production completion from fixture counts.
 
 Current B runtime update: bounded corpus/population/approval, single-process spend accounting,

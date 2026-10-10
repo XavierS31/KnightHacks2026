@@ -9,9 +9,9 @@ from backend.migrations.runner import DIRECTORY, MigrationError, apply, discover
 
 def test_discover_orders_repository_migrations_with_exact_checksums():
     migrations = discover()
-    assert [item.version for item in migrations] == ["001_initial", "002_persistence_checks",
-                                                       "003_records_and_job_leases",
-                                                       "004_integration_records"]
+    assert [item.version for item in migrations] == [
+        "001_initial", "002_persistence_checks", "003_records_and_job_leases",
+        "004_integration_records", "005_review_populations"]
     for item in migrations:
         content = (DIRECTORY / f"{item.version}.sql").read_bytes()
         assert item.checksum == hashlib.sha256(content).hexdigest()
@@ -36,8 +36,9 @@ def test_apply_records_checksums_and_is_idempotent(isolated):
     _, database = isolated
     migrations = discover()
     assert recorded(database) == []
-    assert apply(database, migrations) == ["001_initial", "002_persistence_checks",
-                                         "003_records_and_job_leases", "004_integration_records"]
+    assert apply(database, migrations) == [
+        "001_initial", "002_persistence_checks", "003_records_and_job_leases",
+        "004_integration_records", "005_review_populations"]
     assert apply(database, migrations) == []
     assert recorded(database) == [(item.version, item.checksum) for item in migrations]
 
