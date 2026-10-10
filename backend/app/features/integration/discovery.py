@@ -1,4 +1,5 @@
-"""Bounded read-only GitHub discovery; memory cache is not durable experiment storage."""
+"""Bounded read-only GitHub discovery. The search cache stays in memory; live runs may be stored."""
+import asyncio
 import re
 from collections import OrderedDict
 from datetime import UTC, date, datetime
@@ -57,7 +58,7 @@ class DiscoveryRun(Contract):
     source_total: int | None = None
     cache_hit: bool = False
     source_collected_at: datetime
-    storage: Literal["in_memory"] = "in_memory"
+    storage: Literal["in_memory", "database"] = "in_memory"
     limitations: list[str]
     next_gate: str
 
@@ -144,13 +145,13 @@ class GitHubDiscovery:
 
 
 class DiscoveryStore:
-    """Retain at most 100 runs in this process; restart/eviction removes them."""
+    """Retain at most 100 runs in this process. Live runs are also stored when records exist."""
 
     def __init__(self):
         self.runs: OrderedDict[UUID, DiscoveryRun] = OrderedDict()
         self.github = GitHubDiscovery()
 
-    async def create(self, request: DiscoveryRequest, token: str = "") -> DiscoveryRun:
+    async def create(self, request: DiscoveryRequest, token: str = "", records=None) -> DiscoveryRun:
         now = datetime.now(UTC)
         if request.mode == "fixture":
             repositories, total, collected_at, hit = REPOSITORIES[:request.limit], None, now, False
@@ -159,27 +160,46 @@ class DiscoveryStore:
             repositories, total, collected_at, hit = await trending_snapshot(request, token)
         else:
             repositories, total, collected_at, hit = await self.github.search(request, token)
+        limitations = []
+        if request.mode == "fixture":
+            limitations.append("Synthetic fixture only: no GitHub request or model inference occurred.")
+        limitations += [
+            "Trending is a timestamped GitHub page snapshot; ranking can change."
+            if request.discovery_mode == "trending"
+            else "Popular means star-sorted search; this is not Trending.",
+            "Metadata does not prove capability, feasibility, novelty or integration.",
+            "Search metadata excludes source inspection and proposal inference; inspect candidates separately.",
+        ]
+        if request.discovery_mode == "trending":
+            limitations.append("A bounded page is sampled; fork/archived entries are excluded without backfilling.")
         run = DiscoveryRun(
             id=uuid4(), mode=request.mode, status="fixture" if request.mode == "fixture" else "completed",
             request=request, created_at=now, repositories=repositories, source_total=total,
-            cache_hit=hit, source_collected_at=collected_at,
-            limitations=["In-memory run records expire on restart or after 100 newer runs.",
-                         "Popular means star-sorted search; this is not Trending.",
-                         "Metadata does not prove capability, feasibility, novelty or integration.",
-                         "Search metadata excludes source inspection and proposal inference; inspect candidates separately."],
+            cache_hit=hit, source_collected_at=collected_at, limitations=limitations,
             next_gate="Inspect source interfaces and pin commits before proposing a real adapter.",
         )
-        if request.discovery_mode == "trending":
-            run.limitations[1] = "Trending is a timestamped GitHub page snapshot; ranking can change."
-            run.limitations.append("A bounded page is sampled; fork/archived entries are excluded without backfilling.")
-        if request.mode == "fixture":
-            run.limitations.insert(0, "Synthetic fixture only: no GitHub request or model inference occurred.")
+        # The database write blocks, so it runs off the event loop.
+        return await asyncio.to_thread(self.add, run, records)
+
+    def add(self, run: DiscoveryRun, records=None) -> DiscoveryRun:
+        """Retain the run. Store a live run first when records exist; fixture runs stay in memory."""
+        if records is not None and run.mode == "live":
+            run = run.model_copy(update={"storage": "database", "limitations": [
+                "The run record is stored in the database; the five-minute search cache is not.",
+                *run.limitations]})
+            records.save_run(run)
+        else:
+            run = run.model_copy(update={"limitations": [
+                "In-memory run records expire on restart or after 100 newer runs.", *run.limitations]})
         self.runs[run.id] = run
         while len(self.runs) > 100:
             self.runs.popitem(last=False)
         return run
 
-    def get(self, run_id: UUID) -> DiscoveryRun:
-        if run_id not in self.runs:
-            raise discovery_error(404, "DISCOVERY_RUN_NOT_FOUND", "Run is unknown or no longer retained in this process.")
-        return self.runs[run_id]
+    def get(self, run_id: UUID, records=None) -> DiscoveryRun:
+        run = self.runs.get(run_id)
+        if run is None and records is not None:
+            run = records.get_run(run_id)
+        if run is None:
+            raise discovery_error(404, "DISCOVERY_RUN_NOT_FOUND", "Run is unknown or no longer retained.")
+        return run

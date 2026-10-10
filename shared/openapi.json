@@ -426,8 +426,11 @@
             "type": "string"
           },
           "storage": {
-            "const": "in_memory",
             "default": "in_memory",
+            "enum": [
+              "in_memory",
+              "database"
+            ],
             "title": "Storage",
             "type": "string"
           }
@@ -685,6 +688,15 @@
           "snapshot_id": {
             "format": "uuid",
             "title": "Snapshot Id",
+            "type": "string"
+          },
+          "storage": {
+            "default": "in_memory",
+            "enum": [
+              "in_memory",
+              "database"
+            ],
+            "title": "Storage",
             "type": "string"
           },
           "validated": {
@@ -1487,6 +1499,15 @@
             "additionalProperties": true,
             "title": "Reservation",
             "type": "object"
+          },
+          "storage": {
+            "default": "in_memory",
+            "enum": [
+              "in_memory",
+              "database"
+            ],
+            "title": "Storage",
+            "type": "string"
           }
         },
         "required": [
@@ -2207,8 +2228,11 @@
             "type": "string"
           },
           "storage": {
-            "const": "in_memory",
             "default": "in_memory",
+            "enum": [
+              "in_memory",
+              "database"
+            ],
             "title": "Storage",
             "type": "string"
           }

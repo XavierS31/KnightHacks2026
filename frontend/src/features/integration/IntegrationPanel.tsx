@@ -187,7 +187,7 @@ function DiscoveryControls() {
     {error && <p role="alert">{error}</p>}
     {run && <div aria-live="polite">
       <p><span className="badge">{run.mode} · {run.status}</span> {run.repositories.length} candidates · {run.cache_hit ? 'cached source metadata' : 'new run'}</p>
-      <p className="muted">Source collected {new Date(run.source_collected_at).toLocaleString()}. {run.storage} retention; not a durable job.</p>
+      <p className="muted">Source collected {new Date(run.source_collected_at).toLocaleString()}. {run.storage === 'database' ? 'Stored in the database' : 'In-memory retention'}; not a durable job.</p>
       <ul>{run.limitations.map(note => <li key={note}>{note}</li>)}</ul>
       {run.repositories.length === 0 && <p>No repositories matched this search. Try a broader query.</p>}
       {run.repositories.map(repo => <section key={repo.id} className="discovery-candidate">
