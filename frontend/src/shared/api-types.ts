@@ -106,6 +106,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/extractions/{extraction_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Extraction */
+        get: operations["get_extraction_api_v1_extractions__extraction_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/health": {
         parameters: {
             query?: never;
@@ -191,6 +208,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/proposal-previews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Preview Proposals */
+        post: operations["preview_proposals_api_v1_proposal_previews_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/proposal-previews/{preview_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Preview */
+        get: operations["get_preview_api_v1_proposal_previews__preview_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/sessions/{session_id}": {
         parameters: {
             query?: never;
@@ -219,6 +270,23 @@ export interface paths {
         get: operations["get_sources_api_v1_source_snapshots__snapshot_id__get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/source-snapshots/{snapshot_id}/extractions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Extract Sources */
+        post: operations["extract_sources_api_v1_source_snapshots__snapshot_id__extractions_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -336,14 +404,31 @@ export interface components {
              */
             validated: boolean;
         };
+        /** CapabilityFinding */
+        CapabilityFinding: {
+            /** Documented Input */
+            documented_input: string;
+            /** Documented Output */
+            documented_output: string;
+            /** Name */
+            name: string;
+            /** Source Quote */
+            source_quote: string;
+            /** Source Reference */
+            source_reference: string;
+            /** Uncertainty */
+            uncertainty: string;
+        };
         /** DiscoveryRequest */
         DiscoveryRequest: {
+            /** Created After */
+            created_after?: string | null;
             /**
              * Discovery Mode
              * @default popular
-             * @constant
+             * @enum {string}
              */
-            discovery_mode: "popular";
+            discovery_mode: "popular" | "trending";
             /**
              * Limit
              * @default 20
@@ -355,11 +440,24 @@ export interface components {
              * @enum {string}
              */
             mode: "fixture" | "live";
+            /** Pushed After */
+            pushed_after?: string | null;
             /**
              * Query
              * @default language:Python
              */
             query: string;
+            /**
+             * Trending Language
+             * @default
+             */
+            trending_language: string;
+            /**
+             * Trending Period
+             * @default weekly
+             * @enum {string}
+             */
+            trending_period: "daily" | "weekly" | "monthly";
         };
         /** DiscoveryRun */
         DiscoveryRun: {
@@ -491,6 +589,51 @@ export interface components {
             queued: number;
             /** Running */
             running: number;
+        };
+        /** Extraction */
+        Extraction: {
+            /** Capabilities */
+            capabilities: components["schemas"]["CapabilityFinding"][];
+            /**
+             * Collected At
+             * Format: date-time
+             */
+            collected_at: string;
+            /** Commit Sha */
+            commit_sha: string;
+            /** Full Name */
+            full_name: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Limitations */
+            limitations: string[];
+            /** Provenance */
+            provenance: {
+                [key: string]: unknown;
+            };
+            /**
+             * Repository Id
+             * Format: uuid
+             */
+            repository_id: string;
+            /** Reservation */
+            reservation: {
+                [key: string]: unknown;
+            };
+            /**
+             * Snapshot Id
+             * Format: uuid
+             */
+            snapshot_id: string;
+            /**
+             * Validated
+             * @default false
+             * @constant
+             */
+            validated: false;
         };
         /** Feedback */
         Feedback: {
@@ -624,6 +767,29 @@ export interface components {
             /** Versions */
             versions: components["schemas"]["ProductVersion"][];
         };
+        /** PairIdea */
+        PairIdea: {
+            /** Adapter Boundary */
+            adapter_boundary: string;
+            /** Audience */
+            audience: string;
+            /**
+             * First Extraction Id
+             * Format: uuid
+             */
+            first_extraction_id: string;
+            /** Problem */
+            problem: string;
+            /**
+             * Second Extraction Id
+             * Format: uuid
+             */
+            second_extraction_id: string;
+            /** Title */
+            title: string;
+            /** Uncertainty */
+            uncertainty: string;
+        };
         /** Persona */
         Persona: {
             /** Attribute Provenance */
@@ -740,6 +906,45 @@ export interface components {
             status: "proposed" | "interfaces_inspected" | "validated_on_samples" | "fixture";
             /** Title */
             title: string;
+        };
+        /** ProposalPreview */
+        ProposalPreview: {
+            /** Extraction Ids */
+            extraction_ids: string[];
+            /**
+             * Feasibility
+             * @default unreviewed
+             * @constant
+             */
+            feasibility: "unreviewed";
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Ideas */
+            ideas: components["schemas"]["PairIdea"][];
+            /** Limitations */
+            limitations: string[];
+            /**
+             * Novelty
+             * @default unresolved
+             * @constant
+             */
+            novelty: "unresolved";
+            /** Provenance */
+            provenance: {
+                [key: string]: unknown;
+            };
+            /** Reservation */
+            reservation: {
+                [key: string]: unknown;
+            };
+        };
+        /** ProposalRequest */
+        ProposalRequest: {
+            /** Extraction Ids */
+            extraction_ids: string[];
         };
         /** Repository */
         Repository: {
@@ -1253,6 +1458,37 @@ export interface operations {
             };
         };
     };
+    get_extraction_api_v1_extractions__extraction_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                extraction_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Extraction"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     health_api_v1_health_get: {
         parameters: {
             query?: never;
@@ -1375,6 +1611,70 @@ export interface operations {
             };
         };
     };
+    preview_proposals_api_v1_proposal_previews_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProposalRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProposalPreview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_preview_api_v1_proposal_previews__preview_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                preview_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProposalPreview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     session_detail_api_v1_sessions__session_id__get: {
         parameters: {
             query?: never;
@@ -1424,6 +1724,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SourceSnapshot"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    extract_sources_api_v1_source_snapshots__snapshot_id__extractions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                snapshot_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Extraction"];
                 };
             };
             /** @description Validation Error */

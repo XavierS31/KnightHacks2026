@@ -1,14 +1,14 @@
 """Bounded read-only GitHub discovery; memory cache is not durable experiment storage."""
 import re
 from collections import OrderedDict
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from time import monotonic
 from typing import Literal
 from uuid import NAMESPACE_URL, UUID, uuid4, uuid5
 
 import httpx
 from fastapi import HTTPException
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 
 from backend.app.shared.contracts import Contract, Evidence, Repository
 from backend.app.shared.fixtures import REPOSITORIES
@@ -18,7 +18,24 @@ GITHUB_SEARCH = "https://api.github.com/search/repositories"
 
 class DiscoveryRequest(Contract):
     mode: Literal["fixture", "live"] = "fixture"
-    discovery_mode: Literal["popular"] = "popular"
+    discovery_mode: Literal["popular", "trending"] = "popular"
+    created_after: date | None = None
+    pushed_after: date | None = None
+    trending_period: Literal["daily", "weekly", "monthly"] = "weekly"
+    trending_language: str = Field(default="", max_length=32)
+
+    @field_validator("trending_language")
+    @classmethod
+    def language_slug(cls, value):
+        if value and not re.fullmatch(r"[a-z0-9+#.-]+", value):
+            raise ValueError("Use a lowercase GitHub Trending language slug")
+        return value
+
+    @model_validator(mode="after")
+    def dates_only_for_search(self):
+        if self.discovery_mode == "trending" and (self.created_after or self.pushed_after):
+            raise ValueError("Date filters belong to Popular search, not Trending snapshots")
+        return self
     query: str = Field(default="language:Python", min_length=1, max_length=200)
     limit: int = Field(default=20, ge=1, le=30)
 
@@ -58,7 +75,12 @@ class GitHubDiscovery:
         self.cache: OrderedDict[tuple[str, int], tuple[float, datetime, list[Repository], int]] = OrderedDict()
 
     async def search(self, request: DiscoveryRequest, token: str = "", transport=None):
-        key = (request.query, request.limit)
+        query = request.query
+        if request.created_after:
+            query += f" created:>={request.created_after.isoformat()}"
+        if request.pushed_after:
+            query += f" pushed:>={request.pushed_after.isoformat()}"
+        key = (query, request.limit)
         now = monotonic()
         cached = self.cache.get(key)
         if cached and now - cached[0] < 300:
@@ -67,7 +89,7 @@ class GitHubDiscovery:
         headers = {"Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28"}
         if token:
             headers["Authorization"] = f"Bearer {token}"
-        params = {"q": f"{request.query} archived:false fork:false", "sort": "stars",
+        params = {"q": f"{query} archived:false fork:false", "sort": "stars",
                   "order": "desc", "per_page": request.limit, "page": 1}
         try:
             async with httpx.AsyncClient(timeout=15, transport=transport, follow_redirects=False) as client:
@@ -132,6 +154,9 @@ class DiscoveryStore:
         now = datetime.now(UTC)
         if request.mode == "fixture":
             repositories, total, collected_at, hit = REPOSITORIES[:request.limit], None, now, False
+        elif request.discovery_mode == "trending":
+            from backend.app.features.integration.trending import trending_snapshot
+            repositories, total, collected_at, hit = await trending_snapshot(request, token)
         else:
             repositories, total, collected_at, hit = await self.github.search(request, token)
         run = DiscoveryRun(
@@ -144,6 +169,9 @@ class DiscoveryStore:
                          "Search metadata excludes source inspection and proposal inference; inspect candidates separately."],
             next_gate="Inspect source interfaces and pin commits before proposing a real adapter.",
         )
+        if request.discovery_mode == "trending":
+            run.limitations[1] = "Trending is a timestamped GitHub page snapshot; ranking can change."
+            run.limitations.append("A bounded page is sampled; fork/archived entries are excluded without backfilling.")
         if request.mode == "fixture":
             run.limitations.insert(0, "Synthetic fixture only: no GitHub request or model inference occurred.")
         self.runs[run.id] = run

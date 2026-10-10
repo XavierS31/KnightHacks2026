@@ -70,7 +70,7 @@ Local ignored evidence: `artifacts/devb-live-readiness-20261010.json`,
 
 ## Verification
 
-317 combined backend tests, actual local Chromium checks, six standalone stream-validation tests,
+343 combined backend tests after merging A's PR #5 (317 before that merge), actual local Chromium checks, six standalone stream-validation tests,
 Ruff, frontend typecheck/build and generated-contract checks pass. Final test counts are recorded
 in [status](../status.md). Build retains the existing large persona/3D chunk warning; test client
 emits its dependency deprecation warning. Dependencies unchanged.

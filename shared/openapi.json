@@ -224,12 +224,78 @@
         "title": "Capability",
         "type": "object"
       },
+      "CapabilityFinding": {
+        "additionalProperties": false,
+        "properties": {
+          "documented_input": {
+            "maxLength": 400,
+            "minLength": 1,
+            "title": "Documented Input",
+            "type": "string"
+          },
+          "documented_output": {
+            "maxLength": 400,
+            "minLength": 1,
+            "title": "Documented Output",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "source_quote": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Source Quote",
+            "type": "string"
+          },
+          "source_reference": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Source Reference",
+            "type": "string"
+          },
+          "uncertainty": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Uncertainty",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "documented_input",
+          "documented_output",
+          "source_reference",
+          "source_quote",
+          "uncertainty"
+        ],
+        "title": "CapabilityFinding",
+        "type": "object"
+      },
       "DiscoveryRequest": {
         "additionalProperties": false,
         "properties": {
+          "created_after": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created After"
+          },
           "discovery_mode": {
-            "const": "popular",
             "default": "popular",
+            "enum": [
+              "popular",
+              "trending"
+            ],
             "title": "Discovery Mode",
             "type": "string"
           },
@@ -249,11 +315,39 @@
             "title": "Mode",
             "type": "string"
           },
+          "pushed_after": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pushed After"
+          },
           "query": {
             "default": "language:Python",
             "maxLength": 200,
             "minLength": 1,
             "title": "Query",
+            "type": "string"
+          },
+          "trending_language": {
+            "default": "",
+            "maxLength": 32,
+            "title": "Trending Language",
+            "type": "string"
+          },
+          "trending_period": {
+            "default": "weekly",
+            "enum": [
+              "daily",
+              "weekly",
+              "monthly"
+            ],
+            "title": "Trending Period",
             "type": "string"
           }
         },
@@ -536,6 +630,83 @@
           "failed"
         ],
         "title": "ExperimentCounts",
+        "type": "object"
+      },
+      "Extraction": {
+        "additionalProperties": false,
+        "properties": {
+          "capabilities": {
+            "items": {
+              "$ref": "#/components/schemas/CapabilityFinding"
+            },
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "collected_at": {
+            "format": "date-time",
+            "title": "Collected At",
+            "type": "string"
+          },
+          "commit_sha": {
+            "title": "Commit Sha",
+            "type": "string"
+          },
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "provenance": {
+            "additionalProperties": true,
+            "title": "Provenance",
+            "type": "object"
+          },
+          "repository_id": {
+            "format": "uuid",
+            "title": "Repository Id",
+            "type": "string"
+          },
+          "reservation": {
+            "additionalProperties": true,
+            "title": "Reservation",
+            "type": "object"
+          },
+          "snapshot_id": {
+            "format": "uuid",
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "validated": {
+            "const": false,
+            "default": false,
+            "title": "Validated",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "snapshot_id",
+          "repository_id",
+          "full_name",
+          "commit_sha",
+          "collected_at",
+          "capabilities",
+          "provenance",
+          "reservation",
+          "limitations"
+        ],
+        "title": "Extraction",
         "type": "object"
       },
       "Feedback": {
@@ -871,6 +1042,62 @@
         "title": "IntegrationSummary",
         "type": "object"
       },
+      "PairIdea": {
+        "additionalProperties": false,
+        "properties": {
+          "adapter_boundary": {
+            "maxLength": 400,
+            "minLength": 1,
+            "title": "Adapter Boundary",
+            "type": "string"
+          },
+          "audience": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Audience",
+            "type": "string"
+          },
+          "first_extraction_id": {
+            "format": "uuid",
+            "title": "First Extraction Id",
+            "type": "string"
+          },
+          "problem": {
+            "maxLength": 400,
+            "minLength": 1,
+            "title": "Problem",
+            "type": "string"
+          },
+          "second_extraction_id": {
+            "format": "uuid",
+            "title": "Second Extraction Id",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "uncertainty": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Uncertainty",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "first_extraction_id",
+          "second_extraction_id",
+          "problem",
+          "adapter_boundary",
+          "audience",
+          "uncertainty"
+        ],
+        "title": "PairIdea",
+        "type": "object"
+      },
       "Persona": {
         "additionalProperties": false,
         "properties": {
@@ -1173,6 +1400,90 @@
           "evidence"
         ],
         "title": "Proposal",
+        "type": "object"
+      },
+      "ProposalPreview": {
+        "additionalProperties": false,
+        "properties": {
+          "extraction_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Extraction Ids",
+            "type": "array"
+          },
+          "feasibility": {
+            "const": "unreviewed",
+            "default": "unreviewed",
+            "title": "Feasibility",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "ideas": {
+            "items": {
+              "$ref": "#/components/schemas/PairIdea"
+            },
+            "title": "Ideas",
+            "type": "array"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "novelty": {
+            "const": "unresolved",
+            "default": "unresolved",
+            "title": "Novelty",
+            "type": "string"
+          },
+          "provenance": {
+            "additionalProperties": true,
+            "title": "Provenance",
+            "type": "object"
+          },
+          "reservation": {
+            "additionalProperties": true,
+            "title": "Reservation",
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "extraction_ids",
+          "ideas",
+          "provenance",
+          "reservation",
+          "limitations"
+        ],
+        "title": "ProposalPreview",
+        "type": "object"
+      },
+      "ProposalRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "extraction_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 10,
+            "minItems": 2,
+            "title": "Extraction Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "extraction_ids"
+        ],
+        "title": "ProposalRequest",
         "type": "object"
       },
       "Repository": {
@@ -2237,6 +2548,49 @@
         ]
       }
     },
+    "/api/v1/extractions/{extraction_id}": {
+      "get": {
+        "operationId": "get_extraction_api_v1_extractions__extraction_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "extraction_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Extraction Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Extraction"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Extraction",
+        "tags": [
+          "integration"
+        ]
+      }
+    },
     "/api/v1/health": {
       "get": {
         "operationId": "health_api_v1_health_get",
@@ -2382,6 +2736,90 @@
         ]
       }
     },
+    "/api/v1/proposal-previews": {
+      "post": {
+        "operationId": "preview_proposals_api_v1_proposal_previews_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposalRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalPreview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Preview Proposals",
+        "tags": [
+          "integration"
+        ]
+      }
+    },
+    "/api/v1/proposal-previews/{preview_id}": {
+      "get": {
+        "operationId": "get_preview_api_v1_proposal_previews__preview_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "preview_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Preview Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalPreview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Preview",
+        "tags": [
+          "integration"
+        ]
+      }
+    },
     "/api/v1/sessions/{session_id}": {
       "get": {
         "operationId": "session_detail_api_v1_sessions__session_id__get",
@@ -2463,6 +2901,49 @@
           }
         },
         "summary": "Get Sources",
+        "tags": [
+          "integration"
+        ]
+      }
+    },
+    "/api/v1/source-snapshots/{snapshot_id}/extractions": {
+      "post": {
+        "operationId": "extract_sources_api_v1_source_snapshots__snapshot_id__extractions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "snapshot_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Snapshot Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Extraction"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Extract Sources",
         "tags": [
           "integration"
         ]
