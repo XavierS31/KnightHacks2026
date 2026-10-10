@@ -109,7 +109,7 @@ def test_fixture_post_get_and_live_gate():
     assert disabled.json()["error"]["code"] == "LIVE_DISCOVERY_DISABLED"
 
 
-@pytest.mark.parametrize("fields", [{"limit": 31}, {"limit": 0}, {"discovery_mode": "trending"},
+@pytest.mark.parametrize("fields", [{"limit": 31}, {"limit": 0}, {"discovery_mode": "unknown"},
                                     {"query": ""}, {"query": "   "}, {"query": "a\nb"}])
 def test_invalid_search_requests(fields):
     with pytest.raises(ValidationError):
