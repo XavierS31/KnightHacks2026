@@ -19,7 +19,7 @@ accounting and dependency-ordered remaining work: [B runtime report](tasks/devel
 | Neon persistence | Connection not established | Actual durable write/read/migration evidence |
 | Persona browser execution | Bounded executor/runtime policy and local mock task/captured-frame viewer verified; production path gated | A validated product plus C durable evidence/jobs; one real checked task |
 | 500 v1 + 500 v2 trials | Not executed | Per-persona mandatory attempt + feedback on both versions |
-| Product v2 | Not promoted | Evidence-linked patch, regressions and human approval |
+| Product v2 | Not promoted. Three bounded UI patches passed the fixed checks in isolated QA on a local image rebuild | Evidence-linked proposals, QA on the frozen v1 image and human approval |
 
 C starter: evidence-validating deterministic fixture analysis and readable report controls implemented; no-model/no-persistence status explicit. Lazy pooled database helper and an unapplied initial SQL migration are prepared. An in-memory patch lifecycle enforces proposed → reviewed → patched → regression → human approval, with rejection and rollback; no real patch, executed regression or v2 exists. Twenty-four focused mocked analysis/database checks passed; this does not establish a Neon connection or real engineering-agent run.
 

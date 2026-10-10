@@ -55,7 +55,7 @@ class ProposalDraft(Contract):
 class RoleRun(Contract):
     """Provenance returned by the shared HF adapter for one structured role call."""
 
-    role: Literal["analyst", "prioritizer", "ux_reviewer"]
+    role: Literal["analyst", "prioritizer", "ux_reviewer", "implementer"]
     request_id: str
     model_id: str
     provider: str
@@ -124,11 +124,23 @@ class PatchFile(Contract):
     content: str = Field(max_length=200_000)
 
 
+class BoundedEdit(Contract):
+    """Replace one exact, unique text span in one product file."""
+
+    path: str = Field(min_length=1, max_length=300)
+    find: str = Field(min_length=1, max_length=4000)
+    replace: str = Field(max_length=4000)
+
+
 class IsolatedPatch(Contract):
-    """A changeset held in the run record. It is not written to the v1 tree."""
+    """A changeset held in the run record. It is not written to the v1 tree.
+
+    The digest covers the files only. Edits record how the files were derived from v1.
+    """
 
     files: list[PatchFile]
     sha256: str = Field(pattern=SHA256)
+    edits: list[BoundedEdit] = Field(default_factory=list)
 
 
 class CheckResult(Contract):
@@ -156,11 +168,15 @@ class PatchRun(Contract):
     id: UUID
     storage: Literal["memory"] = "memory"
     improvement_id: UUID
+    title: str
+    issue: str
     allowed_paths: list[str]
     acceptance_check: str
     base: BaseVersion
     state: LifecycleState
+    component_run_ids: list[UUID] = Field(default_factory=list)
     implementer_id: str | None = None
+    implementer_run: RoleRun | None = None
     patch: IsolatedPatch | None = None
     regression: list[CheckResult] = Field(default_factory=list)
     candidate: CandidateVersion | None = None
@@ -182,7 +198,14 @@ class PatchSubmission(Contract):
     files: list[PatchFile] = Field(min_length=1, max_length=20)
 
 
-class RegressionSubmission(Contract):
+class EditSubmission(Contract):
     actor: Actor
-    patch_sha256: str = Field(pattern=SHA256)
-    results: list[CheckResult] = Field(min_length=1)
+    edits: list[BoundedEdit] = Field(min_length=1, max_length=12)
+
+
+class ReleaseCreate(Contract):
+    """A human composes two or three regression-passed runs into one v2 candidate run."""
+
+    actor: Actor
+    run_ids: list[UUID] = Field(min_length=2, max_length=3)
+
