@@ -46,7 +46,7 @@ not approve licensing. Issues are mutable, timestamped snapshots, not commit-pin
 GitHub returns pull requests in the issues endpoint; these are excluded without requesting extra pages.
 
 Only `api.github.com` is contacted, redirects are disabled, requests have a 15-second timeout,
-responses are capped at 512 KB, decoded files at 100 KB and displayed text at 20,000 characters.
+responses are capped at 2 MB, decoded files at 1 MB and selected text at 20,000 characters across useful sections.
 No code, Markdown HTML, links from repository content or model instructions are executed.
 Missing/invalid/oversized files and issue failures yield a visible partial snapshot; failure to
 resolve a commit prevents collection. Rate limiting stops remaining optional requests.

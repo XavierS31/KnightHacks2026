@@ -21,7 +21,6 @@ from backend.app.features.integration.opportunities import (
     discover_opportunities,
     fixture_report,
 )
-from backend.app.features.integration.product.handoff import ProductReadiness, readiness
 from backend.app.features.integration.proposals import (
     Extraction,
     IntegrationInference,
@@ -97,11 +96,6 @@ async def cancel_research_study(study_id: UUID):
     return studies.cancel(study_id)
 
 
-@router.get('/integration/product-readiness', response_model=ProductReadiness)
-def product_readiness(settings: Settings = Depends(get_settings)):
-    return readiness(settings.artifact_root)
-
-
 def inference_failure(code):
     messages = {
         "FIXTURE_INFERENCE_FORBIDDEN": "Set APP_MODE=live on the server to enable HF interpretation.",
@@ -140,7 +134,7 @@ def get_discovery(run_id: UUID, records: Records):
 def summary(settings: Settings = Depends(get_settings)):
     return IntegrationSummary(mode="fixture", repositories=REPOSITORIES,
                               proposals=[PROPOSAL], versions=[VERSION],
-                              next_gate="Discover opportunities around an anchor repo; SourceTable is a preserved earlier experiment, not an automatically selected idea.")
+                              next_gate="Discover opportunities around an anchor repo; No prototype is selected; validate a new opportunity before persona trials.")
 
 
 @router.post("/discovery-runs/{run_id}/repositories/{repository_id}/sources",

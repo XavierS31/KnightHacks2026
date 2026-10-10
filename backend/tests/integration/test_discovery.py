@@ -52,8 +52,8 @@ async def test_github_bounds_cache_and_source_provenance():
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("status,code", [(429, "GITHUB_RATE_LIMIT"), (403, "GITHUB_RATE_LIMIT"),
-                                       (401, "GITHUB_AUTH_FAILED"), (500, "GITHUB_UPSTREAM_ERROR")])
+@pytest.mark.parametrize("status,code", [(429, "GITHUB_RATE_LIMIT"), (403, "GITHUB_FORBIDDEN"),
+                                       (401, "GITHUB_AUTH_FAILED"), (500, "GITHUB_SOURCE_FAILED")])
 async def test_github_errors_are_sanitized(status, code):
     service = GitHubDiscovery()
     with pytest.raises(HTTPException) as error:

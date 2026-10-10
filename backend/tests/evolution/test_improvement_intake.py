@@ -124,7 +124,7 @@ def test_unexecuted_or_unresolvable_proposals_cannot_start_runs(analysis_case, c
 
 
 @pytest.mark.parametrize("scope", [[], ["product"], ["product/ui/checks.py"],
-                                  ["backend/app/features/integration/product/app.py"],
+                                  ["product/backend/app.py"],
                                   ["product/ui/../checks.py"], ["product/ui/app.js"] * 2])
 def test_scope_is_bounded_before_human_review(analysis_case, scope):
     report, sessions = analysis_case

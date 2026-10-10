@@ -9,11 +9,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from uuid import UUID
 
-from backend.app.features.integration.product.handoff import ProductHandoff
+from backend.app.features.integration.handoff import ProductHandoff
 from backend.app.features.personas.population import FrozenPopulation
 from backend.app.features.personas.product_handoff import (
-    SourceTableBinding,
-    consume_sourcetable_handoff,
+    ProductBinding,
 )
 from backend.app.features.personas.session_execution import TrialPlan
 from backend.app.shared.contracts import Persona, Task
@@ -28,7 +27,7 @@ class OnlinePopulationError(ValueError):
 @dataclass(frozen=True)
 class BoundPopulation:
     population: FrozenPopulation
-    binding: SourceTableBinding
+    binding: ProductBinding
 
     def persona_task(self, index: int) -> tuple[Persona, Task]:
         data = self.population.data()
@@ -37,13 +36,15 @@ class BoundPopulation:
         return (Persona.model_validate(data["personas"][index]),
                 Task.model_validate(data["tasks"][index]))
 
-    def trial_plan(self, index: int, experiment_id: UUID, *, artifact_root: Path) -> TrialPlan:
+    def trial_plan(self, index: int, experiment_id: UUID, *, artifact_root: Path, runtime_verifier=None) -> TrialPlan:
         """Only a locally verified A runtime can become a live browser plan."""
-        verified = consume_sourcetable_handoff(artifact_root=artifact_root)
+        if runtime_verifier is None:
+            raise OnlinePopulationError("SELECTED_PROTOTYPE_RUNTIME_NOT_VERIFIED")
+        verified = runtime_verifier(self.binding, artifact_root)
         if (not verified.report()["runtime_verified"]
                 or verified.data()["manifest_sha256"] != self.binding.data()["manifest_sha256"]
                 or verified.tasks() != self.binding.tasks()):
-            raise OnlinePopulationError("SOURCETABLE_RUNTIME_NOT_VERIFIED")
+            raise OnlinePopulationError("SELECTED_PROTOTYPE_RUNTIME_NOT_VERIFIED")
         persona, task = self.persona_task(index)
         handoff = ProductHandoff.model_validate(verified.data()["product_manifest"])
         return TrialPlan(
@@ -53,7 +54,7 @@ class BoundPopulation:
         )
 
 
-def bind_population(population: FrozenPopulation, *, binding: SourceTableBinding | None = None,
+def bind_population(population: FrozenPopulation, *, binding: ProductBinding | None = None,
                     expected_version: str) -> BoundPopulation:
     """Check exact immutable population and task identities before inference or scheduling."""
     if not isinstance(population, FrozenPopulation):
@@ -63,28 +64,32 @@ def bind_population(population: FrozenPopulation, *, binding: SourceTableBinding
     if population.version != expected_version:
         raise OnlinePopulationError("POPULATION_VERSION_MISMATCH")
     data = population.data()
-    selected = binding or consume_sourcetable_handoff()
+    if binding is None:
+        raise OnlinePopulationError("SELECTED_PROTOTYPE_BINDING_REQUIRED")
+    selected = binding
     handoff = ProductHandoff.model_validate(selected.data()["product_manifest"])
     if (data["status"] != "configured_population" or data["purpose"] != "complete"
             or data["configured_count"] != 500 or data["completed_trials"] != 0
             or [Task.model_validate(item) for item in data["task_catalog"]] != selected.tasks()
             or any(Task.model_validate(item).task_version !=
-                   "sourcetable-v1:" + str(handoff.version.id) for item in data["tasks"])):
+                   "prototype:" + str(handoff.version.id) for item in data["tasks"])):
         raise OnlinePopulationError("POPULATION_HANDOFF_MISMATCH")
     return BoundPopulation(population, selected)
 
 
-def load_neon_population(settings: Settings, version: str) -> BoundPopulation:
+def load_neon_population(settings: Settings, version: str, *, binding: ProductBinding | None = None) -> BoundPopulation:
     """Normal application path. C owns the connection and immutable repository."""
     if settings.app_mode != "live" or not settings.database_url.get_secret_value():
         raise OnlinePopulationError("LIVE_NEON_CONFIGURATION_REQUIRED")
     if not re.fullmatch(r"[a-f0-9]{64}", version):
         raise OnlinePopulationError("INVALID_POPULATION_VERSION")
+    if binding is None:
+        raise OnlinePopulationError("SELECTED_PROTOTYPE_BINDING_REQUIRED")
     from backend.app.features.evolution.population_repository import PopulationRepository
 
     database = NeonDatabase(settings)
     try:
         population = PopulationRepository(database).load_population(version)
-        return bind_population(population, expected_version=version)
+        return bind_population(population, binding=binding, expected_version=version)
     finally:
         database.close()

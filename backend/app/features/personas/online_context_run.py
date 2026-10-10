@@ -7,23 +7,22 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 
+from backend.app.features.integration.handoff import load_handoff
 from backend.app.features.personas.inference_budget import BudgetedInference
 from backend.app.features.personas.live_readiness import qwen_smoke_policy
 from backend.app.features.personas.local_generation_budget import LocalGenerationBudget
 from backend.app.features.personas.online_context import probe_context
 from backend.app.features.personas.online_population import load_neon_population
-from backend.app.features.personas.source_population_run import APPROVAL_REFERENCE
+from backend.app.features.personas.product_handoff import ProductBinding
 from backend.app.shared.inference import HuggingFaceInference, InferenceError
 from backend.app.shared.settings import Settings
 
-JOURNAL_ID = "sourcetable-500-generation-20261010"
 
-
-def _approved_budget(directory: Path) -> tuple[str, Decimal]:
+def _approved_budget(directory: Path, journal_id: str, approval_reference: str) -> tuple[str, Decimal]:
     record = json.loads((directory / "budget.json").read_text(encoding="utf-8"))
     limit = Decimal(record["limit_dollars"])
-    if (record["experiment_id"] != JOURNAL_ID
-            or record["approval_reference"] != APPROVAL_REFERENCE
+    if (record["experiment_id"] != journal_id
+            or record["approval_reference"] != approval_reference
             or not limit.is_finite() or not Decimal(0) < limit <= Decimal(4)
             or record["blocked"]):
         raise ValueError("SPEND_JOURNAL_NOT_APPROVED")
@@ -31,21 +30,25 @@ def _approved_budget(directory: Path) -> tuple[str, Decimal]:
     return version, limit
 
 
-async def run(directory: Path, *, index: int = 0) -> dict:
+async def run(directory: Path, *, binding_path: Path, journal_id: str, approval_reference: str, index: int = 0) -> dict:
     """The population must be freshly read through C's Python repository before HF sends."""
-    version, limit = _approved_budget(directory)
+    version, limit = _approved_budget(directory, journal_id, approval_reference)
+    raw_binding = json.loads(binding_path.read_text())
+    binding = ProductBinding(raw_binding["snapshot_json"], raw_binding["version"])
+    if binding.data()["product_manifest"] != load_handoff().model_dump(mode="json"):
+        raise ValueError("SELECTED_PROTOTYPE_BINDING_REQUIRED")
     settings = Settings(app_mode="live", experiment_budget_limit=float(limit))
     report = {"status": "blocked", "source": "neon_python_repository",
               "population_version": version, "trials_completed": 0,
               "started_at": datetime.now(UTC).isoformat()}
     try:
-        bound = load_neon_population(settings, version)
+        bound = load_neon_population(settings, version, binding=binding)
     except Exception:
         report["code"] = "NEON_POPULATION_READ_FAILED"
         return report
     try:
-        with_budget = LocalGenerationBudget(directory, JOURNAL_ID, limit,
-                                            approval_reference=APPROVAL_REFERENCE)
+        with_budget = LocalGenerationBudget(directory, journal_id, limit,
+                                            approval_reference=approval_reference)
     except FileExistsError:
         report["code"] = "PAID_RUN_LOCK_EXISTS"
         return report
@@ -79,10 +82,12 @@ def main():
     parser.add_argument("--run", action="store_true", required=True,
                         help="Use the existing guarded diagnostic budget for one HF request")
     parser.add_argument("--index", type=int, default=0)
-    parser.add_argument("--directory", type=Path,
-                        default=Path("artifacts/sourcetable-generation"))
+    parser.add_argument("--directory", type=Path, required=True)
+    parser.add_argument("--binding", type=Path, required=True)
+    parser.add_argument("--journal-id", required=True)
+    parser.add_argument("--approval-reference", required=True)
     arguments = parser.parse_args()
-    report = asyncio.run(run(arguments.directory, index=arguments.index))
+    report = asyncio.run(run(arguments.directory, index=arguments.index, binding_path=arguments.binding, journal_id=arguments.journal_id, approval_reference=arguments.approval_reference))
     print(json.dumps({key: report.get(key) for key in (
         "status", "code", "source", "population_version", "persona_id", "review_id",
         "trials_completed")}, sort_keys=True))

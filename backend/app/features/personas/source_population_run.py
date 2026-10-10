@@ -6,6 +6,7 @@ import json
 from decimal import Decimal
 from pathlib import Path
 
+from backend.app.features.integration.handoff import load_handoff
 from backend.app.features.personas.behavior_extraction import BehaviorProposals, PendingExtraction
 from backend.app.features.personas.generation_batches import (
     CheckpointedDetailBatches,
@@ -23,13 +24,13 @@ from backend.app.features.personas.population import (
     generate_population,
     population_messages,
 )
-from backend.app.features.personas.product_handoff import consume_sourcetable_handoff
+from backend.app.features.personas.product_handoff import ProductBinding
 from backend.app.features.personas.review_corpus import FrozenCorpus
 from backend.app.shared.inference import HuggingFaceInference, InferenceError
 from backend.app.shared.settings import Settings
 
-GENERATION_VERSION = "sourcetable-fictional-batches5-v1"
-APPROVAL_REFERENCE = "user-4usd-cap-and-explicit-sourcetable500-request"
+GENERATION_VERSION = "prototype-fictional-batches5-v1"
+
 
 
 def _read(path):
@@ -114,15 +115,20 @@ def persist_neon(corpus, approved, population, settings):
 
 
 async def run(*, corpus_path: Path, directory: Path, remaining_budget: Decimal,
-              persist: bool = False):
+              binding_path: Path, approval_reference: str, persist: bool = False):
     if not remaining_budget.is_finite() or not Decimal(0) < remaining_budget <= Decimal(4):
         raise PopulationError("INVALID_AUTHORIZED_REMAINING_BUDGET")
     corpus, approved = inputs(corpus_path, directory)
-    binding = consume_sourcetable_handoff()
+    binding_data = _read(binding_path)
+    binding = ProductBinding(binding_data["snapshot_json"], binding_data["version"])
+    if binding.report()["configured_count"] != 500 or not approval_reference.strip():
+        raise PopulationError("EXPLICIT_POPULATION_APPROVAL_REQUIRED")
+    if binding.data()["product_manifest"] != load_handoff().model_dump(mode="json"):
+        raise PopulationError("SELECTED_PROTOTYPE_BINDING_REQUIRED")
     policy = qwen_smoke_policy()
     plan = forecast(binding, approved.data(corpus), policy)
-    ledger = LocalGenerationBudget(directory, "sourcetable-500-generation-20261010",
-        remaining_budget, approval_reference=APPROVAL_REFERENCE)
+    ledger = LocalGenerationBudget(directory, "prototype-generation:" + binding.version,
+        remaining_budget, approval_reference=approval_reference)
     settings = Settings(app_mode="live", experiment_budget_limit=float(remaining_budget))
     adapter = HuggingFaceInference(settings)
     report = {"status": "blocked", "configured_count": 0, "completed_trials": 0,
@@ -179,11 +185,13 @@ def main():
     parser.add_argument("--remaining-budget", type=Decimal, required=True)
     parser.add_argument("--corpus", type=Path, required=True)
     parser.add_argument("--directory", type=Path, required=True)
+    parser.add_argument("--binding", type=Path, required=True)
+    parser.add_argument("--approval-reference", required=True)
     parser.add_argument("--persist-neon", action="store_true")
     args = parser.parse_args()
     try:
         report = asyncio.run(run(corpus_path=args.corpus, directory=args.directory,
-            remaining_budget=args.remaining_budget, persist=args.persist_neon))
+            remaining_budget=args.remaining_budget, binding_path=args.binding, approval_reference=args.approval_reference, persist=args.persist_neon))
         print(json.dumps({k: v for k, v in report.items() if k != "budget"}, indent=2))
         if report["configured_count"] != 500:
             raise SystemExit(1)

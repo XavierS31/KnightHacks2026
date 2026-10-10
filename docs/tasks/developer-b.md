@@ -1,10 +1,8 @@
 # Developer B kickoff — AI personas and world
 
-Latest online data/pilot evidence: [B online data report](developer-b-online-data-report.md). Fresh Neon HTTPS readback fed one review-linked population record to guarded Hugging Face inference. The response validated exact IDs; zero browser trials completed. Normal Python Neon transport and A's local product runtime still gate the pilot.
+Latest online data/pilot evidence: [B online data report](developer-b-online-data-report.md). Fresh Neon HTTPS readback fed one review-linked population record to guarded Hugging Face inference. The response validated exact IDs; zero browser trials completed. Normal Python Neon transport and the selected-prototype runtime gate still gate the pilot.
 
 Use `developer_b_personas` and `$repofusion-personas`. Read root AGENTS.md, ownership, architecture, runtime/data contracts and roadmap. Inspect current files before repeating completed starter work.
-
-Read [software behavior](../software-behavior.md). Every live persona requires real-review-informed software behavior. B owns source collection, corpus deduplication, HF extraction/assignment and provenance UI; C owns durable storage. Five SourceTable-relevant reports, independent support approval and 500 real HF-generated fictional profiles are evidenced and saved locally and verified in Neon dev. Native backend connectivity and product-backed execution remain gated. See the [population report](developer-b-population-report.md) for current changes, checks and remaining work; the [runtime report](developer-b-runtime-report.md) covers the earlier foundation slice.
 
 ## Boundaries and inputs
 
@@ -13,8 +11,6 @@ Own both `features/personas` modules, `backend/tests/personas/**` and `backend/a
 ## Emerging opportunity consumer handoff — 2026-10-10
 
 Read [opportunity discovery](../opportunity-discovery.md). A now discovers an emerging anchor and suggests a feature extension or optional integration; a two-repo pair is no longer required. `OpportunityReport`/shortlist/illustrative examples are hypotheses, not verified capabilities or a trial launch. This revision does not complete a new population, persona trial or simulation.
-
-Consume only a subsequently validated A ProductHandoff with immutable product/check/task identities, factual supported capabilities and scoped initial state. Use the selected opportunity's audience/problem to choose relevant review sources, personas and scenarios; preserve assumptions and negative relevance rather than engineering favorable feedback. Reject unsupported proposed features from task planning. Existing browser isolation, viewer, mandatory coverage and matched retest contracts remain unchanged. SourceTable's frozen v1 remains the earlier runnable experiment, not automatic evidence for a newly proposed opportunity.
 
 Coordinate the factual briefing/task mapping with A and persistence with C before launching a selected-opportunity pilot. Keep five-person pilot, 20-person soak and full-batch evidence distinct; no new live execution is claimed by the discovery UI. Historical progress entries below retain their original evidence and configuration dates.
 
@@ -40,15 +36,6 @@ calls and zero trials. Native Python port-5432 connectivity remains blocked;
 hosted reviewer identity and durable worker wiring remain open. Latest-master
 verification: 554 passed, 66 environment-gated skips; lint/contracts/typecheck/build pass.
 See the population report for hashes, remaining work and transport limitations.
-
-2026-10-10 SourceTable population: five actual upstream reports collected; one tentative
-source-inspection policy independently approved after rejecting incompatible drafts.
-500 fictional review-informed personas/scenarios/tasks generated through 100 successful
-HF batches and frozen in local durable files, zero trials. A normal6 task consumed;
-error7/recovery9 templates excluded. C immutable migration/repository coordinated and
-tested; DATABASE_URL absent, no Neon write. 523 backend tests pass with Chromium,
-18 unavailable Docker/DB skips; lint/type/build/contracts pass. Aggregate conservative
-spending $0.05753544/$4. P1/P2/P4 partial, P3 unexecuted. See the population report.
 
 2026-10-10 runtime foundation follow-up: population/independent support review, conservative spend
 reservations, bounded executor/HF action+feedback policy and exact selected mock captures are built.
@@ -91,3 +78,6 @@ Windows checkout line endings; the generated content is unchanged.
 
 2026-10-10 starter complete: owned HF adapter scaffolding and focused offline tests, authenticated fixture session detail/WebSocket state and heartbeat, and exact-session character/viewer switching are implemented. No captured frames/actions are fabricated. Combined schema/type/build checks passed; desktop/mobile browser smoke verified session selection. Real HF access, product-backed Playwright worker, persisted evidence and all 1,000 mandatory trials remain gated. Next: authenticate representative inference and execute one real task against A's validated product.
 
+
+
+Current prototype gate: no product is selected. Consume only a subsequent validated immutable catalog with factual capabilities, source/implementation pins, initial states and deterministic checks. Existing historical records do not establish compatibility. Generic review, persona, persistence, analysis, isolated edit and matched retest infrastructure remains available. See [handoff](../handoffs/developer-a-v1.md).

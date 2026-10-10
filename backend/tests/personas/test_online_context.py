@@ -1,4 +1,4 @@
-"""Offline SourceTable binding and cited-context checks; no Neon or paid inference."""
+"""Offline generic prototype binding and cited-context checks; no Neon or paid inference."""
 
 import json
 from datetime import UTC, datetime, timedelta
@@ -7,8 +7,7 @@ from uuid import uuid4
 
 import pytest
 
-from backend.app.features.integration.product.checks import EXPECTED_ROWS
-from backend.app.features.integration.product.handoff import ProductHandoff
+from backend.app.features.integration.handoff import ProductHandoff
 from backend.app.features.personas.inference_budget import BudgetedInference
 from backend.app.features.personas.live_trial_worker import (
     JOB_KIND,
@@ -26,12 +25,13 @@ from backend.app.features.personas.online_population import (
     load_neon_population,
 )
 from backend.app.features.personas.population import approve_behavior, generate_population
-from backend.app.features.personas.product_handoff import consume_sourcetable_handoff
+from backend.app.features.personas.product_handoff import consume_product_handoff
 from backend.app.features.personas.session_execution import TrialGateError, TrialPlan
 from backend.app.shared.inference import InferenceResult
 from backend.app.shared.jobs import JobRecord, Lease
 from backend.app.shared.settings import Settings
 from backend.tests.personas.test_population import FakeHF, inputs
+from backend.tests.prototype_fixtures import handoff, quota
 
 
 class FakeGuarded(BudgetedInference):
@@ -46,13 +46,13 @@ class FakeGuarded(BudgetedInference):
 
 async def test_real_catalog_binds_500_fake_generated_records_before_hf_context():
     corpus, draft, support, _, _ = inputs()
-    binding = consume_sourcetable_handoff()
+    binding = consume_product_handoff(candidate=handoff(), quotas=[quota()])
     population = await generate_population(
         corpus, approve_behavior(draft, corpus, support), FakeHF(),
         quotas=binding.quotas(), task_templates=binding.tasks(),
         generation_version="invented-test-only-v1", purpose="complete",
     )
-    bound = bind_population(population, expected_version=population.version)
+    bound = bind_population(population, binding=binding, expected_version=population.version)
     assert bound.population.data()["configured_count"] == 500
     assert bound.population.data()["completed_trials"] == 0
     persona, task = bound.persona_task(0)
@@ -77,8 +77,8 @@ async def test_real_catalog_binds_500_fake_generated_records_before_hf_context()
     with pytest.raises(OnlinePopulationError, match="INFERENCE_CONTEXT_IDENTITY_MISMATCH"):
         await probe_context(bound, 0, guarded)
     with pytest.raises(OnlinePopulationError, match="POPULATION_VERSION_MISMATCH"):
-        bind_population(population, expected_version="0" * 64)
-    with pytest.raises(OnlinePopulationError, match="SOURCETABLE_RUNTIME_NOT_VERIFIED"):
+        bind_population(population, binding=binding, expected_version="0" * 64)
+    with pytest.raises(OnlinePopulationError, match="SELECTED_PROTOTYPE_RUNTIME_NOT_VERIFIED"):
         bound.trial_plan(0, uuid4(), artifact_root=Settings().artifact_root)
 
     product = ProductHandoff.model_validate(binding.data()["product_manifest"]).version
@@ -97,32 +97,17 @@ async def test_real_catalog_binds_500_fake_generated_records_before_hf_context()
 
     plan = TrialPlan(mode="live", product=product, persona=persona,
                      task=task, experiment_id=uuid4())
-    reset, check = product_callbacks(plan, bound)
-    state = await reset(uuid4(), task.initial_state_ref, product.id)
-    assert state.product_version_id == product.id
-
-    class Page:
-        def __init__(self, observation, error=False):
-            self.observation, self.error = observation, error
-
-        async def wait_for_function(self, *_args, **_kwargs):
-            return None
-
-        async def evaluate(self, _script):
-            return self.observation
-
-        def locator(self, _selector):
-            return self
-
-        async def is_visible(self):
-            return self.error
-
-    success = {"verdict": "Schema checks passed", "rows": EXPECTED_ROWS,
-               "selected": {"row": 2, "column": 2, "text": "2"},
-               "source_detail": "Page 1", "error_count": 0}
-    assert (await check(Page(success), uuid4(), task.check_id)).outcome == "success"
-    assert (await check(Page({}), uuid4(), task.check_id)).outcome == "continue"
-    assert (await check(Page({}, error=True), uuid4(), task.check_id)).outcome == "application_failure"
+    with pytest.raises(TrialGateError, match="SELECTED_PROTOTYPE_CALLBACKS_REQUIRED"):
+        product_callbacks(plan, bound)
+    async def reset_fixture(session_id, state, version):
+        return {"session_id":session_id, "initial_state_ref":state, "product_version_id":version}
+    async def check_fixture(page, session_id, check_id):
+        return {"outcome":"success", "code":"SYNTHETIC_CHECK"}
+    reset, check = product_callbacks(plan, bound, callbacks=(reset_fixture, check_fixture))
+    assert (await reset(uuid4(), task.initial_state_ref, product.id)).product_version_id == product.id
+    assert (await check(None, uuid4(), task.check_id)).outcome == "success"
+    with pytest.raises(TrialGateError, match="UNKNOWN_FIXED_CHECK"):
+        await check(None, uuid4(), 'wrong-check')
 
 
 def test_fixture_configuration_cannot_read_neon_or_send_hf():

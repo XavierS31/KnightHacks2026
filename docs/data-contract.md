@@ -47,8 +47,6 @@ Current fallback storage: A's ignored `artifacts/integration-momentum.json` reta
 
 C owns the future ordered migrations/repositories: persist observations with retrieval/source lineage, immutable report/source/inference payloads, separate review decisions and research findings, then an optional link to a validated product version. Do not overwrite original hypothesis evidence with later research or synthetic feedback. Observation includes an optional source_reference; durable storage must also retain enclosing discovery provenance and unknown source lineage in older observations. No new Neon opportunity tables or roundtrip are established here.
 
-B receives only a subsequent validated immutable product handoff, factual briefing, initial state and fixed task/check inventory. Opportunity audience/problem can inform relevant personas, but neither model hypotheses nor illustrative examples authorize a trial or establish demand. Existing ProductVersion/ProductHandoff/session/retest identities and frozen SourceTable v1 remain unchanged.
-
 ## Population provenance
 
 Track source URL/identifier, publisher, vintage, geography, raw-field mapping, transformations and coverage for observed distributions. Track an assumption ID and rationale for fictional attributes. Do not fabricate joint distributions by combining unrelated marginals. Do not sum UCF enrollment into regional population totals. A deliberately balanced population is a coverage test, not a population estimate.
@@ -67,8 +65,9 @@ Freeze matched persona IDs, scenario IDs, software-behavior patterns/corpus/extr
 
 Target feature-owned tables cover repository observations/repositories/evidence/opportunity reports/decisions/research/checks/versions (legacy proposals remain compatible); sources/review_corpora/software_reviews/populations/personas/scenarios/tasks/experiments/sessions/actions/feedback; clusters/improvements/retests/comparisons; jobs/inference requests/artifact references. Normalize shared review evidence and corpus membership; preserve immutable persona behavior JSONB with resolvable source IDs. Use foreign keys, relational identity/status fields and JSONB for structured payloads. C controls migration order. Review/persona persistence remains planned; the initial migration does not implement it. Schema additions follow the shared contract change process.
 
-
-
 Automatic studies are separate from the retained manual OpportunityReport contract. ResearchStudy stores bounded source-derived RepositoryResearch briefs and EvaluatedProduct hypotheses/critics/search evidence. Summary claims are linked to pinned excerpts; discovered-only candidates are explicitly not researched. Supporting-tool stats are unknown, not a measured zero. Reports/jobs remain process-local (browser reload can reconnect; server restart loses state). Future C persistence should retain immutable source/brief/model/search lineage and job terminal states without promoting suggestions to validated ProductVersion records.
 
 Automatic study discovery runs and pinned snapshots now consume the merged I1 append-only storage boundary when configured. Whole study jobs, explanatory briefs and repurposing/critic reports are still in memory. Source persistence is not proof of product execution or a completed simulation.
+
+
+Current prototype gate: no product is selected. Consume only a subsequent validated immutable catalog with factual capabilities, source/implementation pins, initial states and deterministic checks. Existing historical records do not establish compatibility. Generic review, persona, persistence, analysis, isolated edit and matched retest infrastructure remains available. See [handoff](handoffs/developer-a-v1.md).

@@ -44,7 +44,7 @@ class SequenceInference:
 def brief():
     return BriefOutput(summary='A document parser that outputs structured text for automation.',
         original_purpose='Document conversion', distinctive_mechanism='Preserves structure', inputs='PDF', outputs='Text',
-        interfaces='Python library', reuse_limits='Only bounded tested fixtures',
+        interfaces='Python library', reuse_limits='Only bounded tested fixtures', reuse_assessment='promising', selection_reason='Documented parser library supports reuse in new workflows',
         capabilities=[BriefCapability(name='Parse', mechanism='Extract structured text', citation_ids=[0])])
 
 
@@ -58,7 +58,7 @@ def idea(name):
 
 
 def critique(scope='substantial_repurpose', novelty='no_close_match'):
-    return CritiqueOutput(scope=scope, novelty=novelty, reason='A distinct workflow in this fixture',
+    return CritiqueOutput(scope=scope, novelty=novelty, technical_support="supported", reason='A distinct workflow in this fixture',
                           difference='Bounded search only', matching_references=[])
 
 
@@ -72,7 +72,9 @@ class FakeDiscovery:
 
 class FakeSources:
     async def research(self, repo, token):
-        return (await snapshot()).model_copy(update={'repository_id': repo.id, 'full_name': repo.full_name})
+        source = (await snapshot()).model_copy(deep=True, update={'repository_id': repo.id, 'full_name': repo.full_name})
+        source.documents[0].text = 'Parser engine library API SDK. Usage example: input document, output structured text. Automation integration for custom workflows.'
+        return source
 
 
 class FakeAlternatives:

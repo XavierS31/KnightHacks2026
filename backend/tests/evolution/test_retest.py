@@ -4,7 +4,6 @@ from uuid import NAMESPACE_URL, UUID, uuid4, uuid5
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.app.features.evolution.bounded_improvements import STALE_STATUS
 from backend.app.features.evolution.evidence import EvidenceMismatch
 from backend.app.features.evolution.lifecycle import PatchLifecycle
 from backend.app.features.evolution.models import (
@@ -37,11 +36,12 @@ from backend.app.shared.contracts import (
 )
 from backend.app.shared.fixtures import PERSONAS
 from backend.app.shared.settings import Settings, get_settings
+from backend.tests.prototype_fixtures import STALE_STATUS
 
 HUMAN = Actor(id="human-1", role="human_reviewer")
 QA = Actor(id="qa-1", role="qa_reviewer")
 IMPLEMENTER = Actor(id="implementer-1", role="implementer")
-BASE = BaseVersion(version_id=uuid4(), label="SourceTable v1",
+BASE = BaseVersion(version_id=uuid4(), label="Synthetic prototype v1",
                    fixed_check_ids=["normal-v1"], fixed_checks_sha256="a" * 64)
 IMPROVEMENT = Improvement(
     id=uuid4(), title="Clarify the input format", issue="Personas could not find supported input",

@@ -15,19 +15,18 @@ from backend.app.features.evolution.demo_evidence import (
     v1_source_check,
     versions_check,
 )
-from backend.app.features.integration.product.freeze import implementation_hashes
-from backend.app.features.integration.product.handoff import MANIFEST, ProductHandoff
 from backend.app.shared.database import NeonDatabase
 from backend.app.shared.fixtures import EXPERIMENT, SESSIONS
 from backend.app.shared.settings import Settings
+from backend.tests.prototype_fixtures import handoff
 
-HANDOFF = ProductHandoff.model_validate_json(MANIFEST.read_text())
+HANDOFF = handoff()
 
 
 def test_frozen_v1_sources_match_the_working_tree():
-    check = v1_source_check(HANDOFF, implementation_hashes())
+    check = v1_source_check(HANDOFF, dict(HANDOFF.implementation_hashes))
     assert check.status == "pass"
-    assert check.facts["label"] == "SourceTable v1"
+    assert check.facts["label"] == "Synthetic prototype v1"
     assert check.facts["commit_sha"] == HANDOFF.version.commit_sha
 
 
@@ -36,17 +35,17 @@ def test_changed_missing_or_added_v1_sources_fail():
     changed, removed = sorted(current)[:2]
     current[changed] = "0" * 64
     del current[removed]
-    current["frontend/src/features/integration/product/extra.js"] = "1" * 64
+    current["product/ui/extra.js"] = "1" * 64
     check = v1_source_check(HANDOFF, current)
     assert check.status == "fail"
     assert check.facts["drifted"] == [changed]
     assert check.facts["missing"] == [removed]
-    assert check.facts["added"] == ["frontend/src/features/integration/product/extra.js"]
+    assert check.facts["added"] == ["product/ui/extra.js"]
 
 
 def test_unvalidated_v1_manifest_fails():
     draft = HANDOFF.model_copy(update={"version": HANDOFF.version.model_copy(update={"status": "draft"})})
-    assert v1_source_check(draft, implementation_hashes()).status == "fail"
+    assert v1_source_check(draft, dict(HANDOFF.implementation_hashes)).status == "fail"
 
 
 def test_fixture_analysis_is_labeled_and_claims_nothing():
@@ -107,7 +106,7 @@ def stored_pipeline(migrated_settings):
                            ("a" * 64,))
         connection.execute(
             "INSERT INTO product_versions (id, label, status, commit_sha, manifest) "
-            "VALUES (%s, %s, 'validated', %s, %s), (%s, 'SourceTable v2', 'approved', %s, %s)",
+            "VALUES (%s, %s, 'validated', %s, %s), (%s, 'Synthetic prototype v2', 'approved', %s, %s)",
             (HANDOFF.version.id, HANDOFF.version.label, HANDOFF.version.commit_sha, Jsonb({}),
              v2_id, "b" * 40, Jsonb({})))
         connection.execute(

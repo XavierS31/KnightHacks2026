@@ -1,10 +1,8 @@
 # Product backlog
 
-2026-10-10 B online-data checkpoint: fresh Neon HTTPS population readback fed one frozen, review-linked persona/task context to guarded Hugging Face inference; exact output IDs validated. Zero trials. One-pilot job/evidence code is prepared, pending normal Python Neon connectivity, A's running frozen product, C experiment registration and a measured pilot. See [online data report](tasks/developer-b-online-data-report.md).
+2026-10-10 B online-data checkpoint: fresh Neon HTTPS population readback fed one frozen, review-linked persona/task context to guarded Hugging Face inference; exact output IDs validated. Zero trials. One-pilot job/evidence code is prepared, pending normal Python Neon connectivity, a newly selected validated prototype, C experiment registration and a measured pilot. See [online data report](tasks/developer-b-online-data-report.md).
 
 Updated 2026-10-10. This is the prioritized implementation backlog; [roadmap](roadmap.md) defines sequencing and [status](status.md) records verification evidence. Each developer owns frontend, backend and tests for their phase.
-
-**Current count: 13 required milestones, 1 complete (F1), 12 remaining.** Seven remaining milestones have partial work; five are not started. B has now independently approved one SourceTable-compatible review-informed policy and generated 500 fictional profiles through real HF, saved locally and verified in Neon dev. Native backend connectivity and trials remain unfinished. See [B population report](tasks/developer-b-population-report.md). Checklists do not increase milestone counts.
 
 Priority **P0** means required for the complete demo, **P1** means improvement after P0, and **P2** means stretch. A milestone named `P1` is a persona milestone ID, not a priority. “Partial” means some code exists but the full acceptance criteria have not passed. Configured persona records, fixture sessions and passing scaffold tests do not establish executed trials.
 
@@ -20,18 +18,18 @@ Owner: **A**, using `developer_a_integration` and `$repofusion-integration`.
 
 | ID | Priority / status | User outcome and work remaining | Dependencies | Acceptance and verification |
 | --- | --- | --- | --- | --- |
-| I1 | P0 / Partial | Discover 20–30 candidates and investigate anchor-first opportunities; feature extensions and optional integrations are supported, with abstention when evidence is weak. Bounded Popular discovery and commit-pinned README/license/documentation collection with sampled issues are implemented; live collection has been checked. Date-filtered Popular, genuine Trending and shared-HF interpretations/proposals are implemented; 27 pinned candidates, 26 cited extractions and five critiqued pair hypotheses are recorded. Complete role-output support review and durable evidence storage. | F1; B's verified HF client; C's persistence interface; GitHub access | Candidates and proposals have source references, collection times, inspected commits and explicit adapter boundaries. Test extraction, provenance, malformed inputs, missing sources, quotas and Popular/Trending separation; demonstrate real source reads. |
-| I2 | P0 / Earlier sample proof; new selection open | Select one useful, feasible opportunity after researching exact integrations and equivalent products. Feature extensions need no second repo. Show overlaps, proposed advantages and unresolved assumptions. Initial primary-source overlap research and independent pdfplumber/Frictionless Docker probes passed; the narrow SourceTable adapter and immutable local environment/implementation manifest now pass fixed checks; broader coverage and portability remain open. | I1; research access; source runtime inspection | Persist queries/results and a reviewed selection with interface semantics, dependencies, licensing notes and known independent-execution fixtures. Test gate decisions against evidence; no unsupported uniqueness claim. |
-| I3 | P0 / Validated on fixed samples | Run both sources independently and connect one narrow real workflow through an adapter. | I2; Docker/isolated execution; approved fixtures | Known input produces checked output through both sources. Independent, normal, invalid-input, incompatible-output and timeout checks pass; commits/environment and tolerances are recorded. |
-| I4 | P0 / Local handoff ready | Use the integrated product through a real frontend and provide personas a factual briefing. | I3; shared version/task contracts | Product UI calls the real operation and handles loading/error/empty states. Immutable v1 manifest and validated capability inventory match the implementation. A browser smoke verifies the operation; B receives fixture state, task templates and deterministic checks. |
+| I1 | P0 / Partial | Automatic emerging discovery, source-based screening, bounded replacement, cited HF research and alternative comparison exist. Durable studies and independently reviewed semantic support remain open. | F1; HF budget; GitHub access | Real automatic flow with honest selection/source/failure evidence; source snapshots persist through C's configured repository. |
+| I2 | P0 / Open | Select one substantial, useful opportunity after comparing alternatives and inspecting reusable interfaces. No prototype is selected. | I1; source runtime/license inspection | Reviewed audience, workflow, value, technical support and independent input/output fixtures. |
+| I3 | P0 / Open | Implement the selected prototype and independently execute every necessary tool. | I2; isolated execution | Real normal, invalid, incompatible and timeout checks; pinned environment and implementation. |
+| I4 | P0 / Open | Validate desktop/mobile operation and freeze a factual B/C handoff. | I3 | Immutable product manifest, validated capabilities, initial states and fixed checks; real UI verification. |
 
 ### Next tasks for A
 
 - [x] **I1 source collector:** Pin commits and fetch bounded documentation/issues with provenance; mocked failure checks and a real public-repository read passed. Full candidate/proposal coverage remains open.
 - [x] **I1 HF boundary:** Shared HF adapter, citation-linked interpretations and proposal previews checked offline and with live calls; interpretation support still needs review before capabilities are validated.
 - [ ] **I1 persistence:** Coordinate durable candidate/evidence/proposal storage with C.
-- [x] **I2 fixed-sample selection:** Research overlap and select pinned pdfplumber/Frictionless; no uniqueness claim.
-- [x] **I3/I4 local fixed-sample gate:** Independent sources, real adapter/product checks and immutable briefing/check catalog established. C persistence and B consumption remain separate.
+- [ ] **I2 selection:** Review and select a substantial new opportunity.
+- [ ] **I3/I4 prototype gate:** Implement, independently check and freeze the newly selected prototype.
 
 **Inputs → outputs:** GitHub/research evidence → reviewed anchor opportunity → tested extension/adapter → immutable product manifest/briefing. Investigation and UI can proceed against fixtures in parallel; real adapter execution waits for selection. If selected source tools cannot run within six hours of implementation work, simplify or switch the opportunity. Reduce proposal breadth before sacrificing the real integration.
 
@@ -53,7 +51,7 @@ Owner: **B**, using `developer_b_personas` and `$repofusion-personas`.
 - [x] **P1 foundation:** Exact-500/pilot population generator, independent approval gate and immutable lineage tested with fake HF; no live population generated or persisted.
 - [x] **P2/P4 foundation:** Bounded executor, runtime HF decision/feedback policy and exact PNG viewer; local mock API/UI smoke passed with zero mandatory counts.
 - [x] **P1 live generation:** Five A-relevant upstream reports collected; independent agent rejected incompatible policies and approved one tentative source-inspection pattern; 500 HF-generated fictional profiles frozen locally with 100 real batch requests.
-- [x] **P1/P2 catalog:** A's exact frozen normal6 task bound to 500 scenarios. Error7/recovery9 tasks excluded; runtime verification remains open.
+- [ ] **P1/P2 catalog:** Bind a newly selected validated prototype to reviewed product-relevant tasks and scenarios. Historical populations remain preserved and are not current compatibility proof.
 - [x] **P1 bundle persistence:** DATABASE_URL configured privately; migration 005 applied after canonical 001–004; actual immutable 500-person bundle write/readback, retry and rollback verified through official Neon HTTPS.
 - [ ] **P1 production persistence:** Repair native backend PostgreSQL connectivity and exercise the Python repository; hosted reviewer authentication remains separate.
 - [ ] **P2 execution:** Verify local runtime, wire durable evidence/atomic distributed ledger/leases, then one real trial. Local generation journals do not finish experiment storage.

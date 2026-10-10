@@ -1,6 +1,6 @@
 # Issue #13 — evidence-linked improvement handoff
 
-The E2 implementer, isolated QA and release composition exist. Closing #13 still requires
+The E2 implementer, generic isolated QA orchestration and release composition exist. No prototype or runtime runner is selected. Closing #13 still requires
 two or three improvements supported by executed E1 evidence, review of A's boundary,
 QA on the frozen runtime and human approval of the resulting v2. A passing scaffold test
 does not establish any of those live approvals.
@@ -58,19 +58,9 @@ sessions, feedback records and product versions, and zero analysis records. No d
 migration was performed. These counts do not contradict the separately persisted configured
 500-person population: configured personas are not executed trials.
 
-The local SourceTable image is
-`sha256:9defc8bf9def9500fec38892bc8ed973468f692ffa04fa5593c0cd19c6d7814d`.
-A's frozen image is
-`sha256:998df8c083e6094f9aac9a347b2fe61670dcc4ea9407e17b57accba128193d5e`,
-which is absent locally. The configured artifact directory has no trial snapshots or runtime
-image record, and HF is unconfigured in this checkout. The frozen-image gate is not relaxed.
+No prototype is currently selected. The selected runtime, independent check procedures and evaluator must be registered before QA can execute. Earlier image/build checks remain historical evidence and cannot establish new prototype correctness. No real E1 proposal, new persona trial or human v2 approval is established by the cleanup; issue #13 remains open.
 
-Validation uses invented test evidence in disposable local PostgreSQL schemas. Docker/Chromium
-QA uses the available image rebuild and keeps that distinction in its evidence. A no-op Extract
-handler must fail every fixed browser check. No real E1 proposal, new persona trial or human v2
-approval is established by these checks; issue #13 remains open.
-
-## Validation of this follow-up
+## Historical validation of the prior follow-up
 
 - Full backend suite with disposable local TLS PostgreSQL and opt-in QA on the existing image
   rebuild, after rebasing onto master with B's single-pilot evidence path: **676 passed,
