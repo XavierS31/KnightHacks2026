@@ -73,7 +73,8 @@ approval is established by these checks; issue #13 remains open.
 ## Validation of this follow-up
 
 - Full backend suite with disposable local TLS PostgreSQL and opt-in QA on the existing image
-  rebuild: **672 passed, 22 skipped**. Real Docker/Chromium checks include the no-op Extract
+  rebuild, after rebasing onto master with B's single-pilot evidence path: **676 passed,
+  22 skipped**. Real Docker/Chromium checks include the no-op Extract
   regression, individual patches, combined release, rejection and rollback. New deterministic
   intake/persistence tests use invented records, with no mocks or paid inference.
 - Backend lint, OpenAPI drift, generated frontend contract drift, typecheck and production build
