@@ -22,6 +22,23 @@ Test session isolation, bounded actions/stopping, evidence references, worker re
 
 ## Progress log
 
+2026-10-10 mock A handoff slice: B-owned `mock_handoff.py`, `mock_product.py`, `mock_worker.py`
+and `kickoff.py` supply a complete synthetic handoff category set, 500 deterministic fixture
+persona/scenario/task identities, isolated loopback Chromium mechanics, actual in-memory screenshots,
+fixed output checks and explicit failure/cancellation/action-limit handling. Source commits are
+honestly unavailable, capability validation stays false and completed trial counts stay zero.
+The opt-in `--hf-smoke` command is ready for user-supplied token/model/provider and authorized budget;
+no paid call was made. See `backend/app/features/personas/README.md` for commands and credential gates.
+Real review collection/extraction, HF persona generation, dollar spend enforcement, C-coordinated
+durable storage, A's validated real product, streamed production frames/feedback and pilots/full
+batches remain open. This slice does not complete P1/P2/P3/P4.
+Verification: 127 combined backend tests pass with local Chromium checks enabled, plus backend lint,
+OpenAPI/generated TypeScript drift checks and frontend typecheck/build. The standalone browser smoke
+passes its mock output check with four actual in-memory frames. HF/Neon remain unconfigured.
+PR preparation rebased this slice onto A's merged source-inspection work: 149 combined backend
+tests, lint, OpenAPI/type drift, typecheck and build pass. API types were regenerated to normalize
+Windows checkout line endings; the generated content is unchanged.
+
 2026-10-10 behavior schema update: required review evidence/profile/pattern contracts, honest fixture example, provenance viewer and lineage validation added. Open P1 work: collect real reviews, independently verify extraction support, implement HF generation/assignment and persist the 500-person population. The contract does not establish real review ingestion.
 
 2026-10-10 starter complete: owned HF adapter scaffolding and focused offline tests, authenticated fixture session detail/WebSocket state and heartbeat, and exact-session character/viewer switching are implemented. No captured frames/actions are fabricated. Combined schema/type/build checks passed; desktop/mobile browser smoke verified session selection. Real HF access, product-backed Playwright worker, persisted evidence and all 1,000 mandatory trials remain gated. Next: authenticate representative inference and execute one real task against A's validated product.

@@ -27,3 +27,14 @@ Fixture responses, synthetic character animation and development feedback are us
 2026-10-10 A source inspection: commit-pinned README/license/explicit documentation reads and bounded issue snapshots are implemented with visible partial failures and memory-only retention. A real psf/requests collection returned pinned files and three issue records without HF inference or code execution. 121 backend tests, lint, OpenAPI/type drift checks, frontend typecheck/build passed. This verifies source collection only; it does not establish a selected pair, licensing approval, proposal extraction, durable Neon storage or a validated adapter. Docker CLI is present; the daemon was unavailable during local readiness checking.
 
 Source inspection desktop/mobile browser check passed, including expanded source excerpts and no horizontal overflow at 390px. Local captures are under ignored artifacts/.
+2026-10-10 B mock A handoff verified: 127 backend tests pass with `B_BROWSER_TESTS=1`, including
+seven actual local Chromium checks for mock-page success/failure, cancellation, target validation,
+action limits, initial-state mismatch and context isolation/recovery. Backend lint, OpenAPI drift,
+frontend generated-contract check, typecheck and build pass. The standalone mock browser command
+observed navigation, two clicks, a deterministic check and four captured frames in memory. The new
+500-person fixture builder configures distinct persona/scenario/task identities but records zero
+mandatory trials; nothing is persisted. No API/viewer routes or shared schemas were changed.
+The opt-in HF smoke command is prepared, not executed. Doctor still reports HF and Neon unconfigured
+and Docker absent from PATH. Production population, review ingestion/extraction, spend enforcement,
+durable jobs, real A integration, session feedback/streams and the 1,000-session experiment remain open.
+
