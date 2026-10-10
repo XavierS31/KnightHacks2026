@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
-import type { components } from '../../shared/api-types'
 import { request, type Persona, type Session } from '../../shared/api'
-
-type StreamEvent = components['schemas']['StreamEvent']
+import { parseFrame, preservesActions, timestamp, validAction, validEvent, validSession, type CapturedFrame } from './streamValidation'
 
 export default function SessionViewer({ persona, sessionId, viewerToken }: {
   persona: Persona; sessionId: string; viewerToken: string
@@ -13,41 +11,67 @@ export default function SessionViewer({ persona, sessionId, viewerToken }: {
   const [error, setError] = useState<string | null>(null)
   const [revision, setRevision] = useState(0)
   const [stale, setStale] = useState(false)
+  const [frame, setFrame] = useState<CapturedFrame | null>(null)
+  const [frameStale, setFrameStale] = useState(false)
+  const [mode, setMode] = useState<Session['stream_mode']>('unavailable')
   useEffect(() => {
     let active = true
     let socket: WebSocket | null = null
     let lastSequence = -1
+    let lastTimestamp = -Infinity
+    let currentSession: Session | null = null
+    let latestFrame: CapturedFrame | null = null
     let lastEventAt = Date.now()
-    setSession(null); setError(null); setLastSeen(null); setStale(false); setConnection('Connecting')
-    request<Session>(`/sessions/${sessionId}`, {
+    setSession(null); setError(null); setLastSeen(null); setStale(false); setFrame(null); setFrameStale(false); setMode('unavailable'); setConnection('Connecting')
+    request<unknown>(`/sessions/${encodeURIComponent(sessionId)}`, {
       headers: viewerToken ? { Authorization: `Bearer ${viewerToken}` } : {},
     }).then(result => {
       if (!active) return
-      setSession(result)
-      const url = new URL(`/api/v1/sessions/${sessionId}/stream`, window.location.href)
+      if (!validSession(result, sessionId, persona.id)
+        || (persona.software_behavior.status === 'fixture' && !['fixture', 'unavailable'].includes(result.stream_mode))) throw new Error('Selected session identity or state is invalid.')
+      currentSession = result; setSession(result); setMode(result.stream_mode)
+      const url = new URL(`/api/v1/sessions/${encodeURIComponent(sessionId)}/stream`, window.location.href)
       url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:'
       socket = new WebSocket(url)
       socket.onopen = () => { socket?.send(JSON.stringify({ token: viewerToken })); setConnection('Awaiting session state') }
       socket.onmessage = ({ data }) => {
         if (!active) return
         try {
-          const event: StreamEvent = JSON.parse(data)
-          if (event.session_id !== sessionId || !Number.isInteger(event.sequence) || event.sequence <= lastSequence) return
-          if (!['fixture', 'replay', 'live'].includes(event.mode)) return
-          lastSequence = event.sequence; lastEventAt = Date.now()
+          if (typeof data !== 'string' || data.length > 3 * 1024 * 1024) throw new Error('Invalid stream event')
+          const event: unknown = JSON.parse(data)
+          if (!validEvent(event, sessionId, lastSequence, lastTimestamp)) throw new Error('Invalid stream event')
+          if ((persona.software_behavior.status === 'fixture' || currentSession?.status === 'fixture') && event.mode !== 'fixture') throw new Error('Invalid fixture mode')
+          if (event.type === 'state') {
+            const incoming = event.payload.session
+            if (!validSession(incoming, sessionId, persona.id) || incoming.stream_mode !== event.mode
+              || (currentSession && !preservesActions(currentSession, incoming))) throw new Error('Invalid session state')
+            currentSession = incoming; setSession(incoming)
+          } else if (event.type === 'action') {
+            const action = event.payload.action
+            const previous = currentSession?.actions.at(-1)
+            if (!currentSession || !validAction(action, sessionId) || currentSession.actions.some(item => item.id === action.id)
+              || (previous && (action.sequence <= previous.sequence || timestamp(action.timestamp)! < timestamp(previous.timestamp)!))) throw new Error('Invalid action')
+            currentSession = { ...currentSession, actions: [...currentSession.actions, action] }; setSession(currentSession)
+          } else if (event.type === 'frame') {
+            const capturedFrame = parseFrame(event.payload, sessionId, latestFrame)
+            if (!capturedFrame) throw new Error('Invalid frame')
+            latestFrame = capturedFrame; setFrame(capturedFrame); setFrameStale(Date.now() - capturedFrame.capturedMs > 25000)
+          } else if (event.type === 'error') {
+            setError('The session stream reported a failure. Reconnect to inspect the selected session.')
+          }
+          lastSequence = event.sequence; lastTimestamp = timestamp(event.timestamp)!; lastEventAt = Date.now()
+          setMode(event.mode)
           setLastSeen(lastEventAt); setStale(false); setConnection(`${event.mode} stream connected`)
-          // Only session state is available now. No synthetic screenshot is presented.
-          if (event.type === 'state' && event.payload.session) setSession(event.payload.session as Session)
         } catch { setError('Invalid stream event received.'); socket?.close() }
       }
       socket.onerror = () => { if (active) setError('Stream unavailable. Check the viewer token and API connection.') }
       socket.onclose = () => { if (active) setConnection('Disconnected') }
-    }).catch((failure: Error) => { if (active) { setError(failure.message); setConnection('Unavailable') } })
-    const timer = window.setInterval(() => { if (active) setStale(Date.now() - lastEventAt > 25000) }, 5000)
+    }).catch(() => { if (active) { setError('Selected session unavailable or invalid. Check access and the API connection.'); setConnection('Unavailable') } })
+    const timer = window.setInterval(() => { if (active) { setStale(Date.now() - lastEventAt > 25000); setFrameStale(!!latestFrame && Date.now() - latestFrame.capturedMs > 25000) } }, 5000)
     return () => { active = false; window.clearInterval(timer); if (socket) { socket.onopen = null; socket.close() } }
-  }, [sessionId, viewerToken, revision])
+  }, [sessionId, persona.id, persona.software_behavior.status, viewerToken, revision])
   return <article className="panel persona-viewer">
-    <div className="section-heading"><h2>{persona.synthetic_name}</h2><span className="badge">{session?.stream_mode ?? 'unavailable'}</span></div>
+    <div className="section-heading"><h2>{persona.synthetic_name}</h2><span className="badge">{mode}</span></div>
     <p className="muted" role="status">{connection}{stale ? ' · stale connection' : ''}{lastSeen ? ` · last event ${new Date(lastSeen).toLocaleTimeString()}` : ''}</p>
     {error && <p role="alert">{error}</p>}
     <button onClick={() => setRevision(value => value + 1)}>Reconnect selected session</button>
@@ -73,9 +97,13 @@ export default function SessionViewer({ persona, sessionId, viewerToken }: {
           : 'Review reference unavailable'}</li>
       })}</ul>
     </li>)}</ul>
-    <div className="persona-no-frame"><strong>Browser frames unavailable</strong><p>This fixture has no browser execution or captured screenshots. The room's laptop props are illustrative.</p></div>
+    {frame ? <figure className="persona-frame">
+      <img src={frame.source} alt={`Captured browser view for ${persona.synthetic_name}, session ${sessionId}, frame ${frame.sequence}`} onError={() => { setFrame(null); setError('Captured image could not be decoded.') }} />
+      <figcaption>{mode} capture · frame {frame.sequence} · <time dateTime={frame.capturedAt}>{new Date(frame.capturedAt).toLocaleString()}</time>{frameStale ? ' · stale frame' : ''}{mode === 'fixture' ? ' · mock product; not a mandatory experiment trial' : ''}</figcaption>
+    </figure> : <div className="persona-no-frame"><strong>Browser frames unavailable</strong><p>No captured browser image is available for this selected session. The room's laptop props are illustrative.</p></div>}
     <h3>Action timeline</h3>
-    {session?.actions.length ? <ol>{session.actions.map(action => <li key={action.id}>{action.sequence}. {action.kind}: {action.result}</li>)}</ol> : <p className="muted">No executed actions have been recorded.</p>}
-    <h3>Feedback</h3><p className="muted">{session?.feedback?.reason ?? 'No trial feedback has been recorded.'}</p>
+    {session?.actions.length ? <ol>{session.actions.map(action => <li key={action.id} id={`action-${action.id}`}>{action.sequence}. {action.kind}: {action.result} · <time dateTime={action.timestamp}>{new Date(action.timestamp).toLocaleString()}</time><small className="persona-id">Action {action.id}</small></li>)}</ol> : <p className="muted">No executed actions have been recorded.</p>}
+    <h3>Feedback</h3><p className="muted">{session?.feedback ? `Synthetic feedback: ${session.feedback.reason}` : 'No trial feedback has been recorded.'}</p>
+    {session?.feedback && <p className="muted">Same-session action evidence: {session.feedback.evidence_action_ids.length ? session.feedback.evidence_action_ids.map((id, index) => <span key={id}>{index > 0 ? ', ' : ''}<a href={`#action-${id}`}>{id}</a></span>) : 'none recorded'}</p>}
   </article>
 }

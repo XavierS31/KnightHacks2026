@@ -30,7 +30,8 @@ def payload(**updates):
 
 @pytest.mark.parametrize('value,code', [('!', 'INVALID_PDF_ENCODING'),
                                         ('bm90IGEgcGRm', 'INVALID_PDF'),
-                                        (base64.b64encode(b'x'*1_000_001).decode(), 'PDF_SIZE_LIMIT')])
+                                        (base64.b64encode(b'x'*1_000_001).decode(), 'PDF_SIZE_LIMIT')],
+                         ids=['invalid-encoding', 'not-pdf', 'oversized'])
 def test_decode_bounds(value, code):
     with pytest.raises(AdapterError, match=code):
         decode_pdf(value)
@@ -190,8 +191,24 @@ def test_browser_check_requires_visible_output_and_correct_source():
 
 
 def test_frozen_handoff_rejects_image_and_source_drift(tmp_path, monkeypatch):
+    import hashlib
+
     from backend.app.features.integration.product import freeze, handoff
+    # Synthetic unit fixture, not validation of the Linux-frozen product on this machine.
+    # It avoids inheriting the actual manifest's platform/checkout byte fingerprints.
     record = json.loads(handoff.MANIFEST.read_text())
+    checkout = tmp_path / 'fixture-checkout'
+    source_path = 'backend/app/features/integration/product/fixture.py'
+    source = checkout / source_path
+    source.parent.mkdir(parents=True)
+    source.write_bytes(b'fixture source only\n')
+    fingerprints = {source_path: hashlib.sha256(source.read_bytes()).hexdigest()}
+    record['implementation_hashes'] = fingerprints
+    manifest = tmp_path / 'fixture-manifest.json'
+    manifest.write_text(json.dumps(record))
+    monkeypatch.setattr(handoff, 'MANIFEST', manifest)
+    monkeypatch.setattr(handoff, 'ROOT', checkout)
+    monkeypatch.setattr(freeze, 'implementation_hashes', lambda: dict(fingerprints))
     runtime = tmp_path / 'integration-product-runtime.json'
     runtime.write_text(json.dumps({'image_id': record['image_id']}))
     assert handoff.verified_handoff(tmp_path).version.status == 'validated'
@@ -200,5 +217,9 @@ def test_frozen_handoff_rejects_image_and_source_drift(tmp_path, monkeypatch):
         handoff.verified_handoff(tmp_path)
     runtime.write_text(json.dumps({'image_id': record['image_id']}))
     monkeypatch.setattr(freeze, 'implementation_hashes', lambda: {})
+    with pytest.raises(ExecutionError, match='VERSION_NOT_VALIDATED'):
+        handoff.verified_handoff(tmp_path)
+    monkeypatch.setattr(freeze, 'implementation_hashes', lambda: dict(fingerprints))
+    source.write_bytes(b'changed fixture source\n')
     with pytest.raises(ExecutionError, match='VERSION_NOT_VALIDATED'):
         handoff.verified_handoff(tmp_path)

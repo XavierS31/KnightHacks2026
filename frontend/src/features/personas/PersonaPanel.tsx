@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useApi, type PersonaSummary } from '../../shared/api'
+import { request, useApi, type PersonaSummary, type Session } from '../../shared/api'
 import { AsyncState } from '../../shared/AsyncState'
 import PersonaWorld from './PersonaWorld'
 import SessionViewer from './SessionViewer'
@@ -10,9 +10,26 @@ export default function PersonaPanel() {
   const [selection, setSelection] = useState('')
   const [tokenInput, setTokenInput] = useState('')
   const [viewerToken, setViewerToken] = useState('')
+  const [mockSessions, setMockSessions] = useState<Record<string, Session>>({})
+  const [pending, setPending] = useState<string[]>([])
+  const [mockErrors, setMockErrors] = useState<Record<string, string>>({})
   if (!data || error) return <><AsyncState error={error} /><button onClick={refresh}>Retry</button></>
   const selected = data.personas.find(persona => persona.id === selection) ?? data.personas[0]
-  const session = data.sessions.find(item => item.persona_id === selected?.id)
+  const session = mockSessions[selected?.id] ?? data.sessions.find(item => item.persona_id === selected?.id)
+  async function runSelectedMock() {
+    if (!selected || pending.includes(selected.id)) return
+    const personaId = selected.id
+    setPending(items => [...items, personaId]); setMockErrors(items => ({ ...items, [personaId]: '' }))
+    try {
+      const result = await request<Session>(`/personas/mock-trials/${encodeURIComponent(personaId)}`, {
+        method: 'POST', headers: viewerToken ? { Authorization: `Bearer ${viewerToken}` } : {},
+      })
+      if (result.persona_id !== personaId || result.status !== 'fixture' || result.stream_mode !== 'fixture' || result.outcome !== 'not_run') throw new Error('Invalid mock session')
+      setMockSessions(items => ({ ...items, [personaId]: result }))
+    } catch {
+      setMockErrors(items => ({ ...items, [personaId]: 'Mock trial unavailable. Check local API access, viewer credentials and Chromium installation.' }))
+    } finally { setPending(items => items.filter(id => id !== personaId)) }
+  }
   return <section className="feature-section persona-section"><div className="metrics">
     <div><strong>{data.target_population}</strong><span>Required per version</span></div>
     <div><strong>{data.featured_count}</strong><span>Featured characters</span></div>
@@ -31,6 +48,11 @@ export default function PersonaPanel() {
       <button type="submit">Connect viewer</button>
       <small>Held in memory only. Never enter your Hugging Face token here.</small>
     </form>
+    {selected && data.mode === 'fixture' && <div>
+      <button disabled={pending.includes(selected.id)} onClick={runSelectedMock}>{pending.includes(selected.id) ? 'Running selected mock trial…' : 'Run selected mock trial'}</button>
+      <p className="muted" role="status">Local scripted browser on fake A inputs. No HF calls or mandatory experiment completion. Selection changes leave running work active.</p>
+      {mockErrors[selected.id] && <p role="alert">{mockErrors[selected.id]}</p>}
+    </div>}
     {selected && session ? <SessionViewer key={session.id} persona={selected} sessionId={session.id} viewerToken={viewerToken} /> : <p>No session linked to this persona.</p>}
     <div className="next-gate"><strong>Next gate</strong><p>{data.next_gate}</p></div></section>
 }
