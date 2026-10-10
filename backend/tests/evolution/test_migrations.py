@@ -1,24 +1,15 @@
 import hashlib
-import os
-from uuid import uuid4
 
-import psycopg
 import pytest
-from pydantic import SecretStr
 
-from backend.app.shared.database import NeonDatabase
-from backend.app.shared.settings import Settings
 from backend.migrations.roundtrip import read, run
 from backend.migrations.runner import DIRECTORY, MigrationError, apply, discover, recorded
-
-# A disposable TLS PostgreSQL URL. Each test uses its own schema and drops it afterwards.
-TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL", "")
-needs_database = pytest.mark.skipif(not TEST_DATABASE_URL, reason="Set TEST_DATABASE_URL")
 
 
 def test_discover_orders_repository_migrations_with_exact_checksums():
     migrations = discover()
-    assert [item.version for item in migrations] == ["001_initial", "002_persistence_checks"]
+    assert [item.version for item in migrations] == ["001_initial", "002_persistence_checks",
+                                                       "003_records_and_job_leases"]
     for item in migrations:
         content = (DIRECTORY / f"{item.version}.sql").read_bytes()
         assert item.checksum == hashlib.sha256(content).hexdigest()
@@ -39,33 +30,16 @@ def test_discover_rejects_unordered_names(tmp_path):
         discover(tmp_path)
 
 
-@pytest.fixture
-def isolated():
-    schema = f"gate_{uuid4().hex}"
-    with psycopg.connect(TEST_DATABASE_URL, sslmode="require", autocommit=True) as admin:
-        admin.execute(f"CREATE SCHEMA {schema}")
-        separator = "&" if "?" in TEST_DATABASE_URL else "?"
-        url = f"{TEST_DATABASE_URL}{separator}options=-csearch_path%3D{schema}"
-        settings = Settings(_env_file=None, app_mode="live", database_url=SecretStr(url))
-        database = NeonDatabase(settings)
-        try:
-            yield settings, database
-        finally:
-            database.close()
-            admin.execute(f"DROP SCHEMA {schema} CASCADE")
-
-
-@needs_database
 def test_apply_records_checksums_and_is_idempotent(isolated):
     _, database = isolated
     migrations = discover()
     assert recorded(database) == []
-    assert apply(database, migrations) == ["001_initial", "002_persistence_checks"]
+    assert apply(database, migrations) == ["001_initial", "002_persistence_checks",
+                                         "003_records_and_job_leases"]
     assert apply(database, migrations) == []
     assert recorded(database) == [(item.version, item.checksum) for item in migrations]
 
 
-@needs_database
 def test_edited_applied_migration_is_rejected_without_changes(isolated):
     _, database = isolated
     migrations = discover()
@@ -77,7 +51,6 @@ def test_edited_applied_migration_is_rejected_without_changes(isolated):
     assert recorded(database) == [("001_initial", "edited")]
 
 
-@needs_database
 def test_failed_migration_rolls_back_every_pending_migration(isolated, tmp_path):
     _, database = isolated
     (tmp_path / "001_valid.sql").write_text("CREATE TABLE gate_valid (id integer);")
@@ -89,7 +62,6 @@ def test_failed_migration_rolls_back_every_pending_migration(isolated, tmp_path)
         assert connection.execute("SELECT to_regclass('gate_valid')").fetchone() == (None,)
 
 
-@needs_database
 def test_roundtrip_persists_write_and_discards_aborted_write(isolated):
     settings, database = isolated
     apply(database, discover())
