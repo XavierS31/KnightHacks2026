@@ -64,7 +64,7 @@ async def researched_brief(service, snapshot):
     result, _ = await service._generate([
         {"role": "system", "content": prompt},
         {"role": "user", "content": json.dumps({"repository": snapshot.full_name, "excerpts": excerpts})},
-    ], BriefOutput, "repository_research", "automatic-research-brief-v1")
+    ], BriefOutput, "repository_research", "automatic-research-brief-v2")
     ids = {identity for capability in result.value.capabilities for identity in capability.citation_ids}
     if not ids <= citations.keys():
         raise InferenceError("UNSUPPORTED_RESEARCH_CITATION")
@@ -97,7 +97,7 @@ async def generate_products(service, records, interests):
     result, _ = await service._generate([
         {"role": "system", "content": prompt},
         {"role": "user", "content": json.dumps({"repositories": [compact_brief(record) for record in records], "interests": interests})},
-    ], IdeasOutput, "product_repurposing", "automatic-repurposing-v1")
+    ], IdeasOutput, "product_repurposing", "automatic-repurposing-v2")
     if (not result.value.ideas
             and re.search(r"no (clear )?reusable librar|lack.*(standalone|embeddable|general.purpose)|all.*full applications|not.*standalone librar", result.value.explanation, re.I)
             and any(record.brief and re.search(r"\b(CLI|API|SDK|MCP)\b", record.brief.interfaces) for record in records)):
@@ -181,7 +181,7 @@ async def critique_product(service, idea, records, searches):
         {"role": "user", "content": json.dumps({"idea": idea.model_dump(),
            "source_briefs": [compact_brief(record) for record in records],
            "searches": [record.model_dump(mode='json') for record in searches]})},
-    ], CritiqueOutput, "repurposing_critic", "automatic-product-critic-v1")
+    ], CritiqueOutput, "repurposing_critic", "automatic-product-critic-v2")
     allowed = {url for search in searches for item in search.matches for url in (item.url, item.readme_reference) if url}
     if not set(result.value.matching_references) <= allowed:
         raise InferenceError("UNSUPPORTED_ALTERNATIVE_CITATION")

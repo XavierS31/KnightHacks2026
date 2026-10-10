@@ -123,12 +123,11 @@ class StudyEngine:
             # A documented API/process may be reused with its dependencies. Standalone-library
             # assumptions are not a valid selection gate; keep the risk for product critique.
             if (brief.reuse_assessment == "unsuitable"
-                    and re.search(r"standalone|full app|complete app|general reuse|broader reuse|generic interface|external LLM|service provider|specific AI agents|tight coupling", brief.selection_reason, re.I)
-                    and re.search(r"\b(CLI|SDK|MCP|API)\b", brief.interfaces)
+                    and re.search(r"\b(CLI|SDK|MCP|API|library)\b", brief.interfaces, re.I)
                     and not re.search(r"\b(no|none|missing|unknown|undocumented)\b", brief.interfaces, re.I)
-                    and any(re.search(r"\b(CLI|SDK|MCP|API)\b", doc.text) for doc in snapshot.documents if doc.kind in {"readme", "documentation"})):
+                    and any(re.search(r"\b(CLI|SDK|MCP|API|library)\b", doc.text, re.I) for doc in snapshot.documents if doc.kind in {"readme", "documentation"})):
                 brief.reuse_assessment = "uncertain"
-                record.selection_reasons.append("Documented API/process reuse remains eligible with dependencies; standalone-library assumptions do not establish unsuitability. Product critique must check the actual workflow.")
+                record.selection_reasons.append("Documented API/process reuse remains eligible with dependencies; interface-level suitability remains uncertain until a product-specific check. Product critique must check the actual workflow.")
             record.brief, record.evidence, record.provenance = brief, evidence, provenance
             record.status = "unsuitable" if brief.reuse_assessment == "unsuitable" else "researched"
             record.selection_reasons.append(brief.selection_reason)
