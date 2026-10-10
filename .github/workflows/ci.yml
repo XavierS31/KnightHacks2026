@@ -10,6 +10,13 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    # Offline by design: no secrets, no database and no paid inference.
+    env:
+      APP_MODE: fixture
+      HF_TOKEN: ''
+      DATABASE_URL: ''
+      TEST_DATABASE_URL: ''
+      EXPERIMENT_BUDGET_LIMIT: '0'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -27,6 +34,8 @@ jobs:
       - run: python -m pytest backend/tests
       - run: python -m ruff check backend
       - run: python -m backend.scripts.validate_agents
+      - name: C demo slice evidence (offline checks; live checks report not_established)
+        run: python -m backend.app.features.evolution.demo_evidence
       - run: python -m backend.scripts.export_openapi
       - run: npm --prefix frontend run generate:api
       - run: npm --prefix frontend run check:contracts

@@ -101,3 +101,5 @@ Latest verification: **387 backend tests passed, one opt-in Docker test skipped*
 enabled; Ruff, frontend type/build and generated-contract drift passed. C feature code was preserved.
 
 2026-10-10 C structured role analysis: live analysis reads persisted session evidence and runs the analyst, prioritizer and UX reviewer roles through the shared HF adapter, with deterministic reference and category checks. 269 backend tests pass (real-database cases against a disposable local PostgreSQL; HF responses from a scripted provider client). Lint, OpenAPI/type drift, typecheck, build and a 1280px/390px browser render of the heuristic inputs pass. No Neon request or live HF analysis has run; analysis records are not yet persisted.
+
+2026-10-10 C Q1 slice (#15): a read-only demo evidence report checks v1 source preservation, labeled fixture analysis and, in live mode, Neon usage, stored v1/v2 rows and session stream labels. A non-Neon host fails the Neon check. CI pins fixture mode and empty credentials. The UI smoke passes again, including after an API restart, on a development Mac. Neon usage is still not established: no Neon URL was configured.
