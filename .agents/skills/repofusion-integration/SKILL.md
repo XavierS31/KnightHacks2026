@@ -9,7 +9,7 @@ Read root `AGENTS.md`, [A's starter](../../../docs/tasks/developer-a.md) and [ow
 
 Keep source commits, documentation/issue citations and research uncertainty with capability/proposal records. Popular and Trending are separate discovery modes. A fixture candidate or pipeline is not a validated source integration.
 
-Read docs/opportunity-discovery.md: investigate an anchor repository; a second repo is optional. Before adapting, run every selected tool independently on known small fixtures and inspect interface meaning, units, missing values and failure behavior. Choose the adapter language/interface from those sources. Expose only validated capabilities in the product briefing and task catalog.
+Read docs/opportunity-discovery.md: the main discovery flow automatically researches repos and proposes substantial new uses; routine issue fixes are excluded and a second repo is optional. Before adapting, run every selected tool independently on known small fixtures and inspect interface meaning, units, missing values and failure behavior. Choose the adapter language/interface from those sources. Expose only validated capabilities in the product briefing and task catalog.
 
 All runtime extraction uses the shared HF adapter; credentials stay server-side. Missing live access permits labeled fixture work, not fabricated evidence. Verify normal, invalid, incompatible-output and timeout cases; hand B immutable version/fixture/check references.
 

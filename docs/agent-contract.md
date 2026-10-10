@@ -62,3 +62,6 @@ Evaluate extraction citation validity, task support, action-target validity, sch
 
 
 Opportunity discovery uses a feature-local minimum 60-second per-attempt timeout for its larger structured response, retaining the shared adapter’s two-attempt limit and A’s reservation guard. Other roles retain their existing configured limits.
+
+
+The default discovery pipeline now runs repository researcher → substantial-product generator → equivalent-product researcher → independent scope/novelty critic automatically. It does not use routine issues as idea seeds. A new use must materially change the audience/workflow; incremental, already-present, unsupported and close-equivalent ideas are rejected. Critics may return inconclusive; missing searches never become uniqueness evidence. Earlier manual anchor discoverer routes are compatibility tools, not the default product flow.

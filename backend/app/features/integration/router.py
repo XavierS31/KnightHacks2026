@@ -25,6 +25,8 @@ from backend.app.features.integration.proposals import (
     ProposalRequest,
 )
 from backend.app.features.integration.sources import SourceRequest, SourceSnapshot, SourceStore
+from backend.app.features.integration.studies import StudyEngine
+from backend.app.features.integration.study_models import ResearchStudy, StudyRequest
 from backend.app.shared.contracts import IntegrationSummary
 from backend.app.shared.fixtures import PROPOSAL, REPOSITORIES, VERSION
 from backend.app.shared.inference import InferenceError
@@ -35,6 +37,22 @@ store = DiscoveryStore()
 source_store = SourceStore()
 interpretations = InterpretationStore()
 opportunities = OpportunityStore()
+studies = StudyEngine(discovery=store, snapshot_store=source_store)
+
+
+@router.post("/research-studies", response_model=ResearchStudy, status_code=202)
+async def start_research_study(request: StudyRequest, settings: Settings = Depends(get_settings)):
+    return studies.start(request, settings)
+
+
+@router.get("/research-studies/{study_id}", response_model=ResearchStudy)
+async def get_research_study(study_id: UUID):
+    return studies.get(study_id).model_copy(deep=True)
+
+
+@router.post("/research-studies/{study_id}/cancel", response_model=ResearchStudy)
+async def cancel_research_study(study_id: UUID):
+    return studies.cancel(study_id)
 
 
 @router.get('/integration/product-readiness', response_model=ProductReadiness)
