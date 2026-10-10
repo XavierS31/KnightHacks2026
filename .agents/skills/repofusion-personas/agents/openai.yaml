@@ -1,0 +1,4 @@
+interface:
+  display_name: "RepoFusion Personas"
+  short_description: "Build bounded trials and exact-session viewing"
+  default_prompt: "Use $repofusion-personas to implement the next bounded developer B milestone."

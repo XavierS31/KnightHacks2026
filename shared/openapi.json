@@ -1,0 +1,2135 @@
+{
+  "components": {
+    "schemas": {
+      "Action": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifact Ref"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "click",
+              "type",
+              "select",
+              "scroll",
+              "navigate",
+              "stop",
+              "check"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "result": {
+            "title": "Result",
+            "type": "string"
+          },
+          "sequence": {
+            "minimum": 1.0,
+            "title": "Sequence",
+            "type": "integer"
+          },
+          "session_id": {
+            "format": "uuid",
+            "title": "Session Id",
+            "type": "string"
+          },
+          "target": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "title": "Timestamp",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "session_id",
+          "sequence",
+          "timestamp",
+          "kind",
+          "result"
+        ],
+        "title": "Action",
+        "type": "object"
+      },
+      "AnalysisReport": {
+        "additionalProperties": false,
+        "properties": {
+          "clusters": {
+            "items": {
+              "$ref": "#/components/schemas/FeedbackCluster"
+            },
+            "title": "Clusters",
+            "type": "array"
+          },
+          "denominator": {
+            "minimum": 0.0,
+            "title": "Denominator",
+            "type": "integer"
+          },
+          "experiment_id": {
+            "format": "uuid",
+            "title": "Experiment Id",
+            "type": "string"
+          },
+          "feedback_present": {
+            "minimum": 0.0,
+            "title": "Feedback Present",
+            "type": "integer"
+          },
+          "inference_used": {
+            "const": false,
+            "default": false,
+            "title": "Inference Used",
+            "type": "boolean"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "method": {
+            "const": "deterministic_evidence_grouping",
+            "default": "deterministic_evidence_grouping",
+            "title": "Method",
+            "type": "string"
+          },
+          "mode": {
+            "const": "fixture",
+            "default": "fixture",
+            "title": "Mode",
+            "type": "string"
+          },
+          "next_gate": {
+            "title": "Next Gate",
+            "type": "string"
+          },
+          "sessions_seen": {
+            "minimum": 0.0,
+            "title": "Sessions Seen",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "experiment_id",
+          "sessions_seen",
+          "feedback_present",
+          "denominator",
+          "clusters",
+          "limitations",
+          "next_gate"
+        ],
+        "title": "AnalysisReport",
+        "type": "object"
+      },
+      "AnalysisRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "mode": {
+            "const": "fixture",
+            "default": "fixture",
+            "title": "Mode",
+            "type": "string"
+          },
+          "sessions": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Session"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sessions"
+          }
+        },
+        "title": "AnalysisRequest",
+        "type": "object"
+      },
+      "Capability": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/Evidence"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "input_schema": {
+            "additionalProperties": true,
+            "title": "Input Schema",
+            "type": "object"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "output_schema": {
+            "additionalProperties": true,
+            "title": "Output Schema",
+            "type": "object"
+          },
+          "validated": {
+            "default": false,
+            "title": "Validated",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "description",
+          "input_schema",
+          "output_schema",
+          "evidence"
+        ],
+        "title": "Capability",
+        "type": "object"
+      },
+      "DiscoveryRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "discovery_mode": {
+            "const": "popular",
+            "default": "popular",
+            "title": "Discovery Mode",
+            "type": "string"
+          },
+          "limit": {
+            "default": 20,
+            "maximum": 30.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "mode": {
+            "default": "fixture",
+            "enum": [
+              "fixture",
+              "live"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "query": {
+            "default": "language:Python",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Query",
+            "type": "string"
+          }
+        },
+        "title": "DiscoveryRequest",
+        "type": "object"
+      },
+      "DiscoveryRun": {
+        "additionalProperties": false,
+        "properties": {
+          "cache_hit": {
+            "default": false,
+            "title": "Cache Hit",
+            "type": "boolean"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "mode": {
+            "enum": [
+              "fixture",
+              "live"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "next_gate": {
+            "title": "Next Gate",
+            "type": "string"
+          },
+          "repositories": {
+            "items": {
+              "$ref": "#/components/schemas/Repository"
+            },
+            "title": "Repositories",
+            "type": "array"
+          },
+          "request": {
+            "$ref": "#/components/schemas/DiscoveryRequest"
+          },
+          "source_collected_at": {
+            "format": "date-time",
+            "title": "Source Collected At",
+            "type": "string"
+          },
+          "source_total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Total"
+          },
+          "status": {
+            "enum": [
+              "fixture",
+              "completed"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "storage": {
+            "const": "in_memory",
+            "default": "in_memory",
+            "title": "Storage",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "mode",
+          "status",
+          "request",
+          "created_at",
+          "repositories",
+          "source_collected_at",
+          "limitations",
+          "next_gate"
+        ],
+        "title": "DiscoveryRun",
+        "type": "object"
+      },
+      "Evidence": {
+        "additionalProperties": false,
+        "properties": {
+          "collected_at": {
+            "format": "date-time",
+            "title": "Collected At",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "source",
+              "assumption",
+              "fixture"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "reference": {
+            "title": "Reference",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "reference",
+          "collected_at",
+          "kind",
+          "note"
+        ],
+        "title": "Evidence",
+        "type": "object"
+      },
+      "EvolutionSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "improvements": {
+            "items": {
+              "$ref": "#/components/schemas/Improvement"
+            },
+            "title": "Improvements",
+            "type": "array"
+          },
+          "matched_v1": {
+            "minimum": 0.0,
+            "title": "Matched V1",
+            "type": "integer"
+          },
+          "matched_v2": {
+            "minimum": 0.0,
+            "title": "Matched V2",
+            "type": "integer"
+          },
+          "mode": {
+            "enum": [
+              "fixture",
+              "live"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "next_gate": {
+            "title": "Next Gate",
+            "type": "string"
+          },
+          "roles": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Roles",
+            "type": "array"
+          }
+        },
+        "required": [
+          "mode",
+          "roles",
+          "improvements",
+          "matched_v1",
+          "matched_v2",
+          "next_gate"
+        ],
+        "title": "EvolutionSummary",
+        "type": "object"
+      },
+      "Experiment": {
+        "additionalProperties": false,
+        "properties": {
+          "counts": {
+            "$ref": "#/components/schemas/ExperimentCounts"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "inference_profile": {
+            "additionalProperties": true,
+            "title": "Inference Profile",
+            "type": "object"
+          },
+          "population_id": {
+            "format": "uuid",
+            "title": "Population Id",
+            "type": "string"
+          },
+          "product_version_id": {
+            "format": "uuid",
+            "title": "Product Version Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "fixture",
+              "queued",
+              "running",
+              "completed",
+              "failed",
+              "cancelled"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "population_id",
+          "product_version_id",
+          "status",
+          "counts",
+          "inference_profile"
+        ],
+        "title": "Experiment",
+        "type": "object"
+      },
+      "ExperimentCounts": {
+        "additionalProperties": false,
+        "properties": {
+          "cancelled": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Cancelled",
+            "type": "integer"
+          },
+          "completed": {
+            "minimum": 0.0,
+            "title": "Completed",
+            "type": "integer"
+          },
+          "configured": {
+            "minimum": 0.0,
+            "title": "Configured",
+            "type": "integer"
+          },
+          "failed": {
+            "minimum": 0.0,
+            "title": "Failed",
+            "type": "integer"
+          },
+          "queued": {
+            "minimum": 0.0,
+            "title": "Queued",
+            "type": "integer"
+          },
+          "running": {
+            "minimum": 0.0,
+            "title": "Running",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "configured",
+          "queued",
+          "running",
+          "completed",
+          "failed"
+        ],
+        "title": "ExperimentCounts",
+        "type": "object"
+      },
+      "Feedback": {
+        "additionalProperties": false,
+        "properties": {
+          "barriers": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Barriers",
+            "type": "array"
+          },
+          "decision": {
+            "enum": [
+              "stop",
+              "continue"
+            ],
+            "title": "Decision",
+            "type": "string"
+          },
+          "evidence_action_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Evidence Action Ids",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "initial_relevance": {
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "title": "Initial Relevance",
+            "type": "string"
+          },
+          "persona_id": {
+            "format": "uuid",
+            "title": "Persona Id",
+            "type": "string"
+          },
+          "post_trial_relevance": {
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "title": "Post Trial Relevance",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "session_id": {
+            "format": "uuid",
+            "title": "Session Id",
+            "type": "string"
+          },
+          "suggested_changes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Suggested Changes",
+            "type": "array"
+          },
+          "synthetic": {
+            "const": true,
+            "default": true,
+            "title": "Synthetic",
+            "type": "boolean"
+          },
+          "useful_parts": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Useful Parts",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "persona_id",
+          "session_id",
+          "initial_relevance",
+          "post_trial_relevance",
+          "decision",
+          "useful_parts",
+          "barriers",
+          "suggested_changes",
+          "evidence_action_ids",
+          "reason"
+        ],
+        "title": "Feedback",
+        "type": "object"
+      },
+      "FeedbackCluster": {
+        "additionalProperties": false,
+        "properties": {
+          "affected_share": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Affected Share",
+            "type": "number"
+          },
+          "category": {
+            "enum": [
+              "product",
+              "infrastructure",
+              "relevance"
+            ],
+            "title": "Category",
+            "type": "string"
+          },
+          "estimated_effort_hours": {
+            "exclusiveMinimum": 0.0,
+            "title": "Estimated Effort Hours",
+            "type": "number"
+          },
+          "evidence_action_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Evidence Action Ids",
+            "type": "array"
+          },
+          "evidence_strength": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Evidence Strength",
+            "type": "number"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "issue": {
+            "title": "Issue",
+            "type": "string"
+          },
+          "patch_eligible": {
+            "title": "Patch Eligible",
+            "type": "boolean"
+          },
+          "priority_score": {
+            "minimum": 0.0,
+            "title": "Priority Score",
+            "type": "number"
+          },
+          "severity": {
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Severity",
+            "type": "integer"
+          },
+          "supporting_session_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Supporting Session Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "category",
+          "issue",
+          "supporting_session_ids",
+          "evidence_action_ids",
+          "severity",
+          "affected_share",
+          "evidence_strength",
+          "estimated_effort_hours",
+          "priority_score",
+          "patch_eligible"
+        ],
+        "title": "FeedbackCluster",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "Improvement": {
+        "additionalProperties": false,
+        "properties": {
+          "acceptance_check": {
+            "title": "Acceptance Check",
+            "type": "string"
+          },
+          "affected_share": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Affected Share",
+            "type": "number"
+          },
+          "allowed_paths": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Allowed Paths",
+            "type": "array"
+          },
+          "estimated_effort_hours": {
+            "exclusiveMinimum": 0.0,
+            "title": "Estimated Effort Hours",
+            "type": "number"
+          },
+          "evidence_strength": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Evidence Strength",
+            "type": "number"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "issue": {
+            "title": "Issue",
+            "type": "string"
+          },
+          "severity": {
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Severity",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "fixture",
+              "proposed",
+              "reviewed",
+              "patched",
+              "approved",
+              "rejected"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "supporting_session_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Supporting Session Ids",
+            "type": "array"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "issue",
+          "supporting_session_ids",
+          "severity",
+          "affected_share",
+          "evidence_strength",
+          "estimated_effort_hours",
+          "acceptance_check",
+          "allowed_paths",
+          "status"
+        ],
+        "title": "Improvement",
+        "type": "object"
+      },
+      "IntegrationSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "mode": {
+            "enum": [
+              "fixture",
+              "live"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "next_gate": {
+            "title": "Next Gate",
+            "type": "string"
+          },
+          "proposals": {
+            "items": {
+              "$ref": "#/components/schemas/Proposal"
+            },
+            "title": "Proposals",
+            "type": "array"
+          },
+          "repositories": {
+            "items": {
+              "$ref": "#/components/schemas/Repository"
+            },
+            "title": "Repositories",
+            "type": "array"
+          },
+          "versions": {
+            "items": {
+              "$ref": "#/components/schemas/ProductVersion"
+            },
+            "title": "Versions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "mode",
+          "repositories",
+          "proposals",
+          "versions",
+          "next_gate"
+        ],
+        "title": "IntegrationSummary",
+        "type": "object"
+      },
+      "Persona": {
+        "additionalProperties": false,
+        "properties": {
+          "attribute_provenance": {
+            "additionalProperties": {
+              "enum": [
+                "sourced_distribution",
+                "scenario_assumption",
+                "fictional_detail"
+              ],
+              "type": "string"
+            },
+            "title": "Attribute Provenance",
+            "type": "object"
+          },
+          "cohort": {
+            "enum": [
+              "undergraduate",
+              "graduate",
+              "faculty",
+              "staff",
+              "resident"
+            ],
+            "title": "Cohort",
+            "type": "string"
+          },
+          "constraints": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Constraints",
+            "type": "array"
+          },
+          "goals": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Goals",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "roles": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Roles",
+            "type": "array"
+          },
+          "scenario": {
+            "$ref": "#/components/schemas/Scenario"
+          },
+          "skills": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Skills",
+            "type": "array"
+          },
+          "software_behavior": {
+            "$ref": "#/components/schemas/SoftwareBehaviorProfile"
+          },
+          "synthetic_name": {
+            "title": "Synthetic Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "synthetic_name",
+          "cohort",
+          "roles",
+          "skills",
+          "goals",
+          "constraints",
+          "attribute_provenance",
+          "software_behavior",
+          "scenario"
+        ],
+        "title": "Persona",
+        "type": "object"
+      },
+      "PersonaSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "experiments": {
+            "items": {
+              "$ref": "#/components/schemas/Experiment"
+            },
+            "title": "Experiments",
+            "type": "array"
+          },
+          "featured_count": {
+            "const": 10,
+            "default": 10,
+            "title": "Featured Count",
+            "type": "integer"
+          },
+          "mode": {
+            "enum": [
+              "fixture",
+              "live"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "next_gate": {
+            "title": "Next Gate",
+            "type": "string"
+          },
+          "personas": {
+            "items": {
+              "$ref": "#/components/schemas/Persona"
+            },
+            "title": "Personas",
+            "type": "array"
+          },
+          "sessions": {
+            "items": {
+              "$ref": "#/components/schemas/Session"
+            },
+            "title": "Sessions",
+            "type": "array"
+          },
+          "target_population": {
+            "const": 500,
+            "default": 500,
+            "title": "Target Population",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "mode",
+          "personas",
+          "experiments",
+          "sessions",
+          "next_gate"
+        ],
+        "title": "PersonaSummary",
+        "type": "object"
+      },
+      "ProductVersion": {
+        "additionalProperties": false,
+        "properties": {
+          "briefing": {
+            "title": "Briefing",
+            "type": "string"
+          },
+          "capabilities": {
+            "items": {
+              "$ref": "#/components/schemas/Capability"
+            },
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "commit_sha": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Commit Sha"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "runtime_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Runtime Url"
+          },
+          "status": {
+            "enum": [
+              "fixture",
+              "draft",
+              "validated",
+              "approved"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "status",
+          "briefing",
+          "capabilities",
+          "limitations"
+        ],
+        "title": "ProductVersion",
+        "type": "object"
+      },
+      "Proposal": {
+        "additionalProperties": false,
+        "properties": {
+          "adapter_boundary": {
+            "title": "Adapter Boundary",
+            "type": "string"
+          },
+          "audience": {
+            "title": "Audience",
+            "type": "string"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/Evidence"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "feasibility": {
+            "enum": [
+              "unreviewed",
+              "feasible",
+              "blocked"
+            ],
+            "title": "Feasibility",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "novelty": {
+            "enum": [
+              "unresolved",
+              "overlap",
+              "partial_overlap",
+              "no_close_match"
+            ],
+            "title": "Novelty",
+            "type": "string"
+          },
+          "problem": {
+            "title": "Problem",
+            "type": "string"
+          },
+          "repository_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 3,
+            "minItems": 2,
+            "title": "Repository Ids",
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "proposed",
+              "interfaces_inspected",
+              "validated_on_samples",
+              "fixture"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "repository_ids",
+          "audience",
+          "problem",
+          "adapter_boundary",
+          "novelty",
+          "feasibility",
+          "status",
+          "evidence"
+        ],
+        "title": "Proposal",
+        "type": "object"
+      },
+      "Repository": {
+        "additionalProperties": false,
+        "properties": {
+          "commit_sha": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Commit Sha"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "discovery_mode": {
+            "enum": [
+              "popular",
+              "trending",
+              "fixture"
+            ],
+            "title": "Discovery Mode",
+            "type": "string"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/Evidence"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "stars": {
+            "minimum": 0.0,
+            "title": "Stars",
+            "type": "integer"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "full_name",
+          "url",
+          "discovery_mode",
+          "stars",
+          "description",
+          "evidence"
+        ],
+        "title": "Repository",
+        "type": "object"
+      },
+      "Scenario": {
+        "additionalProperties": false,
+        "properties": {
+          "active_role": {
+            "title": "Active Role",
+            "type": "string"
+          },
+          "activity": {
+            "title": "Activity",
+            "type": "string"
+          },
+          "assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Assumptions",
+            "type": "array"
+          },
+          "device": {
+            "enum": [
+              "laptop",
+              "phone"
+            ],
+            "title": "Device",
+            "type": "string"
+          },
+          "goal": {
+            "title": "Goal",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "location_id": {
+            "enum": [
+              "library",
+              "classroom",
+              "home",
+              "office"
+            ],
+            "title": "Location Id",
+            "type": "string"
+          },
+          "persona_id": {
+            "format": "uuid",
+            "title": "Persona Id",
+            "type": "string"
+          },
+          "time_budget_minutes": {
+            "maximum": 60.0,
+            "minimum": 1.0,
+            "title": "Time Budget Minutes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "persona_id",
+          "active_role",
+          "location_id",
+          "activity",
+          "goal",
+          "device",
+          "time_budget_minutes",
+          "assumptions"
+        ],
+        "title": "Scenario",
+        "type": "object"
+      },
+      "Session": {
+        "additionalProperties": false,
+        "properties": {
+          "actions": {
+            "items": {
+              "$ref": "#/components/schemas/Action"
+            },
+            "title": "Actions",
+            "type": "array"
+          },
+          "experiment_id": {
+            "format": "uuid",
+            "title": "Experiment Id",
+            "type": "string"
+          },
+          "feedback": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Feedback"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "not_run",
+              "success",
+              "application_failure",
+              "infrastructure_failure",
+              "irrelevant"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          },
+          "persona_id": {
+            "format": "uuid",
+            "title": "Persona Id",
+            "type": "string"
+          },
+          "product_version_id": {
+            "format": "uuid",
+            "title": "Product Version Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "fixture",
+              "queued",
+              "running",
+              "completed",
+              "failed",
+              "cancelled"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "stop_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stop Reason"
+          },
+          "stream_mode": {
+            "enum": [
+              "unavailable",
+              "live",
+              "replay",
+              "fixture"
+            ],
+            "title": "Stream Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "experiment_id",
+          "persona_id",
+          "product_version_id",
+          "status",
+          "outcome",
+          "actions",
+          "stream_mode"
+        ],
+        "title": "Session",
+        "type": "object"
+      },
+      "SoftwareBehaviorPattern": {
+        "additionalProperties": false,
+        "properties": {
+          "agent_policy": {
+            "minLength": 1,
+            "title": "Agent Policy",
+            "type": "string"
+          },
+          "dimension": {
+            "enum": [
+              "onboarding",
+              "navigation",
+              "workflow",
+              "error_recovery",
+              "trust",
+              "privacy",
+              "pricing",
+              "collaboration",
+              "accessibility",
+              "adoption"
+            ],
+            "title": "Dimension",
+            "type": "string"
+          },
+          "evidence_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Evidence Ids",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "interpretation_confidence": {
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "title": "Interpretation Confidence",
+            "type": "string"
+          },
+          "rationale": {
+            "minLength": 1,
+            "title": "Rationale",
+            "type": "string"
+          },
+          "tendency": {
+            "minLength": 1,
+            "title": "Tendency",
+            "type": "string"
+          },
+          "trigger": {
+            "minLength": 1,
+            "title": "Trigger",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "dimension",
+          "tendency",
+          "trigger",
+          "agent_policy",
+          "evidence_ids",
+          "interpretation_confidence",
+          "rationale"
+        ],
+        "title": "SoftwareBehaviorPattern",
+        "type": "object"
+      },
+      "SoftwareBehaviorProfile": {
+        "additionalProperties": false,
+        "properties": {
+          "corpus_id": {
+            "format": "uuid",
+            "title": "Corpus Id",
+            "type": "string"
+          },
+          "corpus_version": {
+            "minLength": 1,
+            "title": "Corpus Version",
+            "type": "string"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/SoftwareReviewEvidence"
+            },
+            "minItems": 1,
+            "title": "Evidence",
+            "type": "array"
+          },
+          "generation_version": {
+            "minLength": 1,
+            "title": "Generation Version",
+            "type": "string"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Limitations",
+            "type": "array"
+          },
+          "patterns": {
+            "items": {
+              "$ref": "#/components/schemas/SoftwareBehaviorPattern"
+            },
+            "minItems": 1,
+            "title": "Patterns",
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "review_informed",
+              "fixture"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "corpus_id",
+          "corpus_version",
+          "generation_version",
+          "patterns",
+          "evidence",
+          "limitations"
+        ],
+        "title": "SoftwareBehaviorProfile",
+        "type": "object"
+      },
+      "SoftwareReviewEvidence": {
+        "additionalProperties": false,
+        "description": "A review report, not a measured user action or a demographic observation.",
+        "properties": {
+          "collection_method": {
+            "enum": [
+              "api",
+              "permitted_export",
+              "manual",
+              "fixture"
+            ],
+            "title": "Collection Method",
+            "type": "string"
+          },
+          "content_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^[a-f0-9]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Sha256"
+          },
+          "external_id": {
+            "minLength": 1,
+            "title": "External Id",
+            "type": "string"
+          },
+          "extraction_version": {
+            "minLength": 1,
+            "title": "Extraction Version",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "source",
+              "fixture"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Limitations",
+            "type": "array"
+          },
+          "platform": {
+            "enum": [
+              "reddit",
+              "hacker_news",
+              "github_issue",
+              "app_store",
+              "review_site",
+              "forum",
+              "other",
+              "fixture"
+            ],
+            "title": "Platform",
+            "type": "string"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "report_type": {
+            "enum": [
+              "self_report",
+              "opinion",
+              "fixture"
+            ],
+            "title": "Report Type",
+            "type": "string"
+          },
+          "retrieved_at": {
+            "format": "date-time",
+            "title": "Retrieved At",
+            "type": "string"
+          },
+          "selection_context": {
+            "minLength": 1,
+            "title": "Selection Context",
+            "type": "string"
+          },
+          "software_context": {
+            "minLength": 1,
+            "title": "Software Context",
+            "type": "string"
+          },
+          "source_url": {
+            "anyOf": [
+              {
+                "format": "uri",
+                "maxLength": 2083,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Url"
+          },
+          "summary": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Summary",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "platform",
+          "external_id",
+          "source_url",
+          "published_at",
+          "retrieved_at",
+          "software_context",
+          "summary",
+          "report_type",
+          "collection_method",
+          "content_sha256",
+          "selection_context",
+          "extraction_version",
+          "limitations"
+        ],
+        "title": "SoftwareReviewEvidence",
+        "type": "object"
+      },
+      "StreamEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "mode": {
+            "enum": [
+              "live",
+              "replay",
+              "fixture"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          },
+          "sequence": {
+            "minimum": 0.0,
+            "title": "Sequence",
+            "type": "integer"
+          },
+          "session_id": {
+            "format": "uuid",
+            "title": "Session Id",
+            "type": "string"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "title": "Timestamp",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "state",
+              "action",
+              "frame",
+              "heartbeat",
+              "error"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "sequence",
+          "timestamp",
+          "type",
+          "mode",
+          "payload"
+        ],
+        "title": "StreamEvent",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Fixture-first scaffold; real integration and experiment gates remain required.",
+    "title": "RepoFusion API",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/contracts/stream-event": {
+      "get": {
+        "operationId": "stream_contract_api_v1_contracts_stream_event_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamEvent"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Stream Contract",
+        "tags": [
+          "contracts"
+        ]
+      }
+    },
+    "/api/v1/discovery-runs": {
+      "post": {
+        "operationId": "create_discovery_api_v1_discovery_runs_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiscoveryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscoveryRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Discovery",
+        "tags": [
+          "integration"
+        ]
+      }
+    },
+    "/api/v1/discovery-runs/{run_id}": {
+      "get": {
+        "operationId": "get_discovery_api_v1_discovery_runs__run_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscoveryRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Discovery",
+        "tags": [
+          "integration"
+        ]
+      }
+    },
+    "/api/v1/evolution/summary": {
+      "get": {
+        "operationId": "summary_api_v1_evolution_summary_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvolutionSummary"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Summary",
+        "tags": [
+          "evolution"
+        ]
+      }
+    },
+    "/api/v1/experiments/{experiment_id}/analysis": {
+      "post": {
+        "operationId": "analyze_api_v1_experiments__experiment_id__analysis_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "experiment_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Experiment Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/AnalysisRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalysisReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Analyze",
+        "tags": [
+          "evolution"
+        ]
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "system"
+        ]
+      }
+    },
+    "/api/v1/integration/summary": {
+      "get": {
+        "operationId": "summary_api_v1_integration_summary_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntegrationSummary"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Summary",
+        "tags": [
+          "integration"
+        ]
+      }
+    },
+    "/api/v1/patch-runs/{patch_run_id}/approve": {
+      "post": {
+        "operationId": "approve_patch_api_v1_patch_runs__patch_run_id__approve_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "patch_run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Patch Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Approve Patch",
+        "tags": [
+          "evolution"
+        ]
+      }
+    },
+    "/api/v1/personas/summary": {
+      "get": {
+        "operationId": "summary_api_v1_personas_summary_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonaSummary"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Summary",
+        "tags": [
+          "personas"
+        ]
+      }
+    },
+    "/api/v1/sessions/{session_id}": {
+      "get": {
+        "operationId": "session_detail_api_v1_sessions__session_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Session"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Session Detail",
+        "tags": [
+          "personas"
+        ]
+      }
+    }
+  }
+}

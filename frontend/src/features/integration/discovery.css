@@ -1,0 +1,7 @@
+.discovery-form { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 16px; margin: 20px 0; }
+.discovery-form label { display: grid; gap: 8px; font-size: 12px; color: #435e4d; }
+.discovery-form input, .discovery-form select { font: inherit; width: 100%; min-width: 0; border: 1px solid #becdc3; border-radius: 4px; padding: 10px; background: white; color: #20342b; }
+.discovery-form button { grid-column: 1 / -1; justify-self: start; }
+.discovery-candidate { border-top: 1px solid #dce4de; padding-top: 14px; margin-top: 14px; }
+.discovery-candidate a { color: #21543b; }
+@media (max-width: 700px) { .discovery-form { grid-template-columns: 1fr; } }

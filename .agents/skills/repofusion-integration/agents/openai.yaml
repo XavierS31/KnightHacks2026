@@ -1,0 +1,4 @@
+interface:
+  display_name: "RepoFusion Integration"
+  short_description: "Build evidence-backed repository integrations"
+  default_prompt: "Use $repofusion-integration to implement the next bounded developer A milestone."

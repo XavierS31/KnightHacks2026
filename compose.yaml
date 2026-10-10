@@ -1,0 +1,24 @@
+# Local development only. Selected source repos require their own isolated execution configuration.
+services:
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      APP_MODE: fixture
+      # This is a local fixture viewer token, never a production authentication secret.
+      VIEWER_TOKEN: local-fixture-only
+    volumes:
+      - ./artifacts:/workspace/artifacts
+  dashboard:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "127.0.0.1:5173:5173"
+    environment:
+      API_PROXY_TARGET: http://api:8000
+    depends_on:
+      - api

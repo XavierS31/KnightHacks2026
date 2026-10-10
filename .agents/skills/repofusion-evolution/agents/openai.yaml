@@ -1,0 +1,4 @@
+interface:
+  display_name: "RepoFusion Evolution"
+  short_description: "Turn trial evidence into reviewed improvements"
+  default_prompt: "Use $repofusion-evolution to implement the next bounded developer C milestone."
