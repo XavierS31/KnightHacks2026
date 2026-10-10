@@ -95,7 +95,7 @@ def _materialize(patch: IsolatedPatch, root: Path) -> Path:
     for logical, text in files.items():
         target = root / logical
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(text)
+        target.write_text(text, encoding="utf-8", newline="\n")
     return root / "product/ui"
 
 

@@ -209,3 +209,26 @@ async def test_api_start_and_poll_are_automatic(tmp_path, monkeypatch):
         result = await client.get(f'/api/v1/research-studies/{identity}')
         assert result.json()['status'] == 'completed'
         assert (await client.get(f'/api/v1/research-studies/{uuid4()}')).status_code == 404
+
+
+async def test_automatic_study_preserves_discovery_parent_for_durable_snapshot(tmp_path):
+    from backend.app.features.integration.sources import SourceStore
+
+    saved = []
+    durable = SimpleNamespace(save_snapshot=lambda run_id, source: saved.append((run_id, source)))
+
+    class RecordingDiscovery(FakeDiscovery):
+        async def create(self, request, token, artifact_root, records):
+            assert records is durable
+            return await super().create(request)
+
+    model = SequenceInference([brief(), IdeasOutput(ideas=[], explanation='No supported new use')])
+    engine = StudyEngine(RecordingDiscovery(), FakeSources(), lambda s: IntegrationInference(s, model),
+                         FakeAlternatives(), SourceStore())
+    study = engine.start(StudyRequest(discovery=DiscoveryRequest(mode='live')), settings(tmp_path), durable)
+    await engine.tasks[study.id]
+    assert study.status == 'completed'
+    assert len(saved) == 1
+    assert saved[0][0] == study.discovery.id
+    assert saved[0][1].repository_id == study.discovery.repositories[0].id
+    assert saved[0][1].storage == 'database'

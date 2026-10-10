@@ -70,3 +70,5 @@ Target feature-owned tables cover repository observations/repositories/evidence/
 
 
 Automatic studies are separate from the retained manual OpportunityReport contract. ResearchStudy stores bounded source-derived RepositoryResearch briefs and EvaluatedProduct hypotheses/critics/search evidence. Summary claims are linked to pinned excerpts; discovered-only candidates are explicitly not researched. Supporting-tool stats are unknown, not a measured zero. Reports/jobs remain process-local (browser reload can reconnect; server restart loses state). Future C persistence should retain immutable source/brief/model/search lineage and job terminal states without promoting suggestions to validated ProductVersion records.
+
+Automatic study discovery runs and pinned snapshots now consume the merged I1 append-only storage boundary when configured. Whole study jobs, explanatory briefs and repurposing/critic reports are still in memory. Source persistence is not proof of product execution or a completed simulation.

@@ -10,8 +10,8 @@ The backend Pydantic models in `backend/app/shared/contracts.py`, feature-owned 
 | `GET /api/v1/integration/summary` | `IntegrationSummary`, explicitly fixture-backed |
 | `GET /api/v1/personas/summary` | `PersonaSummary`, explicitly fixture-backed |
 | `GET /api/v1/evolution/summary` | `EvolutionSummary`, explicitly fixture-backed |
-| `POST /api/v1/discovery-runs` | Synchronous `201 DiscoveryRun`, in-memory storage; fixture by default, bounded live GitHub read opt-in via server `APP_MODE=live` |
-| `GET /api/v1/discovery-runs/{id}` | Stored in-memory discovery result; `404` for unknown IDs; not durable jobs |
+| `POST /api/v1/discovery-runs` | Synchronous `201 DiscoveryRun`; fixture by default, bounded live GitHub read opt-in via server `APP_MODE=live`. A live run is also stored in the database when `DATABASE_URL` is set (`storage: database`); `503 DISCOVERY_STORAGE_UNAVAILABLE` if that write fails |
+| `GET /api/v1/discovery-runs/{id}` | Memory first, then the database; `404` for unknown IDs; not durable jobs |
 | `GET /api/v1/sessions/{id}` | Fixture-only `Session`; bearer token or local fixture access, allowed-origin check; rejects live mode until storage/execution exists |
 | `WS /api/v1/sessions/{id}/stream` | First-message token authentication or local fixture access, origin check, fixture state/heartbeat only; no browser frames or execution |
 | `GET /api/v1/contracts/stream-event` | Registers `StreamEvent` for OpenAPI generation; returns `409 SCHEMA_ONLY`, no live frames |

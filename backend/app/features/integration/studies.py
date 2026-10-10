@@ -7,7 +7,11 @@ from uuid import NAMESPACE_URL, uuid4, uuid5
 from fastapi import HTTPException
 
 from backend.app.features.integration.automatic_sources import AutomaticSources
-from backend.app.features.integration.discovery import DiscoveryStore, discovery_error
+from backend.app.features.integration.discovery import (
+    DiscoveryRequest,
+    DiscoveryStore,
+    discovery_error,
+)
 from backend.app.features.integration.proposals import IntegrationInference
 from backend.app.features.integration.study_models import (
     BriefCapability,
@@ -23,6 +27,12 @@ from backend.app.features.integration.study_research import (
     researched_brief,
 )
 from backend.app.shared.contracts import Repository
+from backend.app.shared.database import (
+    DatabaseUnavailable,
+    RecordConflict,
+    RecordInvalid,
+    RecordMissing,
+)
 from backend.app.shared.inference import InferenceError
 
 
@@ -31,6 +41,10 @@ def failure_code(exc):
         return exc.code
     if isinstance(exc, HTTPException) and isinstance(exc.detail, dict):
         return exc.detail.get("code", "RESEARCH_FAILED")
+    if isinstance(exc, DatabaseUnavailable):
+        return "DISCOVERY_STORAGE_UNAVAILABLE"
+    if isinstance(exc, (RecordConflict, RecordInvalid, RecordMissing)):
+        return "DISCOVERY_RECORD_REJECTED"
     return "RESEARCH_FAILED"
 
 
@@ -50,7 +64,7 @@ class StudyEngine:
             raise discovery_error(404, "STUDY_NOT_FOUND", "Study is unknown or no longer retained in this API process.")
         return self.records[identity]
 
-    def start(self, request, settings):
+    def start(self, request, settings, records=None):
         if any(not task.done() for task in self.tasks.values()):
             raise discovery_error(409, "STUDY_ALREADY_RUNNING", "One automatic study is already running. Wait or cancel it before starting another.")
         if request.discovery.mode == "live":
@@ -67,7 +81,7 @@ class StudyEngine:
         while len(self.records) > 100:
             self.records.popitem(last=False)
         self.tasks = {identity: task for identity, task in self.tasks.items() if not task.done()}
-        self.tasks[study.id] = asyncio.create_task(self.run(study, settings))
+        self.tasks[study.id] = asyncio.create_task(self.run(study, settings, records))
         return study
 
     def cancel(self, identity):
@@ -84,7 +98,7 @@ class StudyEngine:
     def stage(study, message):
         study.stage, study.updated_at = message, datetime.now(UTC)
 
-    async def research_record(self, study, repository, service, token):
+    async def research_record(self, study, repository, service, token, records=None, run_id=None):
         record = next((item for item in study.repositories if item.repository.full_name.lower() == repository.full_name.lower()), None)
         if record is None:
             record = RepositoryResearch(repository=repository, status="queued", origin="supporting_tool")
@@ -94,28 +108,28 @@ class StudyEngine:
         try:
             snapshot = await self.sources.research(repository, token)
             if self.snapshot_store is not None:
-                self.snapshot_store.snapshots[snapshot.id] = snapshot
-                while len(self.snapshot_store.snapshots) > 100:
-                    self.snapshot_store.snapshots.popitem(last=False)
+                snapshot = await asyncio.to_thread(self.snapshot_store.add,
+                    run_id or study.discovery.id, snapshot, records)
             record.snapshot_id, record.commit_sha = snapshot.id, snapshot.commit_sha
             record.coverage = [f"{doc.kind}: {doc.path}" for doc in snapshot.documents] + snapshot.failures
             brief, evidence, provenance = await researched_brief(service, snapshot)
             record.brief, record.evidence, record.provenance = brief, evidence, provenance
             record.status = "researched"
             study.provenance.append(provenance)
-        except (InferenceError, HTTPException, OSError, ValueError) as exc:
+        except (InferenceError, HTTPException, OSError, ValueError, DatabaseUnavailable,
+                RecordConflict, RecordInvalid, RecordMissing) as exc:
             record.status, record.failure = "failed", failure_code(exc)
             study.failures.append(f"{repository.full_name}: {record.failure}")
         return record
 
-    async def run(self, study, settings):
+    async def run(self, study, settings, records=None):
         service = None
         try:
             async with asyncio.timeout(900):
                 study.status = "running"
                 self.stage(study, "Discovering repository candidates")
                 study.discovery = await self.discovery.create(study.request.discovery,
-                    settings.github_token.get_secret_value(), settings.artifact_root)
+                    settings.github_token.get_secret_value(), settings.artifact_root, records)
                 selected = study.discovery.repositories[:study.request.research_limit]
                 study.repositories = [RepositoryResearch(repository=repo,
                     status="queued" if repo in selected else "not_researched") for repo in study.discovery.repositories]
@@ -127,7 +141,7 @@ class StudyEngine:
                     "hf_request_timeout_seconds": max(60, settings.hf_request_timeout_seconds),
                 }))
                 for repo in selected:
-                    record = await self.research_record(study, repo, service, token)
+                    record = await self.research_record(study, repo, service, token, records)
                     if record.failure in {"GITHUB_RATE_LIMIT", "INTEGRATION_BUDGET_EXHAUSTED", "BUDGET_NOT_APPROVED", "INTEGRATION_PRICING_UNVERIFIED"}:
                         break
                 good = [record for record in study.repositories if record.status == "researched"]
@@ -150,7 +164,23 @@ class StudyEngine:
                                 id=uuid5(NAMESPACE_URL, f"https://github.com/{name.lower()}"), full_name=name,
                                 url=f"https://github.com/{name}", stars=0, description="Suggested supporting tool; metadata not yet discovered",
                                 discovery_mode="popular", evidence=[])
-                            record = await self.research_record(study, repo, service, token)
+                            supporting_run = None
+                            if record is None:
+                                owner, name = repo.full_name.split('/')
+                                try:
+                                    supporting_run = await self.discovery.create(DiscoveryRequest(mode='live',
+                                        discovery_mode='popular', query=f'{name} user:{owner}', limit=1), token,
+                                        settings.artifact_root, records)
+                                    actual = next((item for item in supporting_run.repositories if item.full_name.lower() == repo.full_name.lower()), None)
+                                    if actual is None:
+                                        raise InferenceError('SUPPORTING_REPOSITORY_NOT_FOUND')
+                                    repo = actual
+                                except (InferenceError, HTTPException, DatabaseUnavailable, RecordConflict, RecordInvalid, RecordMissing) as exc:
+                                    product.failure = failure_code(exc)
+                                    study.failures.append(f'{repo.full_name}: {product.failure}')
+                                    break
+                            record = await self.research_record(study, repo, service, token, records,
+                                                                supporting_run.id if supporting_run else None)
                         if record.status != "researched":
                             product.failure = "SUPPORTING_CAPABILITY_NOT_RESEARCHED"
                             break

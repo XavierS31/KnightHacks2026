@@ -24,7 +24,7 @@ function RepoEvidence({ item, momentum }: { item: RepoResearch; momentum?: compo
       </dl>
     </> : <p>{item.failure ? `Research could not finish: ${item.failure}` : item.status === 'not_researched' ? 'Discovered as part of the candidate pool; outside this run’s research limit.' : 'Source research and a readable summary will appear automatically.'}</p>}
     <details><summary>Discovery proof & source evidence</summary>
-      <p>{item.origin === 'supporting_tool' ? 'Suggested supporting tool. Source research was attempted; discovery star/fork statistics were not collected.' : `${item.repository.stars.toLocaleString()} stars at discovery. Attention does not establish usefulness.`}</p>
+      <p>{item.origin === 'supporting_tool' && !item.repository.evidence.some(e => e.kind === 'source') ? 'Supporting tool; discovery statistics are unknown.' : `${item.repository.stars.toLocaleString()} stars at discovery. Attention does not establish usefulness.`}</p>
       {momentum && <p>{momentum.current.forks == null ? 'Fork count unknown.' : `${momentum.current.forks.toLocaleString()} forks.`} {momentum.status === 'measured' ? `Net stars: ${momentum.stars_delta}; net forks: ${momentum.forks_delta ?? 'unknown'} over ${momentum.elapsed_hours?.toFixed(1)} hours.` : momentum.note}</p>}
       {item.commit_sha && <p>Pinned commit <a href={`${item.repository.url}/commit/${item.commit_sha}`} target="_blank" rel="noreferrer">{item.commit_sha.slice(0, 12)}</a></p>}
       {item.repository.evidence.filter(e => e.kind === 'source').map((e, i) => <p key={i}><a href={e.reference} target="_blank" rel="noreferrer">Discovery source</a> · {new Date(e.collected_at).toLocaleString()}</p>)}
