@@ -8,6 +8,14 @@ Own both `features/evolution` modules, `backend/tests/evolution/**`, shared `dat
 
 Coordinate B's required [review-informed software behavior](../software-behavior.md): add ordered corpus/review/immutable-persona storage when implementing persistence. External reviews are upstream preference context, not generated-product defect evidence. Freeze behavior/corpus/generation versions for the matched comparison. The schema addition does not imply these tables or real collection already exist.
 
+## Emerging opportunity persistence handoff — 2026-10-10
+
+Read [opportunity discovery](../opportunity-discovery.md), [data semantics](../data-contract.md) and [additive routes](../api-contract.md). A's new reports describe one emerging anchor with either a feature extension or optional supporting repos; existing ProductHandoff/version/check/session/retest contracts remain unchanged. SourceTable's frozen v1 and its approved patch boundary are preserved as the earlier experiment.
+
+Coordinate ordered new migrations and repositories for timestamped repo observations/source lineage, immutable opportunity reports and inference provenance, separate shortlist/reject decisions with reasons, research findings and optional links to subsequently validated product versions. Keep hypotheses, illustrative examples, deterministic validation and executed trial results distinct. A's current JSON momentum history and in-memory report/export fallback do not establish Neon persistence; no new opportunity tables or live roundtrip are claimed. Missing observations are unknown growth, not zero; preserve baseline intervals and negative net deltas. Observation now includes an optional source_reference; preserve it and the enclosing discovery provenance in durable storage, including unknown provenance in older local observations.
+
+Review exact additive models with A/B before migration or consumption. A report/decision cannot authorize experiment execution or v2 promotion. Only validated products and B's executed evidence enter the existing improvement/retest pipeline. Historical progress logs below remain dated evidence, not a completion claim for this revision.
+
 ## First three tasks
 
 1. **Persistence foundation:** establish a secret-safe pooled Postgres boundary, ordered migration mechanism and durable record/job semantics. Build offline tests for absent configuration/transaction behavior and document the Neon write/read gate. Done: no external connection is claimed without an actual configured round trip; other modules can consume clear interfaces without storing screenshots in rows.
