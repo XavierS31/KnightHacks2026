@@ -37,7 +37,13 @@ collection/model extraction or approved behavior assignment has been demonstrate
 partial; independent support review, live HF verification, population generation and C storage
 are still required before production acceptance.
 
-The required [software-behavior contract](software-behavior.md) and illustrative viewer are implemented; actual review collection/extraction and the 500-person generator remain open. Real review grounding is P0 even when optional demographic enrichment is deferred. Freeze corpus, behavior and generation versions before v1 and preserve them for v2.
+Current B evidence supersedes the earlier slice notes above: bounded population/approval, budget,
+executor/runtime policy and exact captured-frame foundations are implemented; actual HF configuration
+smoke and two public review reads occurred. The extracted policy was independently rejected and
+the revised request failed; no behavior approved or live population generated. Local mock API/UI
+executes real Chromium mechanics with zero mandatory counts. P1/P2/P4 remain partial and P3
+unexecuted. See [runtime report](tasks/developer-b-runtime-report.md) for accounting, checks and A/C
+blockers. Real review grounding is P0; freeze versions before v1 and preserve them for v2.
 
 ## Phase 3 — Feedback agents and improvement (C)
 
