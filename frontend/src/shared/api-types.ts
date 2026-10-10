@@ -157,6 +157,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/integration/opportunity-demo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Opportunity Demo */
+        post: operations["opportunity_demo_api_v1_integration_opportunity_demo_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/integration/product-readiness": {
         parameters: {
             query?: never;
@@ -185,6 +202,57 @@ export interface paths {
         get: operations["summary_api_v1_integration_summary_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/opportunity-reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Opportunity Report */
+        post: operations["create_opportunity_report_api_v1_opportunity_reports_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/opportunity-reports/{report_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Opportunity Report */
+        get: operations["get_opportunity_report_api_v1_opportunity_reports__report_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/opportunity-reports/{report_id}/cards/{card_id}/decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Decide Opportunity */
+        post: operations["decide_opportunity_api_v1_opportunity_reports__report_id__cards__card_id__decision_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -855,7 +923,7 @@ export interface components {
              * @default popular
              * @enum {string}
              */
-            discovery_mode: "popular" | "trending";
+            discovery_mode: "popular" | "trending" | "emerging";
             /**
              * Limit
              * @default 20
@@ -910,6 +978,8 @@ export interface components {
              * @enum {string}
              */
             mode: "fixture" | "live";
+            /** Momentum */
+            momentum?: components["schemas"]["MomentumSignal"][];
             /** Next Gate */
             next_gate: string;
             /** Repositories */
@@ -1280,6 +1350,224 @@ export interface components {
             median_seconds?: number | null;
             /** Sessions Measured */
             sessions_measured: number;
+        };
+        /** MomentumSignal */
+        MomentumSignal: {
+            baseline?: components["schemas"]["Observation"] | null;
+            current: components["schemas"]["Observation"];
+            /** Elapsed Hours */
+            elapsed_hours?: number | null;
+            /** Forks Delta */
+            forks_delta?: number | null;
+            /** Note */
+            note: string;
+            /** Stars Delta */
+            stars_delta?: number | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "measured" | "insufficient_history" | "history_unavailable" | "fixture";
+        };
+        /** Observation */
+        Observation: {
+            /** Forks */
+            forks?: number | null;
+            /** Full Name */
+            full_name: string;
+            /**
+             * Observed At
+             * Format: date-time
+             */
+            observed_at: string;
+            /** Source Reference */
+            source_reference?: string | null;
+            /** Stars */
+            stars: number;
+        };
+        /** OpportunityCard */
+        OpportunityCard: {
+            /** Acceptance Check */
+            acceptance_check: string;
+            /** Audience */
+            audience: string;
+            /** Capability Citation Ids */
+            capability_citation_ids: number[];
+            /** Current Value */
+            current_value: string;
+            /**
+             * Decision
+             * @default unreviewed
+             * @enum {string}
+             */
+            decision: "unreviewed" | "shortlisted" | "rejected";
+            /**
+             * Decision Note
+             * @default
+             */
+            decision_note: string;
+            /** Evidence */
+            evidence: components["schemas"]["OpportunityCitation"][];
+            /** Example Input */
+            example_input: string;
+            /** Example Output */
+            example_output: string;
+            /**
+             * Example Status
+             * @default illustrative_not_executed
+             * @constant
+             */
+            example_status: "illustrative_not_executed";
+            /**
+             * Feasibility
+             * @default unreviewed
+             * @constant
+             */
+            feasibility: "unreviewed";
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Implementation Boundary */
+            implementation_boundary: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "feature_extension" | "integration";
+            /**
+             * Need Basis
+             * @enum {string}
+             */
+            need_basis: "issue_report" | "inferred_workflow";
+            /** Need Citation Ids */
+            need_citation_ids: number[];
+            /**
+             * Novelty
+             * @default unresolved
+             * @constant
+             */
+            novelty: "unresolved";
+            /** Problem */
+            problem: string;
+            /** Proposed Value */
+            proposed_value: string;
+            /** Risk */
+            risk: string;
+            /**
+             * Status
+             * @default hypothesis
+             * @constant
+             */
+            status: "hypothesis";
+            /** Supporting Snapshot Ids */
+            supporting_snapshot_ids?: string[];
+            /** Title */
+            title: string;
+            /** Why Now */
+            why_now: string;
+        };
+        /** OpportunityCitation */
+        OpportunityCitation: {
+            /** Citation Id */
+            citation_id: number;
+            /**
+             * Collected At
+             * Format: date-time
+             */
+            collected_at: string;
+            /** Commit Sha */
+            commit_sha: string;
+            /** Issue State */
+            issue_state?: string | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "readme" | "documentation" | "issue";
+            /** Quote */
+            quote: string;
+            /** Reference */
+            reference: string;
+            /** Repository */
+            repository: string;
+            /**
+             * Snapshot Id
+             * Format: uuid
+             */
+            snapshot_id: string;
+        };
+        /** OpportunityDecision */
+        OpportunityDecision: {
+            /**
+             * Decision
+             * @enum {string}
+             */
+            decision: "shortlisted" | "rejected";
+            /** Note */
+            note: string;
+        };
+        /** OpportunityReport */
+        OpportunityReport: {
+            /** Anchor Commit */
+            anchor_commit: string | null;
+            /** Anchor Repository */
+            anchor_repository: string;
+            /** Anchor Snapshot Id */
+            anchor_snapshot_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Limitations */
+            limitations: string[];
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "fixture" | "live";
+            /** No Opportunity Reason */
+            no_opportunity_reason: string;
+            /** Opportunities */
+            opportunities: components["schemas"]["OpportunityCard"][];
+            /** Provenance */
+            provenance: {
+                [key: string]: unknown;
+            };
+            /** Research Leads */
+            research_leads: string[];
+            /** Reservation */
+            reservation: {
+                [key: string]: unknown;
+            };
+            /**
+             * Storage
+             * @default in_memory
+             * @constant
+             */
+            storage: "in_memory";
+        };
+        /** OpportunityRequest */
+        OpportunityRequest: {
+            /**
+             * Anchor Snapshot Id
+             * Format: uuid
+             */
+            anchor_snapshot_id: string;
+            /**
+             * Interests
+             * @default
+             */
+            interests: string;
+            /** Supporting Snapshot Ids */
+            supporting_snapshot_ids?: string[];
         };
         /**
          * OutcomeCounts
@@ -1948,6 +2236,10 @@ export interface components {
             collected_at: string;
             /** Content Sha256 */
             content_sha256: string;
+            /** Issue State */
+            issue_state?: string | null;
+            /** Issue Updated At */
+            issue_updated_at?: string | null;
             /**
              * Kind
              * @enum {string}
@@ -2418,6 +2710,26 @@ export interface operations {
             };
         };
     };
+    opportunity_demo_api_v1_integration_opportunity_demo_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityReport"];
+                };
+            };
+        };
+    };
     product_readiness_api_v1_integration_product_readiness_get: {
         parameters: {
             query?: never;
@@ -2454,6 +2766,106 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["IntegrationSummary"];
+                };
+            };
+        };
+    };
+    create_opportunity_report_api_v1_opportunity_reports_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpportunityRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_opportunity_report_api_v1_opportunity_reports__report_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                report_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    decide_opportunity_api_v1_opportunity_reports__report_id__cards__card_id__decision_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                report_id: string;
+                card_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpportunityDecision"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

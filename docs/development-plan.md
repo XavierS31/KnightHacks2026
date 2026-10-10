@@ -33,7 +33,7 @@ Each PR states resulting behavior, contracts changed, fixture/live status and pe
 
 Population P1 also requires [real-review-informed software behavior](software-behavior.md): permitted source collection, checked evidence-linked extraction, contextual persona assignment and immutable corpus/profile storage. This is required independently of optional demographic enrichment. The schema/viewer fixtures do not establish source ingestion. Freeze behavior and corpus versions alongside tasks before the matched experiment.
 
-Before full execution: select/validate the repository pair; verify Docker or an acceptable isolated execution environment; verify a served HF model's authentication/schema/action/patch behavior and available spending limit; connect Neon; test actual Chromium/session isolation; measure pilot throughput. If any gate is absent, report it and continue independent local work without fabricating results.
+Before full execution: select/validate an anchor opportunity and its source tool(s); verify Docker or an acceptable isolated execution environment; verify a served HF model's authentication/schema/action/patch behavior and available spending limit; connect Neon; test actual Chromium/session isolation; measure pilot throughput. If any gate is absent, report it and continue independent local work without fabricating results.
 
 Before the complete comparison: freeze tasks/checks/configuration; finish v1 evidence; apply two or three reviewed patches; register immutable v2; execute matched retest; validate denominator calculations and failures. See the timed gates in [roadmap](roadmap.md).
 

@@ -1,6 +1,6 @@
 # RepoFusion
 
-An evidence-backed repository integration and synthetic usability experiment workspace.
+Discover opportunities around emerging open-source projects, preview useful extensions or integrations, and test a selected prototype through synthetic browser trials.
 Three developers each own a full-stack phase: **A integration**, **B personas**, **C evolution**.
 Runtime AI uses **Hugging Face Inference Providers only**; **Neon** stores persistent state.
 Playwright executes browser tasks; React Three Fiber visualizes ten selected personas.
@@ -9,7 +9,9 @@ Playwright executes browser tasks; React Three Fiber visualizes ten selected per
 
 This is a runnable, fixture-first shared scaffold with developer starter implementations.
 Sample repository combinations, personas and improvement suggestions are explicitly synthetic.
-A selected pdfplumber + Frictionless and validated a narrow PDF-table/type-check adapter on fixed samples.
+Discovery now investigates an anchor repo’s capabilities and problem evidence, proposing feature extensions or optional integrations instead of forced pairs. Emerging candidate search uses recent creation/activity filters; local star/fork observations measure net growth only when comparable history exists. Opportunity examples are explicitly illustrative, with shortlist/reject/export controls. See [the current discovery design](docs/opportunity-discovery.md).
+
+A previously selected pdfplumber + Frictionless and validated a narrow PDF-table/type-check adapter on fixed samples. That earlier experiment is preserved; it is not automatically selected by the new workflow.
 SourceTable v1 runs as a separate local product; its [frozen handoff](backend/app/features/integration/product/v1/manifest.json) records the implementation and environment. No 500-persona experiment has run and no v2 has been approved.
 The required experiment is **500 personas on each version**, not 500 generated records.
 Each persona requires a [software-behavior profile](docs/software-behavior.md) grounded in real software

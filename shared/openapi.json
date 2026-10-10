@@ -725,7 +725,8 @@
             "default": "popular",
             "enum": [
               "popular",
-              "trending"
+              "trending",
+              "emerging"
             ],
             "title": "Discovery Mode",
             "type": "string"
@@ -817,6 +818,13 @@
             ],
             "title": "Mode",
             "type": "string"
+          },
+          "momentum": {
+            "items": {
+              "$ref": "#/components/schemas/MomentumSignal"
+            },
+            "title": "Momentum",
+            "type": "array"
           },
           "next_gate": {
             "title": "Next Gate",
@@ -1711,6 +1719,543 @@
           "sessions_measured"
         ],
         "title": "ModelTime",
+        "type": "object"
+      },
+      "MomentumSignal": {
+        "additionalProperties": false,
+        "properties": {
+          "baseline": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Observation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "current": {
+            "$ref": "#/components/schemas/Observation"
+          },
+          "elapsed_hours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elapsed Hours"
+          },
+          "forks_delta": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forks Delta"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "stars_delta": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stars Delta"
+          },
+          "status": {
+            "enum": [
+              "measured",
+              "insufficient_history",
+              "history_unavailable",
+              "fixture"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "current",
+          "status",
+          "note"
+        ],
+        "title": "MomentumSignal",
+        "type": "object"
+      },
+      "Observation": {
+        "additionalProperties": false,
+        "properties": {
+          "forks": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forks"
+          },
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          },
+          "observed_at": {
+            "format": "date-time",
+            "title": "Observed At",
+            "type": "string"
+          },
+          "source_reference": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Reference"
+          },
+          "stars": {
+            "minimum": 0.0,
+            "title": "Stars",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "full_name",
+          "observed_at",
+          "stars"
+        ],
+        "title": "Observation",
+        "type": "object"
+      },
+      "OpportunityCard": {
+        "additionalProperties": false,
+        "properties": {
+          "acceptance_check": {
+            "maxLength": 400,
+            "minLength": 1,
+            "title": "Acceptance Check",
+            "type": "string"
+          },
+          "audience": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Audience",
+            "type": "string"
+          },
+          "capability_citation_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "maxItems": 3,
+            "minItems": 1,
+            "title": "Capability Citation Ids",
+            "type": "array"
+          },
+          "current_value": {
+            "maxLength": 400,
+            "minLength": 1,
+            "title": "Current Value",
+            "type": "string"
+          },
+          "decision": {
+            "default": "unreviewed",
+            "enum": [
+              "unreviewed",
+              "shortlisted",
+              "rejected"
+            ],
+            "title": "Decision",
+            "type": "string"
+          },
+          "decision_note": {
+            "default": "",
+            "title": "Decision Note",
+            "type": "string"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/OpportunityCitation"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "example_input": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Example Input",
+            "type": "string"
+          },
+          "example_output": {
+            "maxLength": 400,
+            "minLength": 1,
+            "title": "Example Output",
+            "type": "string"
+          },
+          "example_status": {
+            "const": "illustrative_not_executed",
+            "default": "illustrative_not_executed",
+            "title": "Example Status",
+            "type": "string"
+          },
+          "feasibility": {
+            "const": "unreviewed",
+            "default": "unreviewed",
+            "title": "Feasibility",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "implementation_boundary": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Implementation Boundary",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "feature_extension",
+              "integration"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "need_basis": {
+            "enum": [
+              "issue_report",
+              "inferred_workflow"
+            ],
+            "title": "Need Basis",
+            "type": "string"
+          },
+          "need_citation_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "maxItems": 3,
+            "minItems": 1,
+            "title": "Need Citation Ids",
+            "type": "array"
+          },
+          "novelty": {
+            "const": "unresolved",
+            "default": "unresolved",
+            "title": "Novelty",
+            "type": "string"
+          },
+          "problem": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Problem",
+            "type": "string"
+          },
+          "proposed_value": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Proposed Value",
+            "type": "string"
+          },
+          "risk": {
+            "maxLength": 400,
+            "minLength": 1,
+            "title": "Risk",
+            "type": "string"
+          },
+          "status": {
+            "const": "hypothesis",
+            "default": "hypothesis",
+            "title": "Status",
+            "type": "string"
+          },
+          "supporting_snapshot_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 2,
+            "title": "Supporting Snapshot Ids",
+            "type": "array"
+          },
+          "title": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "why_now": {
+            "maxLength": 400,
+            "minLength": 1,
+            "title": "Why Now",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "kind",
+          "need_basis",
+          "audience",
+          "problem",
+          "current_value",
+          "proposed_value",
+          "why_now",
+          "capability_citation_ids",
+          "need_citation_ids",
+          "implementation_boundary",
+          "example_input",
+          "example_output",
+          "acceptance_check",
+          "risk",
+          "id",
+          "evidence"
+        ],
+        "title": "OpportunityCard",
+        "type": "object"
+      },
+      "OpportunityCitation": {
+        "additionalProperties": false,
+        "properties": {
+          "citation_id": {
+            "title": "Citation Id",
+            "type": "integer"
+          },
+          "collected_at": {
+            "format": "date-time",
+            "title": "Collected At",
+            "type": "string"
+          },
+          "commit_sha": {
+            "title": "Commit Sha",
+            "type": "string"
+          },
+          "issue_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issue State"
+          },
+          "kind": {
+            "enum": [
+              "readme",
+              "documentation",
+              "issue"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "quote": {
+            "title": "Quote",
+            "type": "string"
+          },
+          "reference": {
+            "title": "Reference",
+            "type": "string"
+          },
+          "repository": {
+            "title": "Repository",
+            "type": "string"
+          },
+          "snapshot_id": {
+            "format": "uuid",
+            "title": "Snapshot Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "citation_id",
+          "snapshot_id",
+          "repository",
+          "commit_sha",
+          "kind",
+          "reference",
+          "quote",
+          "collected_at"
+        ],
+        "title": "OpportunityCitation",
+        "type": "object"
+      },
+      "OpportunityDecision": {
+        "additionalProperties": false,
+        "properties": {
+          "decision": {
+            "enum": [
+              "shortlisted",
+              "rejected"
+            ],
+            "title": "Decision",
+            "type": "string"
+          },
+          "note": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Note",
+            "type": "string"
+          }
+        },
+        "required": [
+          "decision",
+          "note"
+        ],
+        "title": "OpportunityDecision",
+        "type": "object"
+      },
+      "OpportunityReport": {
+        "additionalProperties": false,
+        "properties": {
+          "anchor_commit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anchor Commit"
+          },
+          "anchor_repository": {
+            "title": "Anchor Repository",
+            "type": "string"
+          },
+          "anchor_snapshot_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anchor Snapshot Id"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "mode": {
+            "enum": [
+              "fixture",
+              "live"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "no_opportunity_reason": {
+            "title": "No Opportunity Reason",
+            "type": "string"
+          },
+          "opportunities": {
+            "items": {
+              "$ref": "#/components/schemas/OpportunityCard"
+            },
+            "title": "Opportunities",
+            "type": "array"
+          },
+          "provenance": {
+            "additionalProperties": true,
+            "title": "Provenance",
+            "type": "object"
+          },
+          "research_leads": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Research Leads",
+            "type": "array"
+          },
+          "reservation": {
+            "additionalProperties": true,
+            "title": "Reservation",
+            "type": "object"
+          },
+          "storage": {
+            "const": "in_memory",
+            "default": "in_memory",
+            "title": "Storage",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "mode",
+          "anchor_snapshot_id",
+          "anchor_repository",
+          "anchor_commit",
+          "created_at",
+          "opportunities",
+          "no_opportunity_reason",
+          "research_leads",
+          "provenance",
+          "reservation",
+          "limitations"
+        ],
+        "title": "OpportunityReport",
+        "type": "object"
+      },
+      "OpportunityRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "anchor_snapshot_id": {
+            "format": "uuid",
+            "title": "Anchor Snapshot Id",
+            "type": "string"
+          },
+          "interests": {
+            "default": "",
+            "maxLength": 300,
+            "title": "Interests",
+            "type": "string"
+          },
+          "supporting_snapshot_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 2,
+            "title": "Supporting Snapshot Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "anchor_snapshot_id"
+        ],
+        "title": "OpportunityRequest",
         "type": "object"
       },
       "OutcomeCounts": {
@@ -3381,6 +3926,28 @@
             "title": "Content Sha256",
             "type": "string"
           },
+          "issue_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issue State"
+          },
+          "issue_updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issue Updated At"
+          },
           "kind": {
             "enum": [
               "readme",
@@ -4203,6 +4770,27 @@
         ]
       }
     },
+    "/api/v1/integration/opportunity-demo": {
+      "post": {
+        "operationId": "opportunity_demo_api_v1_integration_opportunity_demo_post",
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Opportunity Demo",
+        "tags": [
+          "integration"
+        ]
+      }
+    },
     "/api/v1/integration/product-readiness": {
       "get": {
         "operationId": "product_readiness_api_v1_integration_product_readiness_get",
@@ -4240,6 +4828,153 @@
           }
         },
         "summary": "Summary",
+        "tags": [
+          "integration"
+        ]
+      }
+    },
+    "/api/v1/opportunity-reports": {
+      "post": {
+        "operationId": "create_opportunity_report_api_v1_opportunity_reports_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpportunityRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Opportunity Report",
+        "tags": [
+          "integration"
+        ]
+      }
+    },
+    "/api/v1/opportunity-reports/{report_id}": {
+      "get": {
+        "operationId": "get_opportunity_report_api_v1_opportunity_reports__report_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "report_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Report Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Opportunity Report",
+        "tags": [
+          "integration"
+        ]
+      }
+    },
+    "/api/v1/opportunity-reports/{report_id}/cards/{card_id}/decision": {
+      "post": {
+        "operationId": "decide_opportunity_api_v1_opportunity_reports__report_id__cards__card_id__decision_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "report_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Report Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "card_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Card Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpportunityDecision"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Decide Opportunity",
         "tags": [
           "integration"
         ]

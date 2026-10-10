@@ -1,3 +1,5 @@
+> Historical planning input. The user-approved 2026-10-10 discovery revision is defined in [docs/opportunity-discovery.md](docs/opportunity-discovery.md). Repository pairing is optional; current ownership/runtime contracts govern implementation. The original text below is preserved for provenance.
+
 # Golden Master Planning Prompt — Three-Developer Agentic Hackathon Workflow
 
 > **How to use:** Append this entire file after your project idea / product requirements Markdown. Give the combined document to Codex in **Plan mode**. This is a planning prompt, not a request to implement code.

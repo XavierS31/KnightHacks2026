@@ -84,7 +84,7 @@ class IntegrationInference:
         self.inference = inference or HuggingFaceInference(settings)
         self.budget = IntegrationBudget(settings)
 
-    async def _generate(self, messages, schema, role):
+    async def _generate(self, messages, schema, role, prompt_version="integration-citations-v2"):
         # Reject missing credentials before charging the local reservation.
         if not (self.settings.hf_token.get_secret_value() and self.settings.hf_model_id
                 and self.settings.hf_provider):
@@ -92,7 +92,7 @@ class IntegrationInference:
         reservation = self.budget.reserve(messages, schema.model_json_schema())
         result = await self.inference.generate_structured(
             role=role, messages=messages, output_schema=schema,
-            prompt_version="integration-citations-v2",
+            prompt_version=prompt_version,
         )
         return result, reservation
 

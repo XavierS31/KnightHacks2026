@@ -16,3 +16,30 @@
 
 .proposal-choice { display: flex; gap: .75rem; align-items: center; margin: .75rem 0; overflow-wrap: anywhere; }
 .source-inspector blockquote { border-left: 2px solid #becdc3; padding-left: .75rem; margin: .75rem 0; }
+
+.opportunity-intro { background: #203f32; color: #fff9e9; border-color: #203f32; }
+.opportunity-intro h2 { font: 2.6rem Georgia, serif; margin: .6rem 0 1rem; }
+.opportunity-intro .eyebrow { color: #e0c879; }
+.opportunity-intro p { max-width: 48rem; line-height: 1.65; }
+.opportunity-intro button { background: #f3e8c9; color: #203f32; }
+.opportunity-steps { display: flex; flex-wrap: wrap; gap: 1rem 2rem; padding: 1.5rem 0; font-size: .8rem; }
+.opportunity-card { border-top: 1px solid var(--line); padding: 1.8rem 0; overflow-wrap: anywhere; }
+.opportunity-card h3 { font: 1.8rem Georgia, serif; }
+.opportunity-value { font-size: 1.1rem; line-height: 1.6; }
+.opportunity-facts { display: grid; grid-template-columns: 10rem 1fr; gap: .85rem 1.5rem; }
+.opportunity-facts dt { font-size: .8rem; color: #526657; }
+.opportunity-facts dd { margin: 0; line-height: 1.5; }
+.opportunity-card summary { cursor: pointer; padding: .8rem 0; }
+.opportunity-card blockquote { border-left: 3px solid #b9caba; padding-left: 1rem; margin: 1rem 0; }
+.concept-preview { margin: 1rem 0; padding: .5rem 1rem; background: #f4f2e8; border: 1px solid #d7dccf; }
+.opportunity-gates { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1.5rem 0; }
+.opportunity-gates span { background: #f1f1e9; border: 1px solid #d7dccf; padding: .5rem .7rem; font-size: .75rem; }
+.decision-note { display: grid; gap: .5rem; font-size: .85rem; }
+.decision-note textarea { min-height: 5rem; width: 100%; resize: vertical; border: 1px solid #becdc3; padding: .8rem; font: inherit; background: white; }
+.review-actions { display: flex; gap: .7rem; flex-wrap: wrap; margin: .8rem 0; }
+.growth-measured { border-left: 3px solid #527b40; padding-left: .8rem; }
+@media (max-width: 700px) {
+  .opportunity-intro h2 { font-size: 2rem; }
+  .opportunity-facts { grid-template-columns: 1fr; gap: .4rem; }
+  .opportunity-facts dd { margin-bottom: .7rem; }
+}

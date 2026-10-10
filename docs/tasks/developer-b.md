@@ -8,6 +8,14 @@ Read [software behavior](../software-behavior.md). Every live persona requires r
 
 Own both `features/personas` modules, `backend/tests/personas/**` and `backend/app/shared/inference.py` with focused tests. Coordinate shared contracts with A and persistence with C. Do not edit integration/evolution or migrations. Inputs are canonical persona/scenario/task/session records, explicit fixture population and A's validated briefing/check catalog when available.
 
+## Emerging opportunity consumer handoff — 2026-10-10
+
+Read [opportunity discovery](../opportunity-discovery.md). A now discovers an emerging anchor and suggests a feature extension or optional integration; a two-repo pair is no longer required. `OpportunityReport`/shortlist/illustrative examples are hypotheses, not verified capabilities or a trial launch. This revision does not complete a new population, persona trial or simulation.
+
+Consume only a subsequently validated A ProductHandoff with immutable product/check/task identities, factual supported capabilities and scoped initial state. Use the selected opportunity's audience/problem to choose relevant review sources, personas and scenarios; preserve assumptions and negative relevance rather than engineering favorable feedback. Reject unsupported proposed features from task planning. Existing browser isolation, viewer, mandatory coverage and matched retest contracts remain unchanged. SourceTable's frozen v1 remains the earlier runnable experiment, not automatic evidence for a newly proposed opportunity.
+
+Coordinate the factual briefing/task mapping with A and persistence with C before launching a selected-opportunity pilot. Keep five-person pilot, 20-person soak and full-batch evidence distinct; no new live execution is claimed by the discovery UI. Historical progress entries below retain their original evidence and configuration dates.
+
 ## First three tasks
 
 1. **Population and inference:** verify the shared async HF adapter, bound retries/concurrency and report sanitized failures/usage. Collect relevant real software reviews with canonical IDs/URLs/dates/hashes/context, then extract checked tendencies/triggers/trial policies through HF. Generate 500 contextual personas with required `software_behavior`, immutable corpus/generation versions and explicit attribute provenance. Done: source support/citation/context checks pass; offline tests cover invalid schemas, duplicates, unsupported interpretations, fixture leakage and missing sources, plus inference failures; no client receives HF_TOKEN. Live inference needs an authenticated representative smoke test. Do not count ten fixture profiles as a completed population generator.
