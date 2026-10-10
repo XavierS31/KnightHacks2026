@@ -22,6 +22,19 @@ Test session isolation, bounded actions/stopping, evidence references, worker re
 
 ## Progress log
 
+2026-10-10 review-corpus follow-up: bounded fixed-endpoint HN intake and manual/permitted-export
+records, explicit privacy/paraphrase curation, normalized source-content hashes, corpus-level dedup,
+immutable snapshot lineage and schema/citation/excerpt-checked HF draft extraction are implemented
+in B's feature modules. Proposals remain pending independent support review; literal quotation
+matching cannot establish semantic support or produce approved live profiles. Thirty-three focused
+offline tests use fake HTTP/HF and invented source records. No real collection, paid inference,
+source-permission claim, population generation or Neon persistence is established. HF configuration
+is present locally; live mode and a positive authorized budget are still absent. Next gates: explicit
+HF smoke authorization/budget, relevant real review selection and independent support review,
+C-coordinated storage and live persona generation. This follow-up is stacked on the mock-handoff PR.
+Combined validation: 182 backend tests with Chromium enabled, backend lint, OpenAPI/type drift,
+frontend typecheck and build pass. Existing frontend large-chunk/deprecation warnings remain.
+
 2026-10-10 mock A handoff slice: B-owned `mock_handoff.py`, `mock_product.py`, `mock_worker.py`
 and `kickoff.py` supply a complete synthetic handoff category set, 500 deterministic fixture
 persona/scenario/task identities, isolated loopback Chromium mechanics, actual in-memory screenshots,

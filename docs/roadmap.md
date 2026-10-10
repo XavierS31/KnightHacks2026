@@ -31,6 +31,12 @@ screenshots and deterministic checks. All experiment execution counters remain z
 configuration smoke command is prepared but has not made a live request. P1/P2/P4 remain partial;
 P3 remains unexecuted. Commands and limitations: `backend/app/features/personas/README.md`.
 
+B's subsequent P1 slice adds source-intake/curation, deduplicated frozen in-memory corpora and
+checked HF extraction drafts (33 new offline tests; 182 combined with Chromium). No actual source
+collection/model extraction or approved behavior assignment has been demonstrated. P1 remains
+partial; independent support review, live HF verification, population generation and C storage
+are still required before production acceptance.
+
 The required [software-behavior contract](software-behavior.md) and illustrative viewer are implemented; actual review collection/extraction and the 500-person generator remain open. Real review grounding is P0 even when optional demographic enrichment is deferred. Freeze corpus, behavior and generation versions before v1 and preserve them for v2.
 
 ## Phase 3 — Feedback agents and improvement (C)

@@ -2,7 +2,7 @@
 
 Every persona requires `software_behavior`. Production personas must have `status: review_informed` and patterns grounded in real people's software reviews or discussions. Reddit, Hacker News, GitHub issues, app-store reviews, review sites and general forums are supported source categories. This is required P0 work within population milestone P1, separate from optional demographic enrichment.
 
-The schema, linked fixture example, API response and viewer are implemented. **No real reviews have been ingested, no review extractor is implemented, and the ten scaffold personas remain explicit fixtures.** A source URL and syntactically valid hash do not establish retrieval or prove the model's interpretation; ingestion and extraction acceptance checks must establish those facts.
+The schema, linked fixture example, API response and viewer are implemented. B now has tested source-intake, curation, immutable in-memory corpus and HF extraction-draft library helpers. **No real reviews have been ingested or extracted through those helpers, and the ten scaffold personas remain explicit fixtures.** Extractions remain pending independent support review; no approved behavior assignment or production population generator is implemented. A source URL and syntactically valid hash do not establish retrieval or prove the model's interpretation; ingestion and extraction acceptance checks must establish those facts.
 
 ## Expected schema
 
