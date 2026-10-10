@@ -8,14 +8,41 @@ from backend.app.features.integration.discovery import (
     DiscoveryStore,
     discovery_error,
 )
+from backend.app.features.integration.proposals import (
+    Extraction,
+    IntegrationInference,
+    InterpretationStore,
+    ProposalPreview,
+    ProposalRequest,
+)
 from backend.app.features.integration.sources import SourceRequest, SourceSnapshot, SourceStore
 from backend.app.shared.contracts import IntegrationSummary
 from backend.app.shared.fixtures import PROPOSAL, REPOSITORIES, VERSION
+from backend.app.shared.inference import InferenceError
 from backend.app.shared.settings import Settings, get_settings
 
 router = APIRouter(tags=["integration"])
 store = DiscoveryStore()
 source_store = SourceStore()
+interpretations = InterpretationStore()
+
+
+def inference_failure(code):
+    messages = {
+        "FIXTURE_INFERENCE_FORBIDDEN": "Set APP_MODE=live on the server to enable HF interpretation.",
+        "INFERENCE_NOT_CONFIGURED": "Configure server-side HF model, provider and token before extraction.",
+        "BUDGET_NOT_APPROVED": "A positive, approved inference allowance is required.",
+        "INTEGRATION_BUDGET_EXHAUSTED": "Developer A's local inference allowance is exhausted.",
+        "INTEGRATION_BUDGET_BUSY": "Another request is reserving the allowance; retry shortly.",
+        "INTEGRATION_BUDGET_INVALID": "The local allowance ledger needs inspection before more calls.",
+        "INTEGRATION_PRICING_UNVERIFIED": "This model/provider has no verified Developer A reservation rate.",
+        "INTEGRATION_PROMPT_TOO_LARGE": "Source context exceeds the approved request bound.",
+        "NO_DOCUMENTED_SOURCES": "No usable README or documentation excerpt was collected.",
+        "DUPLICATE_EXTRACTION": "Select distinct extraction records.",
+        "DUPLICATE_REPOSITORY": "Select distinct repositories for a proposal.",
+    }
+    return discovery_error(409 if code in messages else 502, code,
+                           messages.get(code, "HF output did not pass the required checks; no result was retained."))
 
 
 @router.post("/discovery-runs", response_model=DiscoveryRun, status_code=201)
@@ -53,3 +80,45 @@ async def collect_sources(run_id: UUID, repository_id: UUID, request: SourceRequ
 @router.get("/source-snapshots/{snapshot_id}", response_model=SourceSnapshot)
 def get_sources(snapshot_id: UUID):
     return source_store.get(snapshot_id)
+
+
+@router.post("/source-snapshots/{snapshot_id}/extractions", response_model=Extraction, status_code=201)
+async def extract_sources(snapshot_id: UUID, settings: Settings = Depends(get_settings)):
+    snapshot = source_store.get(snapshot_id)
+    service = IntegrationInference(settings)
+    try:
+        result = await service.extract(snapshot)
+        interpretations.retain(interpretations.extractions, result)
+        return result
+    except InferenceError as exc:
+        raise inference_failure(exc.code) from None
+    finally:
+        await service.close()
+
+
+@router.get("/extractions/{extraction_id}", response_model=Extraction)
+def get_extraction(extraction_id: UUID):
+    if extraction_id not in interpretations.extractions:
+        raise discovery_error(404, "EXTRACTION_NOT_FOUND", "Extraction is unknown or no longer retained.")
+    return interpretations.extractions[extraction_id]
+
+
+@router.post("/proposal-previews", response_model=ProposalPreview, status_code=201)
+async def preview_proposals(request: ProposalRequest, settings: Settings = Depends(get_settings)):
+    extractions = [get_extraction(identity) for identity in request.extraction_ids]
+    service = IntegrationInference(settings)
+    try:
+        result = await service.propose(extractions)
+        interpretations.retain(interpretations.previews, result)
+        return result
+    except InferenceError as exc:
+        raise inference_failure(exc.code) from None
+    finally:
+        await service.close()
+
+
+@router.get("/proposal-previews/{preview_id}", response_model=ProposalPreview)
+def get_preview(preview_id: UUID):
+    if preview_id not in interpretations.previews:
+        raise discovery_error(404, "PROPOSAL_PREVIEW_NOT_FOUND", "Proposal preview is unknown or no longer retained.")
+    return interpretations.previews[preview_id]

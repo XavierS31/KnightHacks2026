@@ -13,3 +13,6 @@
 .source-controls input { width: 100%; min-width: 0; padding: .65rem; border: 1px solid var(--line); border-radius: 4px; }
 .source-inspector details { margin: .75rem 0; }
 .source-inspector summary { cursor: pointer; overflow-wrap: anywhere; }
+
+.proposal-choice { display: flex; gap: .75rem; align-items: center; margin: .75rem 0; overflow-wrap: anywhere; }
+.source-inspector blockquote { border-left: 2px solid #becdc3; padding-left: .75rem; margin: .75rem 0; }

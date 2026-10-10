@@ -8,7 +8,7 @@ Status dated 2026-10-10. Update this file with evidence after each milestone; do
 | Three developer starter slices | A discovery, B exact-session viewer/inference boundary, C grounded analysis/database helper implemented and checked | Production milestones in each starter task |
 | Developer roles and project skills | Repository-local instructions prepared | Valid TOML/YAML, scoped paths and kickoff review |
 | Live repository integration | Not established | Both sources + actual adapter pass fixed cases |
-| Hosted HF inference | Credentials/model access not established | Authenticated real request plus validated role outputs |
+| Hosted HF inference | A authenticated Qwen/Qwen3-32B through DeepInfra; 26 cited repository interpretations and five proposal hypotheses retained locally | Complete role-output support review; B/C flows and experiment accounting remain separate |
 | Review-informed persona behavior | Required schema, citation/provenance validation, fixture examples and viewer implemented; real ingestion/extraction not established | B collects relevant real software reviews, verifies HF extraction support and persists immutable source-linked population profiles with C |
 | Neon persistence | Connection not established | Actual durable write/read/migration evidence |
 | Persona browser execution | Production path not established | Real Playwright task and retained action/output evidence |
@@ -47,3 +47,7 @@ Extractions remain pending independent semantic-support review and cannot become
 persona behavior through these helpers. HF configuration is now present locally, but live mode and
 positive authorized budget are absent. C persistence and full population/trial gates remain open.
 
+
+2026-10-10 A discovery/proposal checkpoint: Popular search now supports explicit created/pushed date filters; genuine daily/weekly/monthly GitHub Trending uses a bounded HTML snapshot plus repository metadata verification. A live one-row Trending smoke passed. HF extraction attaches exact numbered source excerpts and proposal previews keep novelty/feasibility unresolved. Persistent local reservations bound A to the approved $2/model/provider configuration; they are not provider billing or experiment-wide accounting. API records remain in memory.
+
+A inspected 27 pinned public candidates (16 established, six recent-query, five weekly Trending), retained 26 HF extractions and five unique-pair hypotheses, and recorded primary-source overlap/criticism in [candidate research](research/developer-a-candidates-2026-10-10.md). Missing README and failed model attempts remain visible. The two preferred sources, pdfplumber and Frictionless, passed independent known/invalid fixture probes in offline nonroot Docker containers; no adapter or product operation has been validated yet. This machine now has a verified running Docker daemon. Neon storage and immutable handoff to B remain open.
