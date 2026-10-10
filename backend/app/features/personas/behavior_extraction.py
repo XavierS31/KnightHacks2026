@@ -87,7 +87,12 @@ async def extract_behavior_draft(corpus: FrozenCorpus, adapter: HuggingFaceInfer
              "triggers and bounded trial policies. Cite only supplied review IDs and exact excerpts. "
              "Do not infer author demographics, prevalence, universal habits, product defects, or "
              "permission to skip mandatory trials or exceed tool budgets. Interpretations are drafts "
-             "requiring independent support review. Return the requested JSON schema."},
+             "agent_policy must describe simulated choices among observed enabled controls or "
+             "evidence-linked feedback, never recommendations to add or invoke unverified features. "
+             "Choose dimension from source support: learning-scope interest may inform adoption, "
+             "but does not imply collaboration. Do not infer unsupported frequencies or outcomes. "
+             "requiring independent support review. Propose at most two concise patterns; keep "
+             "the entire response within 1024 output tokens. Return the requested JSON schema. /no_think"},
             {"role": "user", "content": encoded},
         ],
     )

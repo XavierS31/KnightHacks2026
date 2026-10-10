@@ -9,39 +9,18 @@ from backend.app.features.personas.mock_handoff import (
     mock_population,
 )
 from backend.app.features.personas.mock_product import serve_mock_product
-from backend.app.features.personas.mock_worker import BrowserDecision, run_mock_trial
-from backend.app.shared.inference import HuggingFaceInference, InferenceError
+from backend.app.features.personas.mock_worker import run_mock_trial
 from backend.app.shared.settings import get_settings
 
 
 async def hf_smoke():
-    """At most one logical request (adapter can retry once); no population/batch execution."""
+    """Legacy entry point cannot bypass the explicit dollar reservation workflow."""
     settings = get_settings()
-    adapter = HuggingFaceInference(settings)
-    try:
-        response = await adapter.generate_structured(
-            role="browser_persona_configuration_smoke", output_schema=BrowserDecision,
-            prompt_version="b-mock-hf-smoke-v1", messages=[
-                {"role": "system", "content": "Choose one action from the supplied observed targets. "
-                 "Use click with target_id for a supported target; stop uses null target_id. "
-                 "This is a synthetic configuration test, not a real persona or product trial."},
-                {"role": "user", "content": json.dumps({
-                    "briefing": "Mock product: load sample then generate study cards.",
-                    "goal": "Try the sample", "observed_targets": [
-                        {"id": "load-sample", "name": "Load sample"}],
-                    "action_budget_remaining": 6,
-                })},
-            ],
-        )
-        if response.value.kind != "click" or response.value.target_id != "load-sample":
-            return {"status": "failed", "code": "UNSUPPORTED_SMOKE_DECISION"}
-        return {"status": "validated_configuration_smoke", "input_mode": "fixture",
-                "inference_used": True, "counts_as_mandatory_trial": False,
-                "decision": response.value.model_dump(), "provenance": response.provenance}
-    except InferenceError as failure:
-        return {"status": "failed", "code": failure.code, "retryable": failure.retryable}
-    finally:
-        await adapter.close()
+    if settings.app_mode == "fixture":
+        return {"status": "failed", "code": "FIXTURE_INFERENCE_FORBIDDEN", "retryable": False}
+    return {"status": "failed", "code": "USE_BUDGETED_LIVE_READINESS", "retryable": False,
+            "next_step": "Use personas.live_readiness --run --budget with reviewed accounting; "
+                         "never reset an existing spending marker."}
 
 
 async def browser_smoke(failure: str):

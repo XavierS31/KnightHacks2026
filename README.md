@@ -14,7 +14,11 @@ SourceTable v1 runs as a separate local product; its [frozen handoff](backend/ap
 The required experiment is **500 personas on each version**, not 500 generated records.
 Each persona requires a [software-behavior profile](docs/software-behavior.md) grounded in real software
 reviews for production use. The schema supports Reddit, Hacker News and other review sources; current
-profiles are labeled fixtures, and real review ingestion/extraction remains unfinished.
+dashboard profiles are labeled fixtures. B's bounded intake/extraction/population foundations now
+exist, with a real HF configuration smoke and two public HN review reads demonstrated. The behavior
+draft was rejected on semantic support; a fresh request failed. The persona view runs local mock
+browser tasks and shows their exact PNG/actions, without incrementing experiment counts. See the
+[Developer B runtime report](docs/tasks/developer-b-runtime-report.md) for evidence and remaining gates.
 Live Hugging Face/Neon credentials are not bundled. Fixture operation makes no paid inference calls.
 
 ## Quick start (Windows PowerShell)

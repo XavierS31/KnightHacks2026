@@ -97,3 +97,12 @@ async def test_hf_smoke_fixture_mode_cannot_call_provider(monkeypatch):
     monkeypatch.setenv("APP_MODE", "fixture")
     result = await hf_smoke()
     assert result == {"status": "failed", "code": "FIXTURE_INFERENCE_FORBIDDEN", "retryable": False}
+
+
+async def test_legacy_live_smoke_cannot_bypass_dollar_accounting(monkeypatch):
+    from backend.app.features.personas import kickoff
+    from backend.app.shared.settings import Settings
+
+    monkeypatch.setattr(kickoff, "get_settings", lambda: Settings(app_mode="live"))
+    result = await kickoff.hf_smoke()
+    assert result["code"] == "USE_BUDGETED_LIVE_READINESS"
