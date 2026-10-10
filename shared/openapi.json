@@ -288,6 +288,36 @@
         "title": "BaseVersion",
         "type": "object"
       },
+      "BoundedEdit": {
+        "additionalProperties": false,
+        "description": "Replace one exact, unique text span in one product file.",
+        "properties": {
+          "find": {
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Find",
+            "type": "string"
+          },
+          "path": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Path",
+            "type": "string"
+          },
+          "replace": {
+            "maxLength": 4000,
+            "title": "Replace",
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "find",
+          "replace"
+        ],
+        "title": "BoundedEdit",
+        "type": "object"
+      },
       "CandidateVersion": {
         "additionalProperties": false,
         "properties": {
@@ -845,6 +875,29 @@
           "next_gate"
         ],
         "title": "DiscoveryRun",
+        "type": "object"
+      },
+      "EditSubmission": {
+        "additionalProperties": false,
+        "properties": {
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "edits": {
+            "items": {
+              "$ref": "#/components/schemas/BoundedEdit"
+            },
+            "maxItems": 12,
+            "minItems": 1,
+            "title": "Edits",
+            "type": "array"
+          }
+        },
+        "required": [
+          "actor",
+          "edits"
+        ],
+        "title": "EditSubmission",
         "type": "object"
       },
       "Evidence": {
@@ -1558,8 +1611,15 @@
       },
       "IsolatedPatch": {
         "additionalProperties": false,
-        "description": "A changeset held in the run record. It is not written to the v1 tree.",
+        "description": "A changeset held in the run record. It is not written to the v1 tree.\n\nThe digest covers the files only. Edits record how the files were derived from v1.",
         "properties": {
+          "edits": {
+            "items": {
+              "$ref": "#/components/schemas/BoundedEdit"
+            },
+            "title": "Edits",
+            "type": "array"
+          },
           "files": {
             "items": {
               "$ref": "#/components/schemas/PatchFile"
@@ -1893,6 +1953,14 @@
               }
             ]
           },
+          "component_run_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Component Run Ids",
+            "type": "array"
+          },
           "events": {
             "items": {
               "$ref": "#/components/schemas/LifecycleEvent"
@@ -1916,9 +1984,23 @@
             ],
             "title": "Implementer Id"
           },
+          "implementer_run": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoleRun"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "improvement_id": {
             "format": "uuid",
             "title": "Improvement Id",
+            "type": "string"
+          },
+          "issue": {
+            "title": "Issue",
             "type": "string"
           },
           "patch": {
@@ -1957,11 +2039,17 @@
             "default": "memory",
             "title": "Storage",
             "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
           }
         },
         "required": [
           "id",
           "improvement_id",
+          "title",
+          "issue",
           "allowed_paths",
           "acceptance_check",
           "base",
@@ -2537,32 +2625,29 @@
         "title": "Rate",
         "type": "object"
       },
-      "RegressionSubmission": {
+      "ReleaseCreate": {
         "additionalProperties": false,
+        "description": "A human composes two or three regression-passed runs into one v2 candidate run.",
         "properties": {
           "actor": {
             "$ref": "#/components/schemas/Actor"
           },
-          "patch_sha256": {
-            "pattern": "^[a-f0-9]{64}$",
-            "title": "Patch Sha256",
-            "type": "string"
-          },
-          "results": {
+          "run_ids": {
             "items": {
-              "$ref": "#/components/schemas/CheckResult"
+              "format": "uuid",
+              "type": "string"
             },
-            "minItems": 1,
-            "title": "Results",
+            "maxItems": 3,
+            "minItems": 2,
+            "title": "Run Ids",
             "type": "array"
           }
         },
         "required": [
           "actor",
-          "patch_sha256",
-          "results"
+          "run_ids"
         ],
-        "title": "RegressionSubmission",
+        "title": "ReleaseCreate",
         "type": "object"
       },
       "Repository": {
@@ -2797,7 +2882,8 @@
             "enum": [
               "analyst",
               "prioritizer",
-              "ux_reviewer"
+              "ux_reviewer",
+              "implementer"
             ],
             "title": "Role",
             "type": "string"
@@ -4255,6 +4341,167 @@
         ]
       }
     },
+    "/api/v1/patch-runs/{patch_run_id}/compose": {
+      "post": {
+        "description": "The implementer applies each component's edits, in order, to frozen v1.",
+        "operationId": "compose_release_api_v1_patch_runs__patch_run_id__compose_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "patch_run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Patch Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActorRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatchRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Compose Release",
+        "tags": [
+          "evolution"
+        ]
+      }
+    },
+    "/api/v1/patch-runs/{patch_run_id}/edits": {
+      "post": {
+        "operationId": "submit_patch_edits_api_v1_patch_runs__patch_run_id__edits_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "patch_run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Patch Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditSubmission"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatchRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Submit Patch Edits",
+        "tags": [
+          "evolution"
+        ]
+      }
+    },
+    "/api/v1/patch-runs/{patch_run_id}/implement": {
+      "post": {
+        "description": "The HF implementer proposes bounded edits; the deterministic tool applies them.",
+        "operationId": "implement_patch_api_v1_patch_runs__patch_run_id__implement_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "patch_run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Patch Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActorRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatchRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Implement Patch",
+        "tags": [
+          "evolution"
+        ]
+      }
+    },
     "/api/v1/patch-runs/{patch_run_id}/patch": {
       "post": {
         "operationId": "submit_patch_api_v1_patch_runs__patch_run_id__patch_post",
@@ -4308,9 +4555,10 @@
         ]
       }
     },
-    "/api/v1/patch-runs/{patch_run_id}/regression": {
+    "/api/v1/patch-runs/{patch_run_id}/qa": {
       "post": {
-        "operationId": "record_regression_api_v1_patch_runs__patch_run_id__regression_post",
+        "description": "Run the fixed checks in an isolated workspace and record their results.",
+        "operationId": "run_patch_qa_api_v1_patch_runs__patch_run_id__qa_post",
         "parameters": [
           {
             "in": "path",
@@ -4327,7 +4575,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RegressionSubmission"
+                "$ref": "#/components/schemas/ActorRequest"
               }
             }
           },
@@ -4355,7 +4603,7 @@
             "description": "Validation Error"
           }
         },
-        "summary": "Record Regression",
+        "summary": "Run Patch Qa",
         "tags": [
           "evolution"
         ]
@@ -4718,6 +4966,47 @@
         "summary": "Get Preview",
         "tags": [
           "integration"
+        ]
+      }
+    },
+    "/api/v1/releases": {
+      "post": {
+        "operationId": "create_release_api_v1_releases_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReleaseCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatchRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Release",
+        "tags": [
+          "evolution"
         ]
       }
     },

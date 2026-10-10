@@ -4,6 +4,7 @@ from uuid import NAMESPACE_URL, UUID, uuid4, uuid5
 import pytest
 from fastapi.testclient import TestClient
 
+from backend.app.features.evolution.bounded_improvements import STALE_STATUS
 from backend.app.features.evolution.evidence import EvidenceMismatch
 from backend.app.features.evolution.lifecycle import PatchLifecycle
 from backend.app.features.evolution.models import (
@@ -23,6 +24,7 @@ from backend.app.features.evolution.retest import (
     compare_versions,
     trial_identity,
 )
+from backend.app.features.evolution.router import lifecycle
 from backend.app.main import app
 from backend.app.shared.contracts import (
     Action,
@@ -46,7 +48,7 @@ IMPROVEMENT = Improvement(
     supporting_session_ids=[uuid4()], severity=3, affected_share=0.5, evidence_strength=1,
     estimated_effort_hours=1, acceptance_check="A supported-input hint is visible",
     allowed_paths=["product/src"], status="proposed")
-LIFECYCLE = PatchLifecycle()
+LIFECYCLE = PatchLifecycle(frozenset({"product/src/a.txt"}))
 OPEN_RUN = LIFECYCLE.propose(IMPROVEMENT, BASE, HUMAN)
 LIFECYCLE.review(OPEN_RUN.id, HUMAN)
 PATCHED = LIFECYCLE.submit_patch(OPEN_RUN.id, IMPLEMENTER, [PatchFile(path="product/src/a.txt", content="x")])
@@ -305,15 +307,17 @@ def test_trial_identity_comes_from_persona_and_task():
 def test_routes_compare_fixture_runs_and_refuse_live_mode():
     client = TestClient(app)
     human, prioritizer = HUMAN.model_dump(), {"id": "prioritizer-1", "role": "prioritizer"}
+    improvement = IMPROVEMENT.model_copy(update={"allowed_paths": STALE_STATUS.allowed_paths})
     run = client.post(f"/api/v1/improvements/{IMPROVEMENT.id}/patch-runs", json={
-        "actor": prioritizer, "improvement": IMPROVEMENT.model_dump(mode="json")}).json()
+        "actor": prioritizer, "improvement": improvement.model_dump(mode="json")}).json()
     client.post(f"/api/v1/patch-runs/{run['id']}/review", json={"actor": human})
-    patched = client.post(f"/api/v1/patch-runs/{run['id']}/patch", json={
-        "actor": IMPLEMENTER.model_dump(), "files": [{"path": "product/src/a.txt", "content": "x"}]}).json()
-    client.post(f"/api/v1/patch-runs/{run['id']}/regression", json={
-        "actor": QA.model_dump(), "patch_sha256": patched["patch"]["sha256"],
-        "results": [{"check_id": check, "passed": True, "evidence": "Observed."}
-                    for check in run["base"]["fixed_check_ids"]]})
+    patched = client.post(f"/api/v1/patch-runs/{run['id']}/edits", json={
+        "actor": IMPLEMENTER.model_dump(),
+        "edits": [edit.model_dump() for edit in STALE_STATUS.edits]}).json()
+    # QA over HTTP needs Docker and Chromium (test_qa.py); record its results directly here.
+    lifecycle.record_regression(UUID(run["id"]), QA, patched["patch"]["sha256"], [
+        CheckResult(check_id=check, passed=True, evidence="Observed.")
+        for check in run["base"]["fixed_check_ids"]])
     candidate = client.post(f"/api/v1/patch-runs/{run['id']}/approve",
                             json={"actor": human}).json()["candidate"]
     runs = {version: {
