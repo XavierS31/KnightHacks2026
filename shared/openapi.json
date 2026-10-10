@@ -2318,6 +2318,49 @@
         ]
       }
     },
+    "/api/v1/personas/mock-trials/{persona_id}": {
+      "post": {
+        "operationId": "mock_trial_api_v1_personas_mock_trials__persona_id__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "persona_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Persona Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Session"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Mock Trial",
+        "tags": [
+          "personas"
+        ]
+      }
+    },
     "/api/v1/personas/summary": {
       "get": {
         "operationId": "summary_api_v1_personas_summary_get",
