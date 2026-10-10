@@ -44,4 +44,4 @@ Offline tests check file discovery, absent configuration and validation that run
 
 The lazy `NeonDatabase` helper opens no connection in fixture mode or at import time. Its scoped connection commits success and rolls back exceptions through psycopg's pool context. [Psycopg pool documentation](https://www.psycopg.org/psycopg3/docs/advanced/pool.html)
 
-Matched task/configuration relationships and version promotion are not implemented yet. Run the job tests against Neon after the gate passes.
+Matched task/configuration relationships and version promotion are not implemented yet. The repository and job tests pass against a Neon branch (see `docs/status.md`). Use the direct (unpooled) URL for `TEST_DATABASE_URL`, because the pooler rejects the `search_path` startup option.

@@ -1,4 +1,5 @@
 import hashlib
+from urllib.parse import urlsplit
 
 import pytest
 
@@ -69,4 +70,5 @@ def test_roundtrip_persists_write_and_discards_aborted_write(isolated):
     assert read(database, evidence["durable_id"])[1] == "durable write/read gate"
     assert read(database, evidence["rollback_id"]) is None
     assert evidence["migrations"] == recorded(database)
-    assert evidence["neon_host"] is False
+    # True only when TEST_DATABASE_URL is a Neon branch; a local database must never claim Neon.
+    assert evidence["neon_host"] is urlsplit(settings.database_url.get_secret_value()).hostname.endswith(".neon.tech")
