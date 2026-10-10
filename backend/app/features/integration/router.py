@@ -13,6 +13,14 @@ from backend.app.features.integration.discovery import (
     discovery_error,
 )
 from backend.app.features.integration.discovery_repository import DiscoveryRepository
+from backend.app.features.integration.opportunities import (
+    OpportunityDecision,
+    OpportunityReport,
+    OpportunityRequest,
+    OpportunityStore,
+    discover_opportunities,
+    fixture_report,
+)
 from backend.app.features.integration.product.handoff import ProductReadiness, readiness
 from backend.app.features.integration.proposals import (
     Extraction,
@@ -38,6 +46,7 @@ router = APIRouter(tags=["integration"])
 store = DiscoveryStore()
 source_store = SourceStore()
 interpretations = InterpretationStore()
+opportunities = OpportunityStore()
 _databases: dict[str, NeonDatabase] = {}
 _databases_lock = Lock()
 
@@ -86,6 +95,7 @@ def inference_failure(code):
         "NO_DOCUMENTED_SOURCES": "No usable README or documentation excerpt was collected.",
         "DUPLICATE_EXTRACTION": "Select distinct extraction records.",
         "DUPLICATE_REPOSITORY": "Select distinct repositories for a proposal.",
+        "UNSUPPORTED_OPPORTUNITY_EVIDENCE": "The model used unknown or mismatched evidence or repo roles. No opportunity was retained.",
     }
     return discovery_error(409 if code in messages else 502, code,
                            messages.get(code, "HF output did not pass the required checks; no result was retained."))
@@ -97,7 +107,7 @@ async def create_discovery(request: DiscoveryRequest, records: Records,
     if request.mode == "live" and settings.app_mode != "live":
         raise discovery_error(409, "LIVE_DISCOVERY_DISABLED", "Set APP_MODE=live on the server to enable real GitHub reads.")
     with storage_errors():
-        return await store.create(request, settings.github_token.get_secret_value(), records)
+        return await store.create(request, settings.github_token.get_secret_value(), settings.artifact_root, records)
 
 
 @router.get("/discovery-runs/{run_id}", response_model=DiscoveryRun)
@@ -108,11 +118,9 @@ def get_discovery(run_id: UUID, records: Records):
 
 @router.get("/integration/summary", response_model=IntegrationSummary)
 def summary(settings: Settings = Depends(get_settings)):
-    product = readiness(settings.artifact_root)
     return IntegrationSummary(mode="fixture", repositories=REPOSITORIES,
                               proposals=[PROPOSAL], versions=[VERSION],
-                              next_gate=("Use SourceTable's separate validated handoff with B and connect C's durable storage."
-                                         if product.version else "Build and verify the separate SourceTable product; these candidate records remain fixtures."))
+                              next_gate="Discover opportunities around an anchor repo; SourceTable is a preserved earlier experiment, not an automatically selected idea.")
 
 
 @router.post("/discovery-runs/{run_id}/repositories/{repository_id}/sources",
@@ -182,3 +190,45 @@ def get_preview(preview_id: UUID, records: Records):
     if preview is None:
         raise discovery_error(404, "PROPOSAL_PREVIEW_NOT_FOUND", "Proposal preview is unknown or no longer retained.")
     return preview
+
+
+@router.post("/opportunity-reports", response_model=OpportunityReport, status_code=201)
+async def create_opportunity_report(request: OpportunityRequest, settings: Settings = Depends(get_settings)):
+    snapshots = [source_store.get(identity) for identity in [request.anchor_snapshot_id, *request.supporting_snapshot_ids]]
+    # More substantial structured proposals need time; keep B's shared defaults unchanged.
+    service = IntegrationInference(settings.model_copy(update={
+        "hf_request_timeout_seconds": max(60, settings.hf_request_timeout_seconds),
+    }))
+    try:
+        report = await discover_opportunities(service, request, snapshots)
+        opportunities.retain(report)
+        return report
+    except InferenceError as exc:
+        raise inference_failure(exc.code) from None
+    finally:
+        await service.close()
+
+
+@router.post("/integration/opportunity-demo", response_model=OpportunityReport, status_code=201)
+def opportunity_demo():
+    report = fixture_report()
+    opportunities.retain(report)
+    return report
+
+
+@router.get("/opportunity-reports/{report_id}", response_model=OpportunityReport)
+def get_opportunity_report(report_id: UUID):
+    if report_id not in opportunities.reports:
+        raise discovery_error(404, "OPPORTUNITY_REPORT_NOT_FOUND", "Report is unknown or no longer retained.")
+    return opportunities.reports[report_id]
+
+
+@router.post("/opportunity-reports/{report_id}/cards/{card_id}/decision", response_model=OpportunityReport)
+def decide_opportunity(report_id: UUID, card_id: UUID, request: OpportunityDecision):
+    report = get_opportunity_report(report_id)
+    card = next((item for item in report.opportunities if item.id == card_id), None)
+    if card is None:
+        raise discovery_error(404, "OPPORTUNITY_CARD_NOT_FOUND", "Card does not belong to this report.")
+    card.decision = request.decision
+    card.decision_note = request.note
+    return report

@@ -1,68 +1,22 @@
 """Group supplied fixture feedback without inventing evidence or calling inference."""
 
 from collections import defaultdict
-from pathlib import PurePosixPath, PureWindowsPath
 from uuid import NAMESPACE_URL, UUID, uuid5
 
-from backend.app.features.evolution.models import AnalysisReport, FeedbackCluster
-from backend.app.shared.contracts import Session
-
-
-class EvidenceMismatch(ValueError):
-    """The submitted feedback cannot be grounded in its own session."""
-
-
-def validate_patch_paths(paths: list[str]) -> None:
-    """Limit future product patches to relative product/ descendants."""
-    if not paths:
-        raise ValueError("A non-empty approved product path list is required.")
-    for raw in paths:
-        normalized = raw.replace("\\", "/")
-        path = PurePosixPath(normalized)
-        windows_path = PureWindowsPath(raw)
-        if (path.is_absolute() or windows_path.drive or ".." in path.parts
-                or not path.parts or path.parts[0] != "product" or len(path.parts) < 2):
-            raise ValueError("Patch paths must stay within relative product/ descendants.")
+from backend.app.features.evolution.evidence import validate_session_evidence
+from backend.app.features.evolution.models import PRIORITY_FORMULA, AnalysisReport, FeedbackCluster
+from backend.app.shared.contracts import Feedback, Session
 
 
 def analyze_fixture_sessions(experiment_id: UUID, sessions: list[Session]) -> AnalysisReport:
-    session_ids: set[UUID] = set()
-    action_ids: set[UUID] = set()
-    feedback_ids: set[UUID] = set()
-    groups: dict[tuple[str, str], list[Session]] = defaultdict(list)
-    feedback_present = 0
+    evidence = validate_session_evidence(experiment_id, sessions, "fixture")
+    groups: dict[tuple[str, str], list[Feedback]] = defaultdict(list)
 
-    for session in sessions:
-        if session.status != "fixture" or session.stream_mode != "fixture":
-            raise EvidenceMismatch("This offline analysis accepts explicitly fixture sessions only.")
-        if session.experiment_id != experiment_id or session.id in session_ids:
-            raise EvidenceMismatch("Sessions must be unique and belong to the requested experiment.")
-        session_ids.add(session.id)
-        own_actions: set[UUID] = set()
-        own_sequences: set[int] = set()
-        for action in session.actions:
-            if (action.session_id != session.id or action.id in action_ids
-                    or action.sequence in own_sequences):
-                raise EvidenceMismatch("Action identities and sequences must be unique to their session.")
-            own_actions.add(action.id)
-            action_ids.add(action.id)
-            own_sequences.add(action.sequence)
-
-        feedback = session.feedback
-        if feedback is None:
-            continue
-        if (feedback.session_id != session.id or feedback.persona_id != session.persona_id
-                or feedback.id in feedback_ids):
-            raise EvidenceMismatch("Feedback identity must match its persona and session.")
-        feedback_ids.add(feedback.id)
-        referenced = set(feedback.evidence_action_ids)
-        if not referenced or not referenced <= own_actions:
-            raise EvidenceMismatch("Feedback needs existing action references from its own session.")
-        feedback_present += 1
-
-        if session.outcome == "infrastructure_failure":
+    for feedback in evidence.feedback:
+        outcome = evidence.sessions[feedback.session_id].outcome
+        if outcome == "infrastructure_failure":
             category = "infrastructure"
-        elif session.outcome == "irrelevant":
+        elif outcome == "irrelevant":
             category = "relevance"
         else:
             category = "product"
@@ -71,12 +25,13 @@ def analyze_fixture_sessions(experiment_id: UUID, sessions: list[Session]) -> An
             category = "relevance"
             issues = {feedback.reason.strip()} if feedback.reason.strip() else set()
         for issue in issues:
-            groups[(category, issue.casefold())].append(session)
+            groups[(category, issue.casefold())].append(feedback)
 
+    feedback_present = len(evidence.feedback)
     clusters = []
     for (category, normalized_issue), members in groups.items():
         refs = sorted({action_id for member in members
-                       for action_id in member.feedback.evidence_action_ids}, key=str)
+                       for action_id in member.evidence_action_ids}, key=str)
         affected_share = len(members) / feedback_present
         # Explicit kickoff heuristics, not model severity predictions or observed human impact.
         severity = 3 if category == "product" else 2
@@ -86,22 +41,32 @@ def analyze_fixture_sessions(experiment_id: UUID, sessions: list[Session]) -> An
             id=uuid5(NAMESPACE_URL, f"repofusion:{experiment_id}:{category}:{normalized_issue}"),
             category=category,
             issue=normalized_issue,
-            supporting_session_ids=sorted({member.id for member in members}, key=str),
+            supporting_session_ids=sorted({member.session_id for member in members}, key=str),
+            supporting_feedback_ids=sorted({member.id for member in members}, key=str),
             evidence_action_ids=refs,
             severity=severity,
+            severity_source="kickoff_default",
             affected_share=affected_share,
             evidence_strength=strength,
             estimated_effort_hours=effort,
+            effort_source="kickoff_default",
             priority_score=round(severity * affected_share * strength / effort, 6),
             patch_eligible=category == "product",
         ))
     clusters.sort(key=lambda cluster: (-cluster.priority_score, cluster.category, cluster.issue))
     return AnalysisReport(
         experiment_id=experiment_id,
+        mode="fixture",
+        method="deterministic_evidence_grouping",
+        inference_used=False,
         sessions_seen=len(sessions),
         feedback_present=feedback_present,
         denominator=feedback_present,
+        priority_formula=PRIORITY_FORMULA,
         clusters=clusters,
+        unclustered_feedback_ids=[],
+        proposals=[],
+        role_runs=[],
         limitations=[
             "Fixture-only grouping; no browser execution, Hugging Face inference or Neon write occurred.",
             "Scores use kickoff defaults: severity 3 for product, 2 otherwise; effort 1 hour.",

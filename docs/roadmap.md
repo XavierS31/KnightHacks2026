@@ -7,12 +7,12 @@ This is the implementation roadmap. The [product backlog](product-backlog.md) tr
 | ID | Priority | Deliverable | Dependency and acceptance |
 | --- | --- | --- | --- |
 | F1 | P0, all | Shared scaffold, contracts, fixtures, mounts and local checks | Runnable fixture views, generated types and passing offline checks |
-| I1 | P0 | GitHub discovery, bounded docs/issues, approximately five proposals | Source links/commits, truthful Popular/Trending distinction |
-| I2 | P0 | Existing-solution and feasibility gates | Recorded queries/results and independently runnable pair |
-| I3 | P0 | Narrow real adapter | Known outputs, invalid input, incompatible result and timeout cases pass |
+| I1 | P0 | Emerging/Popular/Trending discovery, bounded docs/issues and anchor-first opportunities | Source links/commits, truthful Popular/Trending distinction |
+| I2 | P0 | Existing-solution and feasibility gates | Recorded queries/results and independently runnable selected source tool(s) |
+| I3 | P0 | Narrow real extension or adapter | Known outputs, invalid input, incompatible result and timeout cases pass |
 | I4 | P0 | Generated product v1 and validated briefing | Actual UI calls I3; supported tasks/checks handed to B |
 
-Collect 20–30 candidates but integrate exactly one pair. Prefer small CPU-friendly fixtures, documented interfaces and no local-GPU requirement. If independent execution is not established within six hours of integration work, simplify or switch the pair.
+Collect 20–30 candidates, investigate anchor repositories, and allow zero worthwhile opportunities. Feature extensions need no second repo; integrations require necessary complementary capabilities. Select one opportunity using problem evidence and existing-solution/feasibility research, then execute a narrow real prototype. CPU-friendly fixtures constrain implementation, not idea generation. See [opportunity discovery](opportunity-discovery.md).
 
 ## Phase 2 — AI personas (B)
 
@@ -37,7 +37,13 @@ collection/model extraction or approved behavior assignment has been demonstrate
 partial; independent support review, live HF verification, population generation and C storage
 are still required before production acceptance.
 
-The required [software-behavior contract](software-behavior.md) and illustrative viewer are implemented; actual review collection/extraction and the 500-person generator remain open. Real review grounding is P0 even when optional demographic enrichment is deferred. Freeze corpus, behavior and generation versions before v1 and preserve them for v2.
+Current B evidence supersedes the earlier slice notes above: bounded population/approval, budget,
+executor/runtime policy and exact captured-frame foundations are implemented; actual HF configuration
+smoke and two public review reads occurred. The extracted policy was independently rejected and
+the revised request failed; no behavior approved or live population generated. Local mock API/UI
+executes real Chromium mechanics with zero mandatory counts. P1/P2/P4 remain partial and P3
+unexecuted. See [runtime report](tasks/developer-b-runtime-report.md) for accounting, checks and A/C
+blockers. Real review grounding is P0; freeze versions before v1 and preserve them for v2.
 
 ## Phase 3 — Feedback agents and improvement (C)
 
@@ -72,7 +78,7 @@ P1: richer population sources/scenarios, deeper novelty research, held-out check
 
 A hands B a version manifest, product URL, validated briefing and fixed task/check catalog. B hands C persisted session/actions/feedback. C requests A's review of approved-boundary patches and B's matched retest. All owners verify the combined demo journey.
 
-Completion requires one real validated integration, all 500 evidence-backed mandatory trials and feedback per version, ten exact selectable sessions, five engineering roles, reviewed improvements, preserved versions, substantive HF/Neon execution and honest matched results. Large configured fixture populations do not satisfy these gates.
+Completion requires one real validated opportunity prototype, all 500 evidence-backed mandatory trials and feedback per version, ten exact selectable sessions, five engineering roles, reviewed improvements, preserved versions, substantive HF/Neon execution and honest matched results. Large configured fixture populations do not satisfy these gates.
 
 
 2026-10-10 A fixed-sample gate: SourceTable v1 integrates pinned pdfplumber/Frictionless with a real separate-origin product page. Independent source checks, adapter rejection/timeout cases and browser normal/error/recovery/isolation/reset checks passed. A’s immutable implementation/environment manifest and three check/task templates are available to B. This establishes the local I2/I3/I4 sample workflow; C durable persistence, wider PDF coverage, portable environment verification and all persona/evolution gates remain open.

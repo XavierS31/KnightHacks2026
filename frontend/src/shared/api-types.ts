@@ -140,6 +140,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/improvements/{improvement_id}/patch-runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Patch Run */
+        post: operations["create_patch_run_api_v1_improvements__improvement_id__patch_runs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/integration/opportunity-demo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Opportunity Demo */
+        post: operations["opportunity_demo_api_v1_integration_opportunity_demo_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/integration/product-readiness": {
         parameters: {
             query?: never;
@@ -174,6 +208,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/opportunity-reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Opportunity Report */
+        post: operations["create_opportunity_report_api_v1_opportunity_reports_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/opportunity-reports/{report_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Opportunity Report */
+        get: operations["get_opportunity_report_api_v1_opportunity_reports__report_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/opportunity-reports/{report_id}/cards/{card_id}/decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Decide Opportunity */
+        post: operations["decide_opportunity_api_v1_opportunity_reports__report_id__cards__card_id__decision_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/patch-runs/{patch_run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Patch Run */
+        get: operations["get_patch_run_api_v1_patch_runs__patch_run_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/patch-runs/{patch_run_id}/approve": {
         parameters: {
             query?: never;
@@ -185,6 +287,185 @@ export interface paths {
         put?: never;
         /** Approve Patch */
         post: operations["approve_patch_api_v1_patch_runs__patch_run_id__approve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/patch-runs/{patch_run_id}/compose": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Compose Release
+         * @description The implementer applies each component's edits, in order, to frozen v1.
+         */
+        post: operations["compose_release_api_v1_patch_runs__patch_run_id__compose_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/patch-runs/{patch_run_id}/edits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Patch Edits */
+        post: operations["submit_patch_edits_api_v1_patch_runs__patch_run_id__edits_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/patch-runs/{patch_run_id}/implement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Implement Patch
+         * @description The HF implementer proposes bounded edits; the deterministic tool applies them.
+         */
+        post: operations["implement_patch_api_v1_patch_runs__patch_run_id__implement_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/patch-runs/{patch_run_id}/patch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Patch */
+        post: operations["submit_patch_api_v1_patch_runs__patch_run_id__patch_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/patch-runs/{patch_run_id}/qa": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Patch Qa
+         * @description Run the fixed checks in an isolated workspace and record their results.
+         */
+        post: operations["run_patch_qa_api_v1_patch_runs__patch_run_id__qa_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/patch-runs/{patch_run_id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject Patch */
+        post: operations["reject_patch_api_v1_patch_runs__patch_run_id__reject_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/patch-runs/{patch_run_id}/retest-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Retest Request */
+        post: operations["create_retest_request_api_v1_patch_runs__patch_run_id__retest_requests_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/patch-runs/{patch_run_id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Review Patch Run */
+        post: operations["review_patch_run_api_v1_patch_runs__patch_run_id__review_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/patch-runs/{patch_run_id}/rollback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Rollback Patch */
+        post: operations["rollback_patch_api_v1_patch_runs__patch_run_id__rollback_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/personas/mock-trials/{persona_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mock Trial */
+        post: operations["mock_trial_api_v1_personas_mock_trials__persona_id__post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -236,6 +517,57 @@ export interface paths {
         get: operations["get_preview_api_v1_proposal_previews__preview_id__get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/releases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Release */
+        post: operations["create_release_api_v1_releases_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/retest-requests/{retest_request_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Retest Request */
+        get: operations["get_retest_request_api_v1_retest_requests__retest_request_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/retest-requests/{retest_request_id}/comparison": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Compare Retest */
+        post: operations["compare_retest_api_v1_retest_requests__retest_request_id__comparison_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -328,6 +660,28 @@ export interface components {
              */
             timestamp: string;
         };
+        /**
+         * Actor
+         * @description Caller-asserted identity; production must bind it to authentication.
+         */
+        Actor: {
+            /** Id */
+            id: string;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "prioritizer" | "implementer" | "qa_reviewer" | "human_reviewer";
+        };
+        /** ActorRequest */
+        ActorRequest: {
+            actor: components["schemas"]["Actor"];
+            /**
+             * Note
+             * @default
+             */
+            note: string;
+        };
         /** AnalysisReport */
         AnalysisReport: {
             /** Clusters */
@@ -341,41 +695,91 @@ export interface components {
             experiment_id: string;
             /** Feedback Present */
             feedback_present: number;
-            /**
-             * Inference Used
-             * @default false
-             * @constant
-             */
-            inference_used: false;
+            /** Inference Used */
+            inference_used: boolean;
             /** Limitations */
             limitations: string[];
             /**
              * Method
-             * @default deterministic_evidence_grouping
-             * @constant
+             * @enum {string}
              */
-            method: "deterministic_evidence_grouping";
+            method: "deterministic_evidence_grouping" | "structured_hf_roles";
             /**
              * Mode
-             * @default fixture
-             * @constant
+             * @enum {string}
              */
-            mode: "fixture";
+            mode: "fixture" | "live";
             /** Next Gate */
             next_gate: string;
-            /** Sessions Seen */
-            sessions_seen: number;
-        };
-        /** AnalysisRequest */
-        AnalysisRequest: {
             /**
-             * Mode
-             * @default fixture
+             * Priority Formula
              * @constant
              */
-            mode: "fixture";
+            priority_formula: "severity × affected_share × evidence_strength ÷ estimated_effort_hours";
+            /** Proposals */
+            proposals: components["schemas"]["ProposalDraft"][];
+            /** Role Runs */
+            role_runs: components["schemas"]["RoleRun"][];
+            /** Sessions Seen */
+            sessions_seen: number;
+            /** Unclustered Feedback Ids */
+            unclustered_feedback_ids: string[];
+        };
+        /**
+         * AnalysisRequest
+         * @description Submitted sessions are accepted only in fixture mode; live analysis reads persisted rows.
+         */
+        AnalysisRequest: {
             /** Sessions */
             sessions?: components["schemas"]["Session"][] | null;
+        };
+        /**
+         * BaseVersion
+         * @description Frozen v1 identity and its fixed checks. A patch run never changes it.
+         */
+        BaseVersion: {
+            /** Fixed Check Ids */
+            fixed_check_ids: string[];
+            /** Fixed Checks Sha256 */
+            fixed_checks_sha256: string;
+            /** Label */
+            label: string;
+            /**
+             * Version Id
+             * Format: uuid
+             */
+            version_id: string;
+        };
+        /**
+         * BoundedEdit
+         * @description Replace one exact, unique text span in one product file.
+         */
+        BoundedEdit: {
+            /** Find */
+            find: string;
+            /** Path */
+            path: string;
+            /** Replace */
+            replace: string;
+        };
+        /** CandidateVersion */
+        CandidateVersion: {
+            /**
+             * Base Version Id
+             * Format: uuid
+             */
+            base_version_id: string;
+            /** Fixed Checks Sha256 */
+            fixed_checks_sha256: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Label */
+            label: string;
+            /** Patch Sha256 */
+            patch_sha256: string;
         };
         /** Capability */
         Capability: {
@@ -419,6 +823,97 @@ export interface components {
             /** Uncertainty */
             uncertainty: string;
         };
+        /** CheckResult */
+        CheckResult: {
+            /** Check Id */
+            check_id: string;
+            /** Evidence */
+            evidence: string;
+            /** Passed */
+            passed: boolean;
+        };
+        /** ComparisonReport */
+        ComparisonReport: {
+            /** Completed Pairs */
+            completed_pairs: number;
+            continuation: components["schemas"]["ContinuationResult"];
+            /** Expected Identities */
+            expected_identities: number;
+            /** Identity Mismatches */
+            identity_mismatches: number;
+            /** Inference Changes */
+            inference_changes: components["schemas"]["ConfigurationChange"][];
+            /** Inference Configuration Changed */
+            inference_configuration_changed: boolean;
+            /** Limitations */
+            limitations: string[];
+            /** Matched Complete */
+            matched_complete: boolean;
+            /** Matched Pairs */
+            matched_pairs: number;
+            /** Missing V2 */
+            missing_v2: number;
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "fixture" | "live";
+            /** Next Gate */
+            next_gate: string;
+            /** Pairs */
+            pairs: components["schemas"]["PairResult"][];
+            /**
+             * Retest Request Id
+             * Format: uuid
+             */
+            retest_request_id: string;
+            /** Success Over Completed Pairs */
+            success_over_completed_pairs: {
+                [key: string]: components["schemas"]["Rate"];
+            };
+            /**
+             * Target Population
+             * @default 500
+             * @constant
+             */
+            target_population: 500;
+            /** Transitions */
+            transitions: components["schemas"]["Transition"][];
+            /** Unexpected V2 Session Ids */
+            unexpected_v2_session_ids: string[];
+            v1: components["schemas"]["VersionResult"];
+            v2: components["schemas"]["VersionResult"];
+        };
+        /** ComparisonSubmission */
+        ComparisonSubmission: {
+            v1: components["schemas"]["ExperimentRun"];
+            v2: components["schemas"]["ExperimentRun"];
+        };
+        /** ConfigurationChange */
+        ConfigurationChange: {
+            /** Key */
+            key: string;
+            /** V1 Value */
+            v1_value: unknown;
+            /** V2 Value */
+            v2_value: unknown;
+        };
+        /**
+         * ContinuationResult
+         * @description Optional continuation attempts. They never enter the mandatory denominators.
+         */
+        ContinuationResult: {
+            /** V1 Attempted */
+            v1_attempted: number;
+            /** V1 Eligible */
+            v1_eligible: number;
+            v1_outcomes: components["schemas"]["OutcomeCounts"];
+            /** V2 Attempted */
+            v2_attempted: number;
+            /** V2 Eligible */
+            v2_eligible: number;
+            v2_outcomes: components["schemas"]["OutcomeCounts"];
+        };
         /** DiscoveryRequest */
         DiscoveryRequest: {
             /** Created After */
@@ -428,7 +923,7 @@ export interface components {
              * @default popular
              * @enum {string}
              */
-            discovery_mode: "popular" | "trending";
+            discovery_mode: "popular" | "trending" | "emerging";
             /**
              * Limit
              * @default 20
@@ -483,6 +978,8 @@ export interface components {
              * @enum {string}
              */
             mode: "fixture" | "live";
+            /** Momentum */
+            momentum?: components["schemas"]["MomentumSignal"][];
             /** Next Gate */
             next_gate: string;
             /** Repositories */
@@ -506,6 +1003,12 @@ export interface components {
              * @enum {string}
              */
             storage: "in_memory" | "database";
+        };
+        /** EditSubmission */
+        EditSubmission: {
+            actor: components["schemas"]["Actor"];
+            /** Edits */
+            edits: components["schemas"]["BoundedEdit"][];
         };
         /** Evidence */
         Evidence: {
@@ -589,6 +1092,12 @@ export interface components {
             queued: number;
             /** Running */
             running: number;
+        };
+        /** ExperimentRun */
+        ExperimentRun: {
+            /** Attempts */
+            attempts: components["schemas"]["TrialAttempt"][];
+            experiment: components["schemas"]["Experiment"];
         };
         /** Extraction */
         Extraction: {
@@ -694,11 +1203,18 @@ export interface components {
         FeedbackCluster: {
             /** Affected Share */
             affected_share: number;
+            /** Analyst Rationale */
+            analyst_rationale?: string | null;
             /**
              * Category
              * @enum {string}
              */
             category: "product" | "infrastructure" | "relevance";
+            /**
+             * Effort Source
+             * @enum {string}
+             */
+            effort_source: "kickoff_default" | "prioritizer_role";
             /** Estimated Effort Hours */
             estimated_effort_hours: number;
             /** Evidence Action Ids */
@@ -714,12 +1230,34 @@ export interface components {
             issue: string;
             /** Patch Eligible */
             patch_eligible: boolean;
+            /** Priority Rationale */
+            priority_rationale?: string | null;
             /** Priority Score */
             priority_score: number;
             /** Severity */
             severity: number;
+            /**
+             * Severity Source
+             * @enum {string}
+             */
+            severity_source: "kickoff_default" | "prioritizer_role";
+            /** Supporting Feedback Ids */
+            supporting_feedback_ids: string[];
             /** Supporting Session Ids */
             supporting_session_ids: string[];
+        };
+        /** FeedbackCounts */
+        FeedbackCounts: {
+            /** Chose Continue */
+            chose_continue: number;
+            /** Missing */
+            missing: number;
+            /** Post Trial Relevance */
+            post_trial_relevance: {
+                [key: string]: number;
+            };
+            /** Present */
+            present: number;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -773,6 +1311,293 @@ export interface components {
             /** Versions */
             versions: components["schemas"]["ProductVersion"][];
         };
+        /**
+         * IsolatedPatch
+         * @description A changeset held in the run record. It is not written to the v1 tree.
+         *
+         *     The digest covers the files only. Edits record how the files were derived from v1.
+         */
+        IsolatedPatch: {
+            /** Edits */
+            edits?: components["schemas"]["BoundedEdit"][];
+            /** Files */
+            files: components["schemas"]["PatchFile"][];
+            /** Sha256 */
+            sha256: string;
+        };
+        /** LifecycleEvent */
+        LifecycleEvent: {
+            actor: components["schemas"]["Actor"];
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Note */
+            note: string;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "proposed" | "reviewed" | "patched" | "regression_passed" | "regression_failed" | "approved" | "rejected" | "rolled_back";
+        };
+        /**
+         * ModelTime
+         * @description Elapsed agent time. It is never an estimate of how long a human would take.
+         */
+        ModelTime: {
+            /**
+             * Basis
+             * @default agent wall clock between first and last recorded action; not human time
+             * @constant
+             */
+            basis: "agent wall clock between first and last recorded action; not human time";
+            /** Median Seconds */
+            median_seconds?: number | null;
+            /** Sessions Measured */
+            sessions_measured: number;
+        };
+        /** MomentumSignal */
+        MomentumSignal: {
+            baseline?: components["schemas"]["Observation"] | null;
+            current: components["schemas"]["Observation"];
+            /** Elapsed Hours */
+            elapsed_hours?: number | null;
+            /** Forks Delta */
+            forks_delta?: number | null;
+            /** Note */
+            note: string;
+            /** Stars Delta */
+            stars_delta?: number | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "measured" | "insufficient_history" | "history_unavailable" | "fixture";
+        };
+        /** Observation */
+        Observation: {
+            /** Forks */
+            forks?: number | null;
+            /** Full Name */
+            full_name: string;
+            /**
+             * Observed At
+             * Format: date-time
+             */
+            observed_at: string;
+            /** Source Reference */
+            source_reference?: string | null;
+            /** Stars */
+            stars: number;
+        };
+        /** OpportunityCard */
+        OpportunityCard: {
+            /** Acceptance Check */
+            acceptance_check: string;
+            /** Audience */
+            audience: string;
+            /** Capability Citation Ids */
+            capability_citation_ids: number[];
+            /** Current Value */
+            current_value: string;
+            /**
+             * Decision
+             * @default unreviewed
+             * @enum {string}
+             */
+            decision: "unreviewed" | "shortlisted" | "rejected";
+            /**
+             * Decision Note
+             * @default
+             */
+            decision_note: string;
+            /** Evidence */
+            evidence: components["schemas"]["OpportunityCitation"][];
+            /** Example Input */
+            example_input: string;
+            /** Example Output */
+            example_output: string;
+            /**
+             * Example Status
+             * @default illustrative_not_executed
+             * @constant
+             */
+            example_status: "illustrative_not_executed";
+            /**
+             * Feasibility
+             * @default unreviewed
+             * @constant
+             */
+            feasibility: "unreviewed";
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Implementation Boundary */
+            implementation_boundary: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "feature_extension" | "integration";
+            /**
+             * Need Basis
+             * @enum {string}
+             */
+            need_basis: "issue_report" | "inferred_workflow";
+            /** Need Citation Ids */
+            need_citation_ids: number[];
+            /**
+             * Novelty
+             * @default unresolved
+             * @constant
+             */
+            novelty: "unresolved";
+            /** Problem */
+            problem: string;
+            /** Proposed Value */
+            proposed_value: string;
+            /** Risk */
+            risk: string;
+            /**
+             * Status
+             * @default hypothesis
+             * @constant
+             */
+            status: "hypothesis";
+            /** Supporting Snapshot Ids */
+            supporting_snapshot_ids?: string[];
+            /** Title */
+            title: string;
+            /** Why Now */
+            why_now: string;
+        };
+        /** OpportunityCitation */
+        OpportunityCitation: {
+            /** Citation Id */
+            citation_id: number;
+            /**
+             * Collected At
+             * Format: date-time
+             */
+            collected_at: string;
+            /** Commit Sha */
+            commit_sha: string;
+            /** Issue State */
+            issue_state?: string | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "readme" | "documentation" | "issue";
+            /** Quote */
+            quote: string;
+            /** Reference */
+            reference: string;
+            /** Repository */
+            repository: string;
+            /**
+             * Snapshot Id
+             * Format: uuid
+             */
+            snapshot_id: string;
+        };
+        /** OpportunityDecision */
+        OpportunityDecision: {
+            /**
+             * Decision
+             * @enum {string}
+             */
+            decision: "shortlisted" | "rejected";
+            /** Note */
+            note: string;
+        };
+        /** OpportunityReport */
+        OpportunityReport: {
+            /** Anchor Commit */
+            anchor_commit: string | null;
+            /** Anchor Repository */
+            anchor_repository: string;
+            /** Anchor Snapshot Id */
+            anchor_snapshot_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Limitations */
+            limitations: string[];
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "fixture" | "live";
+            /** No Opportunity Reason */
+            no_opportunity_reason: string;
+            /** Opportunities */
+            opportunities: components["schemas"]["OpportunityCard"][];
+            /** Provenance */
+            provenance: {
+                [key: string]: unknown;
+            };
+            /** Research Leads */
+            research_leads: string[];
+            /** Reservation */
+            reservation: {
+                [key: string]: unknown;
+            };
+            /**
+             * Storage
+             * @default in_memory
+             * @constant
+             */
+            storage: "in_memory";
+        };
+        /** OpportunityRequest */
+        OpportunityRequest: {
+            /**
+             * Anchor Snapshot Id
+             * Format: uuid
+             */
+            anchor_snapshot_id: string;
+            /**
+             * Interests
+             * @default
+             */
+            interests: string;
+            /** Supporting Snapshot Ids */
+            supporting_snapshot_ids?: string[];
+        };
+        /**
+         * OutcomeCounts
+         * @description Every expected identity lands in exactly one bucket; the buckets sum to the target.
+         */
+        OutcomeCounts: {
+            /** Application Failure */
+            application_failure: number;
+            /**
+             * Identity Mismatch
+             * @default 0
+             */
+            identity_mismatch: number;
+            /** Infrastructure Failure */
+            infrastructure_failure: number;
+            /** Irrelevant */
+            irrelevant: number;
+            /** No Attempt */
+            no_attempt: number;
+            /** Not Run */
+            not_run: number;
+            /** Success */
+            success: number;
+        };
         /** PairIdea */
         PairIdea: {
             /** Adapter Boundary */
@@ -795,6 +1620,97 @@ export interface components {
             title: string;
             /** Uncertainty */
             uncertainty: string;
+        };
+        /** PairResult */
+        PairResult: {
+            /** Mismatched Fields */
+            mismatched_fields: string[];
+            /**
+             * Persona Id
+             * Format: uuid
+             */
+            persona_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "matched" | "missing_v2" | "identity_mismatch";
+            /**
+             * V1 Outcome
+             * @enum {string}
+             */
+            v1_outcome: "success" | "application_failure" | "infrastructure_failure" | "irrelevant" | "not_run";
+            /**
+             * V1 Session Id
+             * Format: uuid
+             */
+            v1_session_id: string;
+            /** V2 Outcome */
+            v2_outcome: ("success" | "application_failure" | "infrastructure_failure" | "irrelevant" | "not_run") | null;
+            /** V2 Session Id */
+            v2_session_id: string | null;
+        };
+        /** PatchFile */
+        PatchFile: {
+            /** Content */
+            content: string;
+            /** Path */
+            path: string;
+        };
+        /** PatchRun */
+        PatchRun: {
+            /** Acceptance Check */
+            acceptance_check: string;
+            /** Allowed Paths */
+            allowed_paths: string[];
+            base: components["schemas"]["BaseVersion"];
+            candidate?: components["schemas"]["CandidateVersion"] | null;
+            /** Component Run Ids */
+            component_run_ids?: string[];
+            /** Events */
+            events: components["schemas"]["LifecycleEvent"][];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Implementer Id */
+            implementer_id?: string | null;
+            implementer_run?: components["schemas"]["RoleRun"] | null;
+            /**
+             * Improvement Id
+             * Format: uuid
+             */
+            improvement_id: string;
+            /** Issue */
+            issue: string;
+            patch?: components["schemas"]["IsolatedPatch"] | null;
+            /** Regression */
+            regression?: components["schemas"]["CheckResult"][];
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "proposed" | "reviewed" | "patched" | "regression_passed" | "regression_failed" | "approved" | "rejected" | "rolled_back";
+            /**
+             * Storage
+             * @default memory
+             * @constant
+             */
+            storage: "memory";
+            /** Title */
+            title: string;
+        };
+        /** PatchRunCreate */
+        PatchRunCreate: {
+            actor: components["schemas"]["Actor"];
+            improvement: components["schemas"]["Improvement"];
+        };
+        /** PatchSubmission */
+        PatchSubmission: {
+            actor: components["schemas"]["Actor"];
+            /** Files */
+            files: components["schemas"]["PatchFile"][];
         };
         /** Persona */
         Persona: {
@@ -926,6 +1842,38 @@ export interface components {
             /** Title */
             title: string;
         };
+        /**
+         * ProposalDraft
+         * @description A UX reviewer draft. Only supported drafts may enter later lifecycle review.
+         */
+        ProposalDraft: {
+            /** Acceptance Check */
+            acceptance_check: string;
+            /** Change */
+            change: string;
+            /**
+             * Cluster Id
+             * Format: uuid
+             */
+            cluster_id: string;
+            /** Evidence Action Ids */
+            evidence_action_ids: string[];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Problem */
+            problem: string;
+            /** Support Note */
+            support_note: string;
+            /** Supported */
+            supported: boolean;
+            /** Supporting Session Ids */
+            supporting_session_ids: string[];
+            /** Title */
+            title: string;
+        };
         /** ProposalPreview */
         ProposalPreview: {
             /** Extraction Ids */
@@ -971,6 +1919,24 @@ export interface components {
             /** Extraction Ids */
             extraction_ids: string[];
         };
+        /** Rate */
+        Rate: {
+            /** Denominator */
+            denominator: number;
+            /** Numerator */
+            numerator: number;
+            /** Value */
+            value?: number | null;
+        };
+        /**
+         * ReleaseCreate
+         * @description A human composes two or three regression-passed runs into one v2 candidate run.
+         */
+        ReleaseCreate: {
+            actor: components["schemas"]["Actor"];
+            /** Run Ids */
+            run_ids: string[];
+        };
         /** Repository */
         Repository: {
             /** Commit Sha */
@@ -995,6 +1961,100 @@ export interface components {
             stars: number;
             /** Url */
             url: string;
+        };
+        /**
+         * RetestRequest
+         * @description C's handoff to B: run each frozen v1 identity once on the approved v2.
+         */
+        RetestRequest: {
+            /**
+             * Base Version Id
+             * Format: uuid
+             */
+            base_version_id: string;
+            /** Candidate Patch Sha256 */
+            candidate_patch_sha256: string;
+            /**
+             * Candidate Version Id
+             * Format: uuid
+             */
+            candidate_version_id: string;
+            /** Fixed Check Ids */
+            fixed_check_ids: string[];
+            /** Fixed Checks Sha256 */
+            fixed_checks_sha256: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Identities */
+            identities: components["schemas"]["TrialIdentity"][];
+            /** Identity Shortfall */
+            identity_shortfall: number;
+            /** Inference Profile */
+            inference_profile: {
+                [key: string]: unknown;
+            };
+            /** Instructions */
+            instructions: string[];
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "fixture" | "live";
+            /**
+             * Patch Run Id
+             * Format: uuid
+             */
+            patch_run_id: string;
+            /**
+             * Population Id
+             * Format: uuid
+             */
+            population_id: string;
+            /**
+             * Target Population
+             * @default 500
+             * @constant
+             */
+            target_population: 500;
+            /**
+             * V1 Experiment Id
+             * Format: uuid
+             */
+            v1_experiment_id: string;
+            /** V1 Records Sha256 */
+            v1_records_sha256: string;
+        };
+        /** RetestRequestCreate */
+        RetestRequestCreate: {
+            v1: components["schemas"]["ExperimentRun"];
+        };
+        /**
+         * RoleRun
+         * @description Provenance returned by the shared HF adapter for one structured role call.
+         */
+        RoleRun: {
+            /** Configuration Hash */
+            configuration_hash: string;
+            /** Latency Ms */
+            latency_ms: number;
+            /** Model Id */
+            model_id: string;
+            /** Prompt Version */
+            prompt_version: string;
+            /** Provider */
+            provider: string;
+            /** Request Id */
+            request_id: string;
+            /** Retry Count */
+            retry_count: number;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "analyst" | "prioritizer" | "ux_reviewer" | "implementer";
         };
         /** Scenario */
         Scenario: {
@@ -1188,6 +2248,10 @@ export interface components {
             collected_at: string;
             /** Content Sha256 */
             content_sha256: string;
+            /** Issue State */
+            issue_state?: string | null;
+            /** Issue Updated At */
+            issue_updated_at?: string | null;
             /**
              * Kind
              * @enum {string}
@@ -1286,6 +2350,74 @@ export interface components {
              */
             type: "state" | "action" | "frame" | "heartbeat" | "error";
         };
+        /** Transition */
+        Transition: {
+            /** Count */
+            count: number;
+            /**
+             * V1 Outcome
+             * @enum {string}
+             */
+            v1_outcome: "success" | "application_failure" | "infrastructure_failure" | "irrelevant" | "not_run";
+            /**
+             * V2 Outcome
+             * @enum {string}
+             */
+            v2_outcome: "success" | "application_failure" | "infrastructure_failure" | "irrelevant" | "not_run";
+        };
+        /**
+         * TrialAttempt
+         * @description One executed (or attempted) session with the identity it ran under.
+         *
+         *     Mandatory attempts form the 500-person comparison. A continuation attempt is optional
+         *     and follows a mandatory attempt whose feedback chose to continue.
+         */
+        TrialAttempt: {
+            identity: components["schemas"]["TrialIdentity"];
+            /**
+             * Phase
+             * @enum {string}
+             */
+            phase: "mandatory" | "continuation";
+            session: components["schemas"]["Session"];
+        };
+        /**
+         * TrialIdentity
+         * @description Everything that must stay fixed between a persona's v1 and v2 attempts.
+         */
+        TrialIdentity: {
+            /** Action Budget */
+            action_budget: number;
+            /** Behavior Generation Version */
+            behavior_generation_version: string;
+            /** Check Id */
+            check_id: string;
+            /** Corpus Version */
+            corpus_version: string;
+            /** Initial State Ref */
+            initial_state_ref: string;
+            /**
+             * Persona Id
+             * Format: uuid
+             */
+            persona_id: string;
+            /** Population Version */
+            population_version: string;
+            /**
+             * Scenario Id
+             * Format: uuid
+             */
+            scenario_id: string;
+            /**
+             * Task Id
+             * Format: uuid
+             */
+            task_id: string;
+            /** Task Version */
+            task_version: string;
+            /** Time Budget Minutes */
+            time_budget_minutes: number;
+        };
         /** ValidationError */
         ValidationError: {
             /** Context */
@@ -1298,6 +2430,27 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /** VersionResult */
+        VersionResult: {
+            /**
+             * Experiment Id
+             * Format: uuid
+             */
+            experiment_id: string;
+            feedback: components["schemas"]["FeedbackCounts"];
+            /** Infrastructure Stop Reasons */
+            infrastructure_stop_reasons: {
+                [key: string]: number;
+            };
+            model_time: components["schemas"]["ModelTime"];
+            outcomes: components["schemas"]["OutcomeCounts"];
+            success_over_target: components["schemas"]["Rate"];
+            /**
+             * Version Id
+             * Format: uuid
+             */
+            version_id: string;
         };
     };
     responses: never;
@@ -1534,6 +2687,61 @@ export interface operations {
             };
         };
     };
+    create_patch_run_api_v1_improvements__improvement_id__patch_runs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                improvement_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PatchRunCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    opportunity_demo_api_v1_integration_opportunity_demo_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityReport"];
+                };
+            };
+        };
+    };
     product_readiness_api_v1_integration_product_readiness_get: {
         parameters: {
             query?: never;
@@ -1574,7 +2782,107 @@ export interface operations {
             };
         };
     };
-    approve_patch_api_v1_patch_runs__patch_run_id__approve_post: {
+    create_opportunity_report_api_v1_opportunity_reports_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpportunityRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_opportunity_report_api_v1_opportunity_reports__report_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                report_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    decide_opportunity_api_v1_opportunity_reports__report_id__cards__card_id__decision_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                report_id: string;
+                card_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpportunityDecision"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_patch_run_api_v1_patch_runs__patch_run_id__get: {
         parameters: {
             query?: never;
             header?: never;
@@ -1591,7 +2899,388 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["PatchRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    approve_patch_api_v1_patch_runs__patch_run_id__approve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patch_run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActorRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    compose_release_api_v1_patch_runs__patch_run_id__compose_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patch_run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActorRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_patch_edits_api_v1_patch_runs__patch_run_id__edits_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patch_run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EditSubmission"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    implement_patch_api_v1_patch_runs__patch_run_id__implement_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patch_run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActorRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_patch_api_v1_patch_runs__patch_run_id__patch_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patch_run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PatchSubmission"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_patch_qa_api_v1_patch_runs__patch_run_id__qa_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patch_run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActorRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reject_patch_api_v1_patch_runs__patch_run_id__reject_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patch_run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActorRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_retest_request_api_v1_patch_runs__patch_run_id__retest_requests_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patch_run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RetestRequestCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RetestRequest"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_patch_run_api_v1_patch_runs__patch_run_id__review_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patch_run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActorRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rollback_patch_api_v1_patch_runs__patch_run_id__rollback_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patch_run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActorRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mock_trial_api_v1_personas_mock_trials__persona_id__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                persona_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Session"];
                 };
             };
             /** @description Validation Error */
@@ -1676,6 +3365,105 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProposalPreview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_release_api_v1_releases_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReleaseCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatchRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_retest_request_api_v1_retest_requests__retest_request_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                retest_request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RetestRequest"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    compare_retest_api_v1_retest_requests__retest_request_id__comparison_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                retest_request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ComparisonSubmission"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ComparisonReport"];
                 };
             };
             /** @description Validation Error */

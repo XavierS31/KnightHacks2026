@@ -1,6 +1,6 @@
 # Ordered migrations
 
-Developer C owns migration order. `001_initial.sql` establishes product-version, experiment/task-configuration, session-attempt, action, feedback and durable-job provenance. `002_persistence_checks.sql` adds an append-only table for the write/read gate. `003_records_and_job_leases.sql` adds job attempt limits, session lifecycle columns, screenshot-safe action limits and analysis role records. `004_integration_records.sql` adds A's discovery records and the catalog of frozen product versions. No file has been applied to Neon yet.
+Developer C owns migration order. `001_initial.sql` establishes product-version, experiment/task-configuration, session-attempt, action, feedback and durable-job provenance. `002_persistence_checks.sql` adds an append-only table for the write/read gate. `003_records_and_job_leases.sql` adds job attempt limits, session lifecycle columns, screenshot-safe action limits and analysis role records. `004_integration_records.sql` adds A's discovery records and the catalog of frozen product versions. 001 to 003 are applied to the Neon `dev` branch (see `docs/status.md`). 004 is not applied to Neon yet. The `production` branch has no migrations.
 
 ## Runner
 
@@ -67,4 +67,4 @@ Offline tests check file discovery, absent configuration and validation that run
 
 The lazy `NeonDatabase` helper opens no connection in fixture mode or at import time. Its scoped connection commits success and rolls back exceptions through psycopg's pool context. [Psycopg pool documentation](https://www.psycopg.org/psycopg3/docs/advanced/pool.html)
 
-Matched task/configuration relationships and version promotion are not implemented yet. Run the job tests against Neon after the gate passes.
+Matched task/configuration relationships and version promotion are not implemented yet. The repository and job tests pass against a Neon branch (see `docs/status.md`). Use the direct (unpooled) URL for `TEST_DATABASE_URL`, because the pooler rejects the `search_path` startup option.

@@ -30,7 +30,11 @@ watchdog, per-action timeout and cooperative cancellation bound work. External r
 Real screenshots and timestamped mock actions stay in memory and are discarded on exit. These
 results do not create production sessions, feedback, stored artifacts or completed experiment counts.
 The `timeout` mock intentionally leaves the UI unchanged; the scripted policy reports stopping,
-not a fabricated provider timeout. API fixtures and the existing world remain separate.
+not a fabricated provider timeout. The dashboard now also exposes a selected mock-trial run:
+POST `/api/v1/personas/mock-trials/{persona_id}` returns a fresh canonical fixture Session and its
+latest actual PNG via the existing stream. Loopback/viewer authorization is required. Retention is
+twenty in-memory sessions with one capture each; four simultaneous reservations, one per persona.
+Browser interactions are real mock mechanics; outcome remains `not_run` and mandatory counts zero.
 
 ## Credential gate (ready for user configuration)
 
@@ -40,25 +44,27 @@ does not need any API keys, a GPU, Neon or HF credit. Do not put secrets in comm
 When ready for a **single representative HF configuration check**, put these in the ignored root `.env`:
 
 ```dotenv
-APP_MODE=live
 HF_TOKEN=<fine-grained token with Make calls to Inference Providers>
-HF_MODEL_ID=<currently served chat model supporting JSON-schema output>
-HF_PROVIDER=<specific provider serving that model>
-EXPERIMENT_BUDGET_LIMIT=<your explicitly authorized positive budget>
+HF_MODEL_ID=Qwen/Qwen3-32B
+HF_PROVIDER=deepinfra
 ```
 
 Then explicitly run:
 
 ```powershell
-.venv/Scripts/python -m backend.app.features.personas.kickoff --hf-smoke
+.venv/Scripts/python -m backend.app.features.personas.live_readiness --run --budget <authorized-small-limit>
 ```
 
 This can consume credit: one logical request, with at most one transient retry. It tests a supported
 target choice from synthetic input, checks the output and prints sanitized configuration/usage
 metadata. It does not run browsers, review ingestion, persona generation or a batch. Missing/invalid
-configuration fails rather than falling back to fixtures. The budget setting is **not dollar spend
-enforcement**; full batches remain blocked pending real spend accounting and pilot forecasting.
-Reset `APP_MODE=fixture` after the smoke check to keep the current fixture dashboard available.
+configuration fails rather than falling back to fixtures. The diagnostic uses conservative
+pre-send dollar reservations and an exclusive ignored spending marker; do not delete/reset it to
+reuse an authorization. Changing the model/provider requires a reviewed price/token policy.
+This particular command caps small diagnostics at $4; no cap is new spending permission. It
+overrides live settings for that call only, so APP_MODE can remain fixture. The legacy unguarded
+`kickoff --hf-smoke` live branch is disabled. Full batches require C's durable ledger and measured
+pilot forecast. Our already-used $4 authorization and diagnostics are in the runtime report.
 
 Later gates: real permitted review sources/context; checked review extraction; C-coordinated Neon
 storage/leases; A's validated real product; representative role evaluation; five pilots and a
@@ -118,6 +124,18 @@ export remains necessary. C owns eventual storage/migrations; no database change
 ```
 
 Tests use invented source records and fake HTTP/HF clients, never real reviews or paid inference.
-No live collection/extraction was performed. Next: authorize a representative HF smoke budget,
-select relevant real reviews, independently review curation/extractions, and coordinate persistence
-and the 500-person generator before production trials.
+The earlier corpus slice used offline tests only. Subsequent actual source/HF diagnostics, runtime,
+population/budget foundations, checks and remaining gates are recorded in
+[B's runtime report](../../../../docs/tasks/developer-b-runtime-report.md). The first real extraction
+was independently rejected; a revised request failed. No approved live population or real trials.
+
+`population.py` freezes supported behavior plus exact deterministic identities and intentional
+coverage assumptions; `runtime_policy.py` supplies bounded HF browser/feedback roles to
+`session_execution.py`. Live execution requires A validation and C durable evidence. In-memory
+budget/approval/store helpers do not establish persistent reviewer authentication or job recovery.
+
+Frontend stream-validation checks:
+
+```powershell
+node --test frontend/src/features/personas/streamValidation.test.mjs
+```

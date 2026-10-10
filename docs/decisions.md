@@ -23,7 +23,7 @@ Accepted on 2026-10-10 from the latest user instructions and revised plan. New d
 
 | Gate | Owner | Resolve through |
 | --- | --- | --- |
-| Selected repo pair | A | Candidate evidence, independent execution, narrow adapter fixture acceptance |
+| Selected opportunity and source tool(s) | A | Candidate evidence, independent execution, narrow adapter fixture acceptance |
 | Search access | A | Available search provider or manually recorded searches; retained uncertainty |
 | HF token/model/provider/spending limit | B | Server-side config and representative smoke evaluation; no automatic paid full batch |
 | Neon connection | C | Configured TLS Postgres connection and migration round trip |

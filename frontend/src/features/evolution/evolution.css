@@ -1,0 +1,5 @@
+.heuristics { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px 18px; margin: 14px 0; }
+.heuristics div { border-top: 1px solid #e2e8e3; padding-top: 8px; }
+.heuristics strong { display: block; font-size: 15px; font-weight: 550; }
+.heuristics span { display: block; font-size: 11px; color: #64766a; }
+.role-runs { font-family: monospace; font-size: 12px; overflow-wrap: anywhere; }

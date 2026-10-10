@@ -1,6 +1,6 @@
 # RepoFusion
 
-An evidence-backed repository integration and synthetic usability experiment workspace.
+Discover opportunities around emerging open-source projects, preview useful extensions or integrations, and test a selected prototype through synthetic browser trials.
 Three developers each own a full-stack phase: **A integration**, **B personas**, **C evolution**.
 Runtime AI uses **Hugging Face Inference Providers only**; **Neon** stores persistent state.
 Playwright executes browser tasks; React Three Fiber visualizes ten selected personas.
@@ -9,12 +9,18 @@ Playwright executes browser tasks; React Three Fiber visualizes ten selected per
 
 This is a runnable, fixture-first shared scaffold with developer starter implementations.
 Sample repository combinations, personas and improvement suggestions are explicitly synthetic.
-A selected pdfplumber + Frictionless and validated a narrow PDF-table/type-check adapter on fixed samples.
+Discovery now investigates an anchor repo’s capabilities and problem evidence, proposing feature extensions or optional integrations instead of forced pairs. Emerging candidate search uses recent creation/activity filters; local star/fork observations measure net growth only when comparable history exists. Opportunity examples are explicitly illustrative, with shortlist/reject/export controls. See [the current discovery design](docs/opportunity-discovery.md).
+
+A previously selected pdfplumber + Frictionless and validated a narrow PDF-table/type-check adapter on fixed samples. That earlier experiment is preserved; it is not automatically selected by the new workflow.
 SourceTable v1 runs as a separate local product; its [frozen handoff](backend/app/features/integration/product/v1/manifest.json) records the implementation and environment. No 500-persona experiment has run and no v2 has been approved.
 The required experiment is **500 personas on each version**, not 500 generated records.
 Each persona requires a [software-behavior profile](docs/software-behavior.md) grounded in real software
 reviews for production use. The schema supports Reddit, Hacker News and other review sources; current
-profiles are labeled fixtures, and real review ingestion/extraction remains unfinished.
+dashboard profiles are labeled fixtures. B's bounded intake/extraction/population foundations now
+exist, with a real HF configuration smoke and two public HN review reads demonstrated. The behavior
+draft was rejected on semantic support; a fresh request failed. The persona view runs local mock
+browser tasks and shows their exact PNG/actions, without incrementing experiment counts. See the
+[Developer B runtime report](docs/tasks/developer-b-runtime-report.md) for evidence and remaining gates.
 Live Hugging Face/Neon credentials are not bundled. Fixture operation makes no paid inference calls.
 
 ## Quick start (Windows PowerShell)
@@ -86,6 +92,23 @@ Set server-side settings using `.env.example`. Hugging Face requires `HF_TOKEN`,
 and a tested provider; a positive experiment budget is required before paid execution. `DATABASE_URL`
 is the pooled Neon Postgres URL. `VIEWER_TOKEN` protects authenticated viewing when configured.
 Provider/model availability and quotas must be verified before promising 1,000 completed sessions.
+
+### Neon database
+
+The Neon project is `KnightHacks` (`delicate-lab-50091983`). Work on the `dev` branch. Do not
+change `production` until the demo migration. Ask the project owner for access, then run:
+
+```bash
+npm i -g neon@latest
+neon login
+neon link --project-id delicate-lab-50091983 --branch dev -y
+```
+
+`neon link` writes `.neon` and `.env.local`; git ignores both. Settings read `.env` and then
+`.env.local`, so no copy step is needed. Keep `APP_MODE=fixture` for normal work. Set
+`APP_MODE=live` only for the command that must reach Neon. Developer C owns migration order: see
+`backend/migrations/README.md`. To test a risky migration, make your own branch from `dev` with
+`neon branches create --name <you>-test --parent dev`, then `neon checkout <you>-test`.
 
 Docker is required for isolated selected-source execution; install/check it before the real integration
 gate. Playwright's browser is installed separately with:

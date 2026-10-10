@@ -49,6 +49,8 @@ class SourceDocument(Contract):
     text: str
     content_sha256: str
     truncated: bool
+    issue_state: str | None = None
+    issue_updated_at: str | None = None
 
 
 class SourceSnapshot(Contract):
@@ -182,6 +184,8 @@ class GitHubSources:
                             request_reference=url, collected_at=datetime.now(UTC),
                             text=text[:MAX_TEXT_CHARS], content_sha256=hashlib.sha256(text.encode()).hexdigest(),
                             truncated=len(text) > MAX_TEXT_CHARS,
+                            issue_state=issue.get("state") if issue.get("state") in {"open", "closed"} else None,
+                            issue_updated_at=issue.get("updated_at") if isinstance(issue.get("updated_at"), str) else None,
                         ))
                 except HTTPException as exc:
                     failures.append(f"issues: {exc.detail['code']}")
