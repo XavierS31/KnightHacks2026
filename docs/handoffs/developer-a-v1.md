@@ -43,3 +43,5 @@ Once C has configured the intended Neon database and applied its reviewed schema
 The command requires `APP_MODE=live` and a server-side `DATABASE_URL`; it then saves the locally verified v1 and reads back exact equality. It refuses fixture/missing configuration before any request. Current checks: eight offline repository cases plus real roundtrip/idempotency/conflict/concurrent-save checks against a disposable local PostgreSQL 17.11 instance. That local test is not Neon connection evidence. The test container was removed afterward. Candidate/source/proposal persistence still requires C’s feature-table/storage contract.
 
 Additional product verification used a different uploaded PDF with City/People/date headers and Paris/Rome rows. Both the real adapter and upload UI returned the expected values; the real-Docker regression covers this alternate input, including date validation. This did not change frozen v1 implementation bytes or use HF credits.
+
+Installed package metadata/notice paths: [runtime notice inventory](../research/sourcetable-v1-notices.md). This supplements source-license evidence; it is not redistribution approval.
