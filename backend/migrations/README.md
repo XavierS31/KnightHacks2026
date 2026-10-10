@@ -1,6 +1,6 @@
 # Ordered migrations
 
-Developer C owns migration order. `001_initial.sql` establishes product-version, experiment/task-configuration, session-attempt, action, feedback and durable-job provenance. `002_persistence_checks.sql` adds an append-only table for the write/read gate. `003_records_and_job_leases.sql` adds job attempt limits, session lifecycle columns, screenshot-safe action limits and analysis role records. 001 to 003 are applied to the Neon `dev` branch (see `docs/status.md`). The `production` branch has no migrations.
+Developer C owns migration order. `001_initial.sql` establishes product-version, experiment/task-configuration, session-attempt, action, feedback and durable-job provenance. `002_persistence_checks.sql` adds an append-only table for the write/read gate. `003_records_and_job_leases.sql` adds job attempt limits, session lifecycle columns, screenshot-safe action limits and analysis role records. `004_integration_records.sql` adds A's discovery records and the catalog of frozen product versions. 001 to 003 are applied to the Neon `dev` branch (see `docs/status.md`). 004 is not applied to Neon yet. The `production` branch has no migrations.
 
 ## Runner
 
@@ -28,6 +28,29 @@ Repositories run every write in one `NeonDatabase` transaction with statement an
 - `backend/app/shared/session_records.py` (`SessionRepository`): B's worker creates a queued or running session, appends actions in strict sequence, records one feedback, and finishes the session. A finished session cannot be replaced or extended. Feedback must cite at least one action, and every cited action must belong to the same session and persona.
 - `backend/app/features/evolution/analysis_repository.py` (`AnalysisRepository`): stores one output of the analyst, prioritizer or UX reviewer role. Every cited session must belong to the experiment, and every cited action must belong to a cited session. Records are append-only; an identical retry is accepted.
 - No row holds screenshot bytes. `artifact_ref` must be a short relative path under `ARTIFACT_ROOT`. The repository rejects `data:` URIs, absolute paths and `..`. The schema also rejects `data:` references and action payloads over 16 KiB.
+
+## A's discovery records and frozen versions
+
+`004_integration_records.sql` stores the I1 records that were only in memory before:
+
+- `discovery_runs` holds each live run. `discovery_candidates` lists its repositories in rank order.
+- `source_snapshots` holds the commit-pinned source text of one candidate of one run.
+- `extractions` holds one HF interpretation of a snapshot.
+- `proposal_previews` holds one proposal preview. `proposal_preview_extractions` links its extractions in order.
+
+Each table keeps the exact API contract as JSONB. Columns repeat only the identities that other rows reference. `DiscoveryRepository` (`backend/app/features/integration/discovery_repository.py`) checks that each snapshot belongs to a stored candidate, that each extraction has the commit of its snapshot, and that each citation resolves in that snapshot. Reads reject a record that disagrees with its columns. The schema refuses fixture runs.
+
+`VersionRepository` also writes the catalog of a version. `product_version_initial_states` and `product_version_checks` hold the initial states and fixed checks. `product_version_pins` holds the source commits, the implementation file fingerprints and the runtime image ID. Reads reject a catalog that differs from the manifest.
+
+All of these rows are append-only. A trigger refuses `UPDATE` and `DELETE`. A product version is frozen when its status is not `draft`. After that, a trigger refuses any change to the row, so a frozen version identity cannot be rewritten.
+
+After the gate passes, run A's check against Neon:
+
+```sh
+python -m backend.app.features.integration.version_repository --live
+```
+
+It saves v1, reads it back with exact equality and confirms that the database refuses a rewrite. It needs the local image ID file under `ARTIFACT_ROOT` (see `backend/app/features/integration/product/README.md`).
 
 ## Durable jobs
 
