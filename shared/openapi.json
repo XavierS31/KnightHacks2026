@@ -75,6 +75,53 @@
         "title": "Action",
         "type": "object"
       },
+      "Actor": {
+        "additionalProperties": false,
+        "description": "Caller-asserted identity; production must bind it to authentication.",
+        "properties": {
+          "id": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "prioritizer",
+              "implementer",
+              "qa_reviewer",
+              "human_reviewer"
+            ],
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "role"
+        ],
+        "title": "Actor",
+        "type": "object"
+      },
+      "ActorRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "note": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Note",
+            "type": "string"
+          }
+        },
+        "required": [
+          "actor"
+        ],
+        "title": "ActorRequest",
+        "type": "object"
+      },
       "AnalysisReport": {
         "additionalProperties": false,
         "properties": {
@@ -205,6 +252,80 @@
         "title": "AnalysisRequest",
         "type": "object"
       },
+      "BaseVersion": {
+        "additionalProperties": false,
+        "description": "Frozen v1 identity and its fixed checks. A patch run never changes it.",
+        "properties": {
+          "fixed_check_ids": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Fixed Check Ids",
+            "type": "array"
+          },
+          "fixed_checks_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Fixed Checks Sha256",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "version_id": {
+            "format": "uuid",
+            "title": "Version Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version_id",
+          "label",
+          "fixed_check_ids",
+          "fixed_checks_sha256"
+        ],
+        "title": "BaseVersion",
+        "type": "object"
+      },
+      "CandidateVersion": {
+        "additionalProperties": false,
+        "properties": {
+          "base_version_id": {
+            "format": "uuid",
+            "title": "Base Version Id",
+            "type": "string"
+          },
+          "fixed_checks_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Fixed Checks Sha256",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "patch_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Patch Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "base_version_id",
+          "patch_sha256",
+          "fixed_checks_sha256"
+        ],
+        "title": "CandidateVersion",
+        "type": "object"
+      },
       "Capability": {
         "additionalProperties": false,
         "properties": {
@@ -304,6 +425,32 @@
           "uncertainty"
         ],
         "title": "CapabilityFinding",
+        "type": "object"
+      },
+      "CheckResult": {
+        "additionalProperties": false,
+        "properties": {
+          "check_id": {
+            "title": "Check Id",
+            "type": "string"
+          },
+          "evidence": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Evidence",
+            "type": "string"
+          },
+          "passed": {
+            "title": "Passed",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "check_id",
+          "passed",
+          "evidence"
+        ],
+        "title": "CheckResult",
         "type": "object"
       },
       "DiscoveryRequest": {
@@ -1122,6 +1269,69 @@
         "title": "IntegrationSummary",
         "type": "object"
       },
+      "IsolatedPatch": {
+        "additionalProperties": false,
+        "description": "A changeset held in the run record. It is not written to the v1 tree.",
+        "properties": {
+          "files": {
+            "items": {
+              "$ref": "#/components/schemas/PatchFile"
+            },
+            "title": "Files",
+            "type": "array"
+          },
+          "sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "files",
+          "sha256"
+        ],
+        "title": "IsolatedPatch",
+        "type": "object"
+      },
+      "LifecycleEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "proposed",
+              "reviewed",
+              "patched",
+              "regression_passed",
+              "regression_failed",
+              "approved",
+              "rejected",
+              "rolled_back"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "actor",
+          "at",
+          "note"
+        ],
+        "title": "LifecycleEvent",
+        "type": "object"
+      },
       "PairIdea": {
         "additionalProperties": false,
         "properties": {
@@ -1176,6 +1386,173 @@
           "uncertainty"
         ],
         "title": "PairIdea",
+        "type": "object"
+      },
+      "PatchFile": {
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "maxLength": 200000,
+            "title": "Content",
+            "type": "string"
+          },
+          "path": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Path",
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "content"
+        ],
+        "title": "PatchFile",
+        "type": "object"
+      },
+      "PatchRun": {
+        "additionalProperties": false,
+        "properties": {
+          "acceptance_check": {
+            "title": "Acceptance Check",
+            "type": "string"
+          },
+          "allowed_paths": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Allowed Paths",
+            "type": "array"
+          },
+          "base": {
+            "$ref": "#/components/schemas/BaseVersion"
+          },
+          "candidate": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CandidateVersion"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/LifecycleEvent"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "implementer_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Implementer Id"
+          },
+          "improvement_id": {
+            "format": "uuid",
+            "title": "Improvement Id",
+            "type": "string"
+          },
+          "patch": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IsolatedPatch"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "regression": {
+            "items": {
+              "$ref": "#/components/schemas/CheckResult"
+            },
+            "title": "Regression",
+            "type": "array"
+          },
+          "state": {
+            "enum": [
+              "proposed",
+              "reviewed",
+              "patched",
+              "regression_passed",
+              "regression_failed",
+              "approved",
+              "rejected",
+              "rolled_back"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "storage": {
+            "const": "memory",
+            "default": "memory",
+            "title": "Storage",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "improvement_id",
+          "allowed_paths",
+          "acceptance_check",
+          "base",
+          "state",
+          "events"
+        ],
+        "title": "PatchRun",
+        "type": "object"
+      },
+      "PatchRunCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "improvement": {
+            "$ref": "#/components/schemas/Improvement"
+          }
+        },
+        "required": [
+          "actor",
+          "improvement"
+        ],
+        "title": "PatchRunCreate",
+        "type": "object"
+      },
+      "PatchSubmission": {
+        "additionalProperties": false,
+        "properties": {
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "files": {
+            "items": {
+              "$ref": "#/components/schemas/PatchFile"
+            },
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Files",
+            "type": "array"
+          }
+        },
+        "required": [
+          "actor",
+          "files"
+        ],
+        "title": "PatchSubmission",
         "type": "object"
       },
       "Persona": {
@@ -1668,6 +2045,34 @@
           "extraction_ids"
         ],
         "title": "ProposalRequest",
+        "type": "object"
+      },
+      "RegressionSubmission": {
+        "additionalProperties": false,
+        "properties": {
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "patch_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Patch Sha256",
+            "type": "string"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/CheckResult"
+            },
+            "minItems": 1,
+            "title": "Results",
+            "type": "array"
+          }
+        },
+        "required": [
+          "actor",
+          "patch_sha256",
+          "results"
+        ],
+        "title": "RegressionSubmission",
         "type": "object"
       },
       "Repository": {
@@ -2851,6 +3256,59 @@
         ]
       }
     },
+    "/api/v1/improvements/{improvement_id}/patch-runs": {
+      "post": {
+        "operationId": "create_patch_run_api_v1_improvements__improvement_id__patch_runs_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "improvement_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Improvement Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchRunCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatchRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Patch Run",
+        "tags": [
+          "evolution"
+        ]
+      }
+    },
     "/api/v1/integration/product-readiness": {
       "get": {
         "operationId": "product_readiness_api_v1_integration_product_readiness_get",
@@ -2893,9 +3351,9 @@
         ]
       }
     },
-    "/api/v1/patch-runs/{patch_run_id}/approve": {
-      "post": {
-        "operationId": "approve_patch_api_v1_patch_runs__patch_run_id__approve_post",
+    "/api/v1/patch-runs/{patch_run_id}": {
+      "get": {
+        "operationId": "get_patch_run_api_v1_patch_runs__patch_run_id__get",
         "parameters": [
           {
             "in": "path",
@@ -2912,7 +3370,62 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/PatchRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Patch Run",
+        "tags": [
+          "evolution"
+        ]
+      }
+    },
+    "/api/v1/patch-runs/{patch_run_id}/approve": {
+      "post": {
+        "operationId": "approve_patch_api_v1_patch_runs__patch_run_id__approve_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "patch_run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Patch Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActorRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatchRun"
+                }
               }
             },
             "description": "Successful Response"
@@ -2929,6 +3442,271 @@
           }
         },
         "summary": "Approve Patch",
+        "tags": [
+          "evolution"
+        ]
+      }
+    },
+    "/api/v1/patch-runs/{patch_run_id}/patch": {
+      "post": {
+        "operationId": "submit_patch_api_v1_patch_runs__patch_run_id__patch_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "patch_run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Patch Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchSubmission"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatchRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Submit Patch",
+        "tags": [
+          "evolution"
+        ]
+      }
+    },
+    "/api/v1/patch-runs/{patch_run_id}/regression": {
+      "post": {
+        "operationId": "record_regression_api_v1_patch_runs__patch_run_id__regression_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "patch_run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Patch Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegressionSubmission"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatchRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Record Regression",
+        "tags": [
+          "evolution"
+        ]
+      }
+    },
+    "/api/v1/patch-runs/{patch_run_id}/reject": {
+      "post": {
+        "operationId": "reject_patch_api_v1_patch_runs__patch_run_id__reject_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "patch_run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Patch Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActorRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatchRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Reject Patch",
+        "tags": [
+          "evolution"
+        ]
+      }
+    },
+    "/api/v1/patch-runs/{patch_run_id}/review": {
+      "post": {
+        "operationId": "review_patch_run_api_v1_patch_runs__patch_run_id__review_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "patch_run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Patch Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActorRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatchRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Review Patch Run",
+        "tags": [
+          "evolution"
+        ]
+      }
+    },
+    "/api/v1/patch-runs/{patch_run_id}/rollback": {
+      "post": {
+        "operationId": "rollback_patch_api_v1_patch_runs__patch_run_id__rollback_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "patch_run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Patch Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActorRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatchRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Rollback Patch",
         "tags": [
           "evolution"
         ]

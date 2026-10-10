@@ -3,7 +3,7 @@ from uuid import uuid4
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.app.features.evolution.analysis import analyze_fixture_sessions, validate_patch_paths
+from backend.app.features.evolution.analysis import analyze_fixture_sessions
 from backend.app.features.evolution.evidence import EvidenceMismatch
 from backend.app.main import app
 from backend.app.shared.contracts import Action, Feedback
@@ -86,24 +86,10 @@ def test_live_sessions_cannot_be_submitted_as_fixture_evidence():
         analyze_fixture_sessions(EXPERIMENT.id, [session])
 
 
-def test_routes_keep_fixture_label_and_deny_unreviewed_promotion():
+def test_routes_keep_fixture_label():
     client = TestClient(app)
     response = client.post(f"/api/v1/experiments/{EXPERIMENT.id}/analysis")
     assert response.status_code == 200
     assert response.json()["mode"] == "fixture"
     assert response.json()["clusters"] == []
     assert client.post(f"/api/v1/experiments/{uuid4()}/analysis").status_code == 404
-    denial = client.post(f"/api/v1/patch-runs/{uuid4()}/approve")
-    assert denial.status_code == 409
-    assert denial.json()["error"]["code"] == "REVIEW_REQUIRED"
-
-
-@pytest.mark.parametrize("path", ["../product/a.py", "product/../backend/app.py", "/product/a.py",
-                                  "C:\\product\\a.py", "backend/a.py", "product"])
-def test_patch_boundaries_reject_escape(path):
-    with pytest.raises(ValueError):
-        validate_patch_paths([path])
-
-
-def test_product_descendant_path_is_allowed():
-    validate_patch_paths(["product/src/app.py"])

@@ -15,7 +15,7 @@ Status dated 2026-10-10. Update this file with evidence after each milestone; do
 | 500 v1 + 500 v2 trials | Not executed | Per-persona mandatory attempt + feedback on both versions |
 | Product v2 | Not promoted | Evidence-linked patch, regressions and human approval |
 
-C starter: evidence-validating deterministic fixture analysis and readable report controls implemented; no-model/no-persistence status explicit. Lazy pooled database helper and an unapplied initial SQL migration are prepared. Approval is denied until regression and human-review machinery exists. Twenty-four focused mocked analysis/database checks passed; this does not establish a Neon connection or real engineering-agent run.
+C starter: evidence-validating deterministic fixture analysis and readable report controls implemented; no-model/no-persistence status explicit. Lazy pooled database helper and an unapplied initial SQL migration are prepared. An in-memory patch lifecycle enforces proposed → reviewed → patched → regression → human approval, with rejection and rollback; no real patch, executed regression or v2 exists. Twenty-four focused mocked analysis/database checks passed; this does not establish a Neon connection or real engineering-agent run.
 
 All three starter slices are now implemented. A's discovery is synchronous/in-memory with explicit fixture/live source status. B's authenticated WebSocket carries fixture state/heartbeat only, with no invented frames or actions. Root verification established typed API/build checks and desktop/mobile browser smoke including fixture discovery and exact-session switching. Real HF inference, Neon write/read, selected repository pair, product-backed browser worker and full population execution remain gated.
 
