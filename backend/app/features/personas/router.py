@@ -5,6 +5,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Request, WebSocket, WebSocketDisconnect
 
+from backend.app.features.personas.fixture_operations import run_fixture, store
 from backend.app.shared.contracts import PersonaSummary, Session, StreamEvent
 from backend.app.shared.fixtures import EXPERIMENT, PERSONAS, SESSIONS
 from backend.app.shared.settings import Settings, get_settings
@@ -17,8 +18,37 @@ LOCAL_ORIGINS = {f"http://{host}:{port}" for host in ("127.0.0.1", "localhost")
 @router.get("/personas/summary", response_model=PersonaSummary)
 def summary(settings: Settings = Depends(get_settings)):
     require_fixture(settings)
+    latest = store.latest()
     return PersonaSummary(mode="fixture", personas=PERSONAS, experiments=[EXPERIMENT],
-                          sessions=SESSIONS, next_gate="Execute one real browser task with saved evidence.")
+                          sessions=[latest.get(item.persona_id, item) for item in SESSIONS],
+                          next_gate="Execute one real browser task with saved evidence. Mock captures do not count.")
+
+
+@router.post("/personas/mock-trials/{persona_id}", response_model=Session)
+async def mock_trial(persona_id: UUID, request: Request, settings: Settings = Depends(get_settings)):
+    require_fixture(settings)
+    if request.client is None or request.client.host not in {"127.0.0.1", "::1", "localhost"}:
+        raise HTTPException(403, detail={"code": "MOCK_LOOPBACK_REQUIRED",
+                            "message": "Mock execution is restricted to loopback connections."})
+    if request.headers.get("origin") and request.headers["origin"] not in LOCAL_ORIGINS:
+        raise HTTPException(403, detail={"code": "VIEWER_ORIGIN_FORBIDDEN",
+                            "message": "Viewer origin is not permitted."})
+    header = request.headers.get("authorization", "")
+    token = header.removeprefix("Bearer ") if header.startswith("Bearer ") else ""
+    if not authorize(settings, request.client.host, token):
+        raise HTTPException(401, detail={"code": "VIEWER_UNAUTHORIZED",
+                            "message": "Valid local viewer credentials are required."})
+    persona = next((item for item in PERSONAS if item.id == persona_id), None)
+    if persona is None:
+        raise HTTPException(404, detail={"code": "PERSONA_NOT_FOUND", "message": "Persona was not found."})
+    store.reserve(persona_id)
+    try:
+        return await run_fixture(persona)
+    except Exception:
+        raise HTTPException(503, detail={"code": "MOCK_BROWSER_UNAVAILABLE",
+                            "message": "Local mock browser unavailable. Install Chromium and retry."}) from None
+    finally:
+        store.release(persona_id)
 
 
 def require_fixture(settings: Settings):
@@ -35,6 +65,9 @@ def authorize(settings: Settings, host: str | None, token: str):
 
 
 def find_session(session_id: UUID) -> Session:
+    stored = store.get(session_id)
+    if stored:
+        return stored[0]
     session = next((item for item in SESSIONS if item.id == session_id), None)
     if session is None:
         raise HTTPException(status_code=404, detail={"code": "SESSION_NOT_FOUND",
@@ -86,9 +119,14 @@ async def session_stream(websocket: WebSocket, session_id: UUID):
         event = StreamEvent(session_id=session.id, sequence=sequence, timestamp=datetime.now(UTC),
                             type="state", mode="fixture", payload={
                                 "session": session.model_dump(mode="json"),
-                                "notice": "Fixture only. No browser actions or frames have been captured.",
+                                "notice": "Fixture only. Captured mock mechanics never count as mandatory trials.",
                             })
         await websocket.send_json(event.model_dump(mode="json"))
+        stored = store.get(session_id)
+        if stored and stored[1]:
+            sequence += 1
+            captured = stored[1].model_copy(update={"sequence": sequence, "timestamp": datetime.now(UTC)})
+            await websocket.send_json(captured.model_dump(mode="json"))
         while True:
             try:
                 async with asyncio.timeout(15):
