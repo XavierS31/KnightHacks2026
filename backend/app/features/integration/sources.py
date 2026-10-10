@@ -15,15 +15,42 @@ from fastapi import HTTPException
 from pydantic import Field, field_validator
 
 from backend.app.features.integration.discovery import discovery_error
+from backend.app.features.integration.github import github_json
 from backend.app.shared.contracts import Contract, Repository
 
-MAX_RESPONSE_BYTES = 512_000
-MAX_FILE_BYTES = 100_000
+MAX_FILE_BYTES = 1_000_000
 MAX_TEXT_CHARS = 20_000
+
+
+def bounded_text(text):
+    """Retain opening context and useful sections across large decoded files."""
+    if len(text) <= MAX_TEXT_CHARS:
+        return text
+    blocks = [block for block in re.split(r"\n\s*\n", text) if block.strip()]
+    if len(blocks) <= 1:
+        return text[:MAX_TEXT_CHARS]
+    def score(block):
+        return (len(re.findall(r"api|usage|example|interface|architecture|input|output|library|engine|cli|sdk|feature", block, re.I))
+                - 3 * len(re.findall(r"badge|sponsor|donat|star.history", block, re.I)))
+    selected, remaining = {}, MAX_TEXT_CHARS
+    for i in [0, *sorted(range(1, len(blocks)), key=lambda i: score(blocks[i]), reverse=True)]:
+        if remaining < 100:
+            break
+        excerpt = blocks[i][:min(2000, remaining - 2)]
+        selected[i] = excerpt
+        remaining -= len(excerpt) + 2
+    return "\n\n".join(selected[i] for i in sorted(selected))
+
+
+def source_failure(label, exc):
+    detail = exc.detail if isinstance(exc.detail, dict) else {}
+    timing = f"; retry_at={detail['retry_at']} ({detail.get('resource', 'unknown')})" if 'retry_at' in detail else ''
+    return f"{label}: {detail.get('code', 'GITHUB_SOURCE_FAILED')}{timing}"
 
 
 class SourceRequest(Contract):
     documentation_paths: list[str] = Field(default_factory=list, max_length=3)
+    include_license: bool = True
     issue_limit: int = Field(default=5, ge=0, le=10)
 
     @field_validator("documentation_paths")
@@ -70,26 +97,7 @@ class SourceSnapshot(Contract):
 
 class GitHubSources:
     async def _json(self, client, path, params=None, missing_ok=False):
-        try:
-            async with client.stream("GET", f"https://api.github.com{path}", params=params) as response:
-                if response.status_code == 404 and missing_ok:
-                    return None, str(response.request.url)
-                if response.status_code in {403, 429}:
-                    raise discovery_error(429, "GITHUB_RATE_LIMIT", "GitHub refused source collection.", True)
-                if response.status_code != 200:
-                    raise discovery_error(502, "GITHUB_SOURCE_FAILED", "GitHub source read failed.", True)
-                chunks, size = [], 0
-                async for chunk in response.aiter_bytes():
-                    size += len(chunk)
-                    if size > MAX_RESPONSE_BYTES:
-                        raise discovery_error(502, "GITHUB_SOURCE_TOO_LARGE", "Source response exceeds the byte limit.")
-                    chunks.append(chunk)
-                payload = httpx.Response(200, content=b"".join(chunks)).json()
-                return payload, str(response.request.url)
-        except httpx.RequestError as exc:
-            raise discovery_error(502, "GITHUB_UNAVAILABLE", "GitHub source collection is unavailable.", True) from exc
-        except ValueError as exc:
-            raise discovery_error(502, "GITHUB_INVALID_RESPONSE", "GitHub returned malformed source data.") from exc
+        return await github_json(client, path, params, missing_ok)
 
     @staticmethod
     def _document(payload, name, sha, kind, request_reference):
@@ -115,7 +123,7 @@ class GitHubSources:
             kind=kind, path=path, blob_sha=blob_sha,
             reference=f"https://github.com/{name}/blob/{sha}/{quote(path, safe='/')}",
             request_reference=request_reference, collected_at=datetime.now(UTC),
-            text=text[:MAX_TEXT_CHARS], content_sha256=hashlib.sha256(raw).hexdigest(),
+            text=bounded_text(text), content_sha256=hashlib.sha256(raw).hexdigest(),
             truncated=len(text) > MAX_TEXT_CHARS,
         )
 
@@ -144,7 +152,9 @@ class GitHubSources:
             except (ValueError, TypeError, KeyError, IndexError, AttributeError) as exc:
                 raise discovery_error(502, "GITHUB_INVALID_RESPONSE", "Cannot establish a source commit.") from exc
             documents, failures = [], []
-            files = [("readme", f"{base}/readme"), ("license", f"{base}/license")]
+            files = [("readme", f"{base}/readme")]
+            if request.include_license:
+                files.append(("license", f"{base}/license"))
             files += [("documentation", f"{base}/contents/{quote(path, safe='/')}")
                       for path in request.documentation_paths]
             for kind, path in files:
@@ -155,11 +165,11 @@ class GitHubSources:
                     else:
                         documents.append(self._document(payload, name, sha, kind, url))
                 except HTTPException as exc:
-                    failures.append(f"{kind}: {exc.detail['code']}")
+                    failures.append(source_failure(kind, exc))
                     if exc.status_code == 429:
                         break
                 except (ValueError, TypeError, KeyError, AttributeError, binascii.Error):
-                    failures.append(f"{kind}: invalid, unsupported or oversized source file.")
+                    failures.append(f"{kind}: invalid encoding, blob identity, or file above the 1 MB extraction limit.")
             if request.issue_limit and not any("GITHUB_RATE_LIMIT" in failure for failure in failures):
                 try:
                     issues, url = await self._json(client, f"{base}/issues", {
@@ -182,7 +192,7 @@ class GitHubSources:
                         documents.append(SourceDocument(
                             kind="issue", reference=f"https://github.com/{name}/issues/{number}",
                             request_reference=url, collected_at=datetime.now(UTC),
-                            text=text[:MAX_TEXT_CHARS], content_sha256=hashlib.sha256(text.encode()).hexdigest(),
+                            text=bounded_text(text), content_sha256=hashlib.sha256(text.encode()).hexdigest(),
                             truncated=len(text) > MAX_TEXT_CHARS,
                             issue_state=issue.get("state") if issue.get("state") in {"open", "closed"} else None,
                             issue_updated_at=issue.get("updated_at") if isinstance(issue.get("updated_at"), str) else None,

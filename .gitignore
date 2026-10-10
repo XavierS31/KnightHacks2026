@@ -16,3 +16,7 @@ test-results/
 *.egg-info/
 .coverage
 .neon
+
+output/playwright/
+
+.playwright-cli/

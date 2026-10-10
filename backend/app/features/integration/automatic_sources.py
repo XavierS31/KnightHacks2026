@@ -5,7 +5,7 @@ from urllib.parse import unquote
 import httpx
 from fastapi import HTTPException
 
-from backend.app.features.integration.sources import GitHubSources, SourceRequest
+from backend.app.features.integration.sources import GitHubSources, SourceRequest, source_failure
 
 
 def documentation_paths(snapshot):
@@ -26,8 +26,11 @@ def documentation_paths(snapshot):
 
 
 class AutomaticSources(GitHubSources):
-    async def research(self, repository, token="", transport=None):
-        snapshot = await self.collect(repository, SourceRequest(issue_limit=0), token, transport)
+    async def screen(self, repository, token="", transport=None):
+        return await self.research(repository, token, transport, screen=True)
+
+    async def research(self, repository, token="", transport=None, *, screen=False):
+        snapshot = await self.collect(repository, SourceRequest(issue_limit=0, include_license=not screen), token, transport)
         if any('GITHUB_RATE_LIMIT' in failure for failure in snapshot.failures):
             return snapshot
         headers = {"Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28"}
@@ -44,7 +47,7 @@ class AutomaticSources(GitHubSources):
                     manifests = [name for name in ("pyproject.toml", "package.json", "Cargo.toml", "go.mod") if name in available]
                     if not paths:
                         paths = [name for name in ("USAGE.md", "API.md", "docs.md") if name in available][:2]
-                    if any(isinstance(item, dict) and item.get('type') == 'dir' and item.get('name') == 'docs' for item in entries):
+                    if not screen and any(isinstance(item, dict) and item.get('type') == 'dir' and item.get('name') == 'docs' for item in entries):
                         docs, _ = await self._json(client, f"/repos/{snapshot.full_name}/contents/docs", {"ref": snapshot.commit_sha})
                         if isinstance(docs, list):
                             candidates = [f"docs/{item['name']}" for item in docs if isinstance(item, dict)
@@ -57,11 +60,13 @@ class AutomaticSources(GitHubSources):
                     if manifests:
                         paths.append(manifests[0])
             except HTTPException as exc:
-                snapshot.failures.append(f"Automatic documentation index: {exc.detail['code']}")
+                snapshot.failures.append(source_failure("Automatic documentation index", exc))
                 if exc.status_code == 429:
                     snapshot.status = 'partial'
                     return snapshot
-            for path in paths[:3]:
+            if screen:
+                paths = [path for path in paths if path in {"pyproject.toml", "package.json", "Cargo.toml", "go.mod"}][:1]
+            for path in paths[:4]:
                 try:
                     data, reference = await self._json(client, f"/repos/{snapshot.full_name}/contents/{path}",
                                                        {"ref": snapshot.commit_sha}, missing_ok=True)
@@ -71,7 +76,7 @@ class AutomaticSources(GitHubSources):
                     else:
                         snapshot.failures.append(f"Automatic document unavailable: {path}")
                 except HTTPException as exc:
-                    snapshot.failures.append(f"Automatic document {path}: {exc.detail['code']}")
+                    snapshot.failures.append(source_failure(f"Automatic document {path}", exc))
                     if exc.status_code == 429:
                         break
                 except (ValueError, TypeError, KeyError, AttributeError):

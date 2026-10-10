@@ -4,7 +4,6 @@ from uuid import uuid4
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.app.features.evolution.bounded_improvements import BOUNDED_IMPROVEMENTS, STALE_STATUS
 from backend.app.features.evolution.lifecycle import (
     ActorNotAllowed,
     EditConflict,
@@ -21,17 +20,17 @@ from backend.app.features.evolution.models import (
     CheckResult,
     PatchFile,
 )
-from backend.app.features.integration.product.handoff import MANIFEST
 from backend.app.main import app
 from backend.app.shared.contracts import Improvement
 from backend.app.shared.fixtures import IMPROVEMENT
 from backend.app.shared.settings import Settings, get_settings
+from backend.tests.prototype_fixtures import BOUNDED_IMPROVEMENTS, SOURCES, STALE_STATUS
 
 PRIORITIZER = Actor(id="prioritizer-1", role="prioritizer")
 HUMAN = Actor(id="human-1", role="human_reviewer")
 IMPLEMENTER = Actor(id="implementer-1", role="implementer")
 QA = Actor(id="qa-1", role="qa_reviewer")
-BASE = BaseVersion(version_id=uuid4(), label="SourceTable v1",
+BASE = BaseVersion(version_id=uuid4(), label="Synthetic prototype v1",
                    fixed_check_ids=["normal-v1", "type-error-v1"], fixed_checks_sha256="a" * 64)
 IMPROVEMENT_IN_SCOPE = Improvement(
     id=uuid4(), title="Clarify the input format", issue="Personas could not find supported input",
@@ -225,7 +224,7 @@ def test_fixture_unsupported_or_out_of_scope_improvements_cannot_start():
 
 
 def test_routes_enforce_lifecycle_against_frozen_v1(tmp_path):
-    manifest_digest = hashlib.sha256(MANIFEST.read_bytes()).hexdigest()
+    manifest_digest = hashlib.sha256(str(SOURCES).encode()).hexdigest()
     app.dependency_overrides[get_settings] = lambda: Settings(_env_file=None, artifact_root=tmp_path)
     client = TestClient(app)
     improvement = IMPROVEMENT_IN_SCOPE.model_copy(update={
@@ -237,7 +236,7 @@ def test_routes_enforce_lifecycle_against_frozen_v1(tmp_path):
         assert created.status_code == 201
         run = created.json()
         assert run["state"] == "proposed" and run["storage"] == "memory"
-        assert run["base"]["label"] == "SourceTable v1"
+        assert run["base"]["label"] == "Synthetic prototype v1"
         assert run["title"] == IMPROVEMENT_IN_SCOPE.title
         assert run["base"]["fixed_check_ids"]
 
@@ -287,7 +286,7 @@ def test_routes_enforce_lifecycle_against_frozen_v1(tmp_path):
         assert mismatch.status_code == 422
     finally:
         app.dependency_overrides.clear()
-    assert hashlib.sha256(MANIFEST.read_bytes()).hexdigest() == manifest_digest
+    assert hashlib.sha256(str(SOURCES).encode()).hexdigest() == manifest_digest
 
 
 @pytest.mark.parametrize("path", ["../product/a.py", "product/../backend/app.py", "/product/a.py",

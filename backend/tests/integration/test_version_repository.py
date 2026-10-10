@@ -4,7 +4,6 @@ import psycopg
 import pytest
 from psycopg.types.json import Jsonb
 
-from backend.app.features.integration.product.handoff import MANIFEST, ProductHandoff
 from backend.app.features.integration.version_repository import (
     VersionConflict,
     VersionRecordInvalid,
@@ -13,11 +12,12 @@ from backend.app.features.integration.version_repository import (
 )
 from backend.app.shared.database import NeonDatabase
 from backend.app.shared.settings import Settings
+from backend.tests.prototype_fixtures import handoff
 
 
 @pytest.fixture
 def frozen():
-    return ProductHandoff.model_validate_json(MANIFEST.read_text())
+    return handoff()
 
 
 @pytest.fixture
@@ -58,7 +58,7 @@ def test_different_manifest_under_frozen_identity_conflicts_without_rewrite(data
 
 
 @pytest.mark.parametrize("statement", [
-    "UPDATE product_versions SET label = 'SourceTable v1 rewrite'",
+    "UPDATE product_versions SET label = 'Synthetic prototype v1 rewrite'",
     "UPDATE product_versions SET manifest = '{}'",
     "DELETE FROM product_versions",
     "UPDATE product_version_checks SET definition = '{}'",

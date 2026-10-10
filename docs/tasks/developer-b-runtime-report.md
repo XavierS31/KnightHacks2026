@@ -1,8 +1,5 @@
 # Developer B runtime progress — 2026-10-10
 
-Historical PR #6 foundation report. The subsequent [SourceTable population report](developer-b-population-report.md)
-supersedes source/approval/population counts and the remaining-work list below.
-
 This follows the mock handoff and corpus work in merged PRs #3 and #4. Available runtime
 foundations are implemented; P1/P2/P4 remain partial and P3 remains unexecuted. No real product
 trial, Neon write, 500-person live population, full experiment or v2 promotion is claimed.
@@ -85,25 +82,6 @@ and returning to its new session. At 390 px, document width equals viewport widt
 smoke servers were started/stopped. Mandatory experiment counts remain zero throughout.
 
 ## Remaining work, in dependency order
-
-1. **B source/model gate:** reviews relevant to A's real product, reliable extraction, independent
-   support approval and representative generation/browser/feedback role evaluation. Two category
-   reviews and a configuration smoke do not finish P1/model acceptance.
-2. **A handoff now available:** upstream PRs #7/#8 provide SourceTable v1's frozen manifest, local
-   product URL, task/check templates and reset semantics. See [A handoff](../handoffs/developer-a-v1.md).
-   B still needs a feature-owned consumer that verifies compatibility and binds templates to exact
-   persona scenarios; the existing mock operation is not that consumer. Portable runtime validation
-   remains required on other computers.
-3. **C blocker:** coordinated immutable corpus/approval/population storage, authenticated reviewer
-   identity, durable actions/feedback/frame artifacts, atomic spending, queue leases and recovery.
-   Live execution rejects an in-memory sink. C needs intended server-side DATABASE_URL for Neon;
-   the mock UI needs no additional key.
-4. **B population/first trial:** generate/persist exactly 500 review-informed fictional personas,
-   then one real checked trial/viewer. Freeze identities/versions for v2.
-5. **B capacity:** five product-backed pilots, twenty-person soak, measured tokens/rate limits,
-   CPU/memory/throughput with four workers; measured forecast and separate full-batch authorization
-   before 500 v1 trials. Current forecast is assumptions, not measured throughput.
-6. **B/C:** all 500 matched v2 trials after human approval; honest matched denominators.
 
 Keep tokens server-side in ignored settings, never chat/viewer. Reconsider credit/configuration
 after source/model reliability, A/C gates and measured pilot forecast. Current approval does not

@@ -115,3 +115,14 @@ def migrated_settings():
             yield Settings(_env_file=None, app_mode="live", database_url=SecretStr(url), **LIVE_HF)
         finally:
             admin.execute(f"DROP SCHEMA {schema} CASCADE")
+
+
+@pytest.fixture(autouse=True)
+def synthetic_prototype(request, monkeypatch):
+    # Only lifecycle/router/implementer tests inject a selected prototype. Runtime defaults stay empty.
+    if request.node.path.name not in {"test_lifecycle.py", "test_retest.py", "test_implementer.py"}:
+        return
+    from backend.app.features.evolution import router
+    from backend.tests.prototype_fixtures import SOURCES, handoff
+    monkeypatch.setattr(router, "load_handoff", handoff)
+    monkeypatch.setattr(router, "frozen_v1_sources", lambda: dict(SOURCES))

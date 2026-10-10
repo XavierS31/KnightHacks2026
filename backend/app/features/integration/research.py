@@ -93,8 +93,7 @@ async def propose_pairs(root, live):
                    for item in json.loads((root / 'candidate-extractions.json').read_text())
                    if item.get('extraction')}
     # Hypotheses for independent research, never automatic selection.
-    pairs = [('jsvine/pdfplumber', 'frictionlessdata/frictionless-py'),
-             ('microsoft/markitdown', 'collective/icalendar'),
+    pairs = [('microsoft/markitdown', 'collective/icalendar'),
              ('adbar/trafilatura', 'simonw/datasette'),
              ('networkx/networkx', 'vega/altair'),
              ('simonw/sqlite-utils', 'frictionlessdata/frictionless-py')]

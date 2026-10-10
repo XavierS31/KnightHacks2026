@@ -1,13 +1,6 @@
 # Three-phase roadmap
 
-2026-10-10 B population follow-up: five real upstream reports and independent support
-review now inform 500 HF-generated fictional personas, saved locally and verified
-in Neon dev through the authorized HTTPS operator workflow. A's
-normal6 task is consumed and bound; local runtime verification and error7/recovery9
-alternatives remain open. C's immutable storage migration/repository is implemented;
-Migration 005 and exact bundle readback/retry/rollback are evidenced; native Python
-connectivity and hosted reviewer identity remain open. P1/P2/P4 stay partial and P3 unexecuted; no
-configured record counts as a trial. See [population report](tasks/developer-b-population-report.md).
+Current gate (2026-10-10): no prototype is selected. Historical populations and database evidence remain preserved, but require new product-relevant task/corpus review before reuse. Generic B/C infrastructure remains available; generation and catalog binding are not executed trials.
 
 This is the implementation roadmap. The [product backlog](product-backlog.md) tracks prioritized implementation work, owners and acceptance; status evidence lives in [status](status.md). The skeleton is a starting point; production feature milestones below remain open until demonstrated.
 
@@ -88,6 +81,3 @@ P1: richer population sources/scenarios, deeper novelty research, held-out check
 A hands B a version manifest, product URL, validated briefing and fixed task/check catalog. B hands C persisted session/actions/feedback. C requests A's review of approved-boundary patches and B's matched retest. All owners verify the combined demo journey.
 
 Completion requires one real validated opportunity prototype, all 500 evidence-backed mandatory trials and feedback per version, ten exact selectable sessions, five engineering roles, reviewed improvements, preserved versions, substantive HF/Neon execution and honest matched results. Large configured fixture populations do not satisfy these gates.
-
-
-2026-10-10 A fixed-sample gate: SourceTable v1 integrates pinned pdfplumber/Frictionless with a real separate-origin product page. Independent source checks, adapter rejection/timeout cases and browser normal/error/recovery/isolation/reset checks passed. A’s immutable implementation/environment manifest and three check/task templates are available to B. This establishes the local I2/I3/I4 sample workflow; C durable persistence, wider PDF coverage, portable environment verification and all persona/evolution gates remain open.

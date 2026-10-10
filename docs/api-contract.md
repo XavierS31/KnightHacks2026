@@ -2,8 +2,6 @@
 
 The backend Pydantic models in `backend/app/shared/contracts.py`, feature-owned integration models, and exported `shared/openapi.json` are authoritative for implemented routes, exact fields, enums and validation. Generated frontend types live in `frontend/src/shared/api-types.ts`. The target production table does not mean every endpoint is implemented by the scaffold. Inspect `/openapi.json` before consuming a route. A fixture-backed read route is not a durable production workflow.
 
-## Current scaffold interfaces
-
 | Route | Response / behavior |
 | --- | --- |
 | `GET /api/v1/health` | Process status, app mode, configuration booleans, population target and featured count; configuration is not verified external connectivity |
@@ -19,7 +17,7 @@ The backend Pydantic models in `backend/app/shared/contracts.py`, feature-owned 
 | `POST /api/v1/improvements/{id}/patch-runs` | `PatchRunCreate` (actor + `proposed` improvement with session evidence) → `201 PatchRun` in `proposed`, based on A's frozen v1 manifest and its fixed check IDs; in-memory only |
 | `GET /api/v1/patch-runs/{id}` | Stored in-memory `PatchRun` with state, events, patch, regression results and v2 candidate |
 | `POST /api/v1/patch-runs/{id}/review` | Human reviewer accepts the scope: `proposed` → `reviewed` |
-| `POST /api/v1/patch-runs/{id}/patch` | Implementer submits full files: `reviewed` → `patched`. Each file must be inside the approved paths and in C's product boundary (`product/ui/app.js`, `index.html`, `style.css`, which map to A's SourceTable UI files). The patch is held in the record, not written to v1 |
+| `POST /api/v1/patch-runs/{id}/patch` | Implementer submits full files: `reviewed` → `patched`. Each file must be inside the approved paths and in C's product boundary (`product/ui/app.js`, `index.html`, `style.css`, which map to the selected prototype's frozen UI files). The patch is held in the record, not written to v1 |
 | `POST /api/v1/patch-runs/{id}/edits` | Implementer submits bounded find/replace edits. Each `find` must occur once in the frozen v1 text. The server applies them and records files and edits: `reviewed` → `patched` |
 | `POST /api/v1/patch-runs/{id}/implement` | The HF implementer role (coding model, B's adapter) proposes bounded edits. They are applied as above, and the role provenance is stored in `implementer_run` |
 | `POST /api/v1/patch-runs/{id}/qa` | QA reviewer (not the implementer) runs the fixed checks in an isolated workspace: `node --check`, a real-adapter probe and A's three Chromium checks. Results are recorded for the patch digest: → `regression_passed` or `regression_failed`. If the configured image is not the frozen v1 image, or the checks cannot run, the response is `503 QA_UNAVAILABLE` and nothing is recorded. Callers cannot post their own results |
@@ -31,6 +29,8 @@ The backend Pydantic models in `backend/app/shared/contracts.py`, feature-owned 
 | `POST /api/v1/patch-runs/{id}/retest-requests` | `RetestRequestCreate` (fixture v1 `ExperimentRun`) → `201 RetestRequest` for an `approved` run: frozen v1 identities, fixed checks, v1 inference profile and a v1 record digest; `409` if v2 is not approved; live mode `503` until identities are persisted |
 | `GET /api/v1/retest-requests/{id}` | Stored in-memory `RetestRequest` |
 | `POST /api/v1/retest-requests/{id}/comparison` | `ComparisonSubmission` (fixture v1 and v2 runs) → `ComparisonReport`: pairs by persona, separate outcome and error buckets over 500, paired rates, inference changes, separate continuation and agent time that is not human time |
+
+## Current scaffold interfaces
 
 Owners may add bounded starter routes while development proceeds; the generated OpenAPI remains current truth.
 
@@ -51,10 +51,6 @@ The [opportunity discovery revision](opportunity-discovery.md) supersedes forced
 `OpportunityReport` carries anchor identity/commit, mode, creation time, up to two model hypotheses, an abstention reason when none are proposed, research leads, inference provenance/reservation and limitations. Each card has a UUID, `kind=feature_extension|integration`, `need_basis=issue_report|inferred_workflow`, audience/problem/current/proposed value, why investigate, implementation boundary, hypothetical input/output/check, risk and server-resolved evidence. Cards remain `status=hypothesis`, `novelty=unresolved`, `feasibility=unreviewed`, and `example_status=illustrative_not_executed` even after shortlisting. An integration must use supplied supporting snapshots with documented capability citations; a feature extension uses none. Citation IDs are checked for existence/ownership, not approved semantic support.
 
 `DiscoveryRun.momentum` includes current/baseline observations, status, nullable net star/fork deltas, elapsed hours and an explanatory note. An unavailable baseline is not zero growth. Local count history survives process restart; discovery results and opportunity reports do not. No growth-ranked search, automated alternatives/issue-PR research, prototype generator or new opportunity trial is established by these routes.
-
-Legacy extraction/proposal-preview routes remain available for existing consumers. A selected opportunity must pass research and real implementation/fixed-check gates before producing the existing validated `ProductHandoff`; B/C must not treat a report or illustrative example as that handoff. The frozen SourceTable v1 API/manifest remains unchanged.
-
-
 
 `Persona.software_behavior` is required in `PersonaSummary`: `SoftwareBehaviorProfile` contains corpus/generation versions, patterns and `SoftwareReviewEvidence`. Patterns define tendency, trigger, agent policy and source IDs; review records preserve platform, permalink, dates, normalized-content hash, software context and report type. Reddit, Hacker News and general review categories are supported. Current responses are explicit behavior fixtures, not collected reviews. Live summaries reject fixture behavior. See [software behavior](software-behavior.md) for semantics and remaining collection work. This schema addition requires older persona payload producers to supply the new field; frontend types are regenerated.
 
@@ -129,8 +125,6 @@ npm --prefix frontend run check:contracts
 
 Do not edit generated TypeScript manually. A coordinates: propose change → identify consumers → approve → update Pydantic → export and regenerate → update fixtures → verify → notify owners. Prefer additive changes. Feature routers and their tests stay feature-owned; central mounts are coordinated once.
 
-
-
 ## Automatic research studies
 
 - `POST /api/v1/research-studies`: `StudyRequest` (discovery, research_limit 1–6/default 3, optional interests) → 202 `ResearchStudy`; starts discovery/research/proposals/equivalent searches/critic automatically. Live mode requires configured HF and an approved budget; fixture mode calls no external services.
@@ -138,3 +132,6 @@ Do not edit generated TypeScript manually. A coordinates: propose change → ide
 - `POST /api/v1/research-studies/{id}/cancel`: cancel pending work, retaining completed evidence.
 
 One active study per API process; another start returns 409. A 15-minute bound and 100-record memory retention apply. RepositoryResearch contains pinned source evidence, explanatory brief, research status/coverage/failure and discovery/supporting-tool origin. EvaluatedProduct contains proposed substantial use, original-use difference, illustrative examples/checks, automatic AlternativeSearch evidence, scope/novelty CritiqueOutput and recommended_for_prototype/research_needed/rejected status. Recommendations are not approved capabilities or uniqueness guarantees. No prototype/persona execution follows automatically.
+
+
+ResearchStudy exposes counts, selection_score/reasons, source_gaps, api_requests/inference_calls and explicit limits. The old product readiness endpoint is removed; no prototype is selected. Generic handoffs are defined in `integration/handoff.py`, with an explicit selected catalog at `product/manifest.json`. Patch creation returns `VALIDATED_PROTOTYPE_REQUIRED` until that catalog exists. QA remains unavailable until a new independent runner is registered.

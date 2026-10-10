@@ -491,10 +491,25 @@
             "title": "Outputs",
             "type": "string"
           },
+          "reuse_assessment": {
+            "enum": [
+              "promising",
+              "unsuitable",
+              "uncertain"
+            ],
+            "title": "Reuse Assessment",
+            "type": "string"
+          },
           "reuse_limits": {
             "maxLength": 400,
             "minLength": 1,
             "title": "Reuse Limits",
+            "type": "string"
+          },
+          "selection_reason": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Selection Reason",
             "type": "string"
           },
           "summary": {
@@ -512,6 +527,8 @@
           "outputs",
           "interfaces",
           "reuse_limits",
+          "reuse_assessment",
+          "selection_reason",
           "capabilities"
         ],
         "title": "BriefOutput",
@@ -947,10 +964,20 @@
             ],
             "title": "Scope",
             "type": "string"
+          },
+          "technical_support": {
+            "enum": [
+              "supported",
+              "uncertain",
+              "unsupported"
+            ],
+            "title": "Technical Support",
+            "type": "string"
           }
         },
         "required": [
           "scope",
+          "technical_support",
           "novelty",
           "reason",
           "difference"
@@ -3231,40 +3258,6 @@
         "title": "ProductIdea",
         "type": "object"
       },
-      "ProductReadiness": {
-        "additionalProperties": false,
-        "properties": {
-          "message": {
-            "title": "Message",
-            "type": "string"
-          },
-          "runtime_url": {
-            "default": "http://127.0.0.1:8001",
-            "title": "Runtime Url",
-            "type": "string"
-          },
-          "status": {
-            "title": "Status",
-            "type": "string"
-          },
-          "version": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/ProductVersion"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "required": [
-          "status",
-          "message"
-        ],
-        "title": "ProductReadiness",
-        "type": "object"
-      },
       "ProductVersion": {
         "additionalProperties": false,
         "properties": {
@@ -3778,6 +3771,24 @@
           "repository": {
             "$ref": "#/components/schemas/Repository"
           },
+          "selection_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Selection Reasons",
+            "type": "array"
+          },
+          "selection_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selection Score"
+          },
           "snapshot_id": {
             "anyOf": [
               {
@@ -3790,13 +3801,22 @@
             ],
             "title": "Snapshot Id"
           },
+          "source_gaps": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Source Gaps",
+            "type": "array"
+          },
           "status": {
             "enum": [
               "queued",
               "researching",
               "researched",
               "failed",
-              "not_researched"
+              "not_researched",
+              "screened",
+              "unsuitable"
             ],
             "title": "Status",
             "type": "string"
@@ -3812,6 +3832,19 @@
       "ResearchStudy": {
         "additionalProperties": false,
         "properties": {
+          "api_requests": {
+            "default": 0,
+            "title": "Api Requests",
+            "type": "integer"
+          },
+          "counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "readOnly": true,
+            "title": "Counts",
+            "type": "object"
+          },
           "created_at": {
             "format": "date-time",
             "title": "Created At",
@@ -3844,12 +3877,24 @@
             "title": "Id",
             "type": "string"
           },
+          "inference_calls": {
+            "default": 0,
+            "title": "Inference Calls",
+            "type": "integer"
+          },
           "limitations": {
             "items": {
               "type": "string"
             },
             "title": "Limitations",
             "type": "array"
+          },
+          "limits": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Limits",
+            "type": "object"
           },
           "mode": {
             "enum": [
@@ -3920,7 +3965,8 @@
           "status",
           "stage",
           "created_at",
-          "updated_at"
+          "updated_at",
+          "counts"
         ],
         "title": "ResearchStudy",
         "type": "object"
@@ -4673,6 +4719,11 @@
             "maxItems": 3,
             "title": "Documentation Paths",
             "type": "array"
+          },
+          "include_license": {
+            "default": true,
+            "title": "Include License",
+            "type": "boolean"
           },
           "issue_limit": {
             "default": 5,
@@ -5477,27 +5528,6 @@
           }
         },
         "summary": "Opportunity Demo",
-        "tags": [
-          "integration"
-        ]
-      }
-    },
-    "/api/v1/integration/product-readiness": {
-      "get": {
-        "operationId": "product_readiness_api_v1_integration_product_readiness_get",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProductReadiness"
-                }
-              }
-            },
-            "description": "Successful Response"
-          }
-        },
-        "summary": "Product Readiness",
         "tags": [
           "integration"
         ]

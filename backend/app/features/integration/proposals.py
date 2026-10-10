@@ -91,7 +91,10 @@ class IntegrationInference:
         if not (self.settings.hf_token.get_secret_value() and self.settings.hf_model_id
                 and self.settings.hf_provider):
             raise InferenceError("INFERENCE_NOT_CONFIGURED")
+        if getattr(self, "logical_calls", 0) >= getattr(self, "logical_limit", 100):
+            raise InferenceError("STUDY_INFERENCE_LIMIT")
         reservation = self.budget.reserve(messages, schema.model_json_schema())
+        self.logical_calls = getattr(self, "logical_calls", 0) + 1
         result = await self.inference.generate_structured(
             role=role, messages=messages, output_schema=schema,
             prompt_version=prompt_version,

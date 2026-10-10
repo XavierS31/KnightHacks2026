@@ -12,7 +12,7 @@ async def collect(handler, repository="jsvine/pdfplumber", number=311):
         return await collect_public_issue(
             repository, number, software_context="Invented test context",
             selection_context="Invented test selection", access_basis="Test-only access basis",
-            client=client,
+            allowed_repositories=frozenset({"jsvine/pdfplumber"}), client=client,
         )
 
 

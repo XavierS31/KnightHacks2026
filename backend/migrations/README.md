@@ -58,8 +58,6 @@ After the gate passes, run A's check against Neon:
 python -m backend.app.features.integration.version_repository --live
 ```
 
-It saves v1, reads it back with exact equality and confirms that the database refuses a rewrite. It needs the local image ID file under `ARTIFACT_ROOT` (see `backend/app/features/integration/product/README.md`).
-
 ## Durable jobs
 
 `backend/app/shared/jobs.py` (`JobQueue`) implements the job semantics on the `jobs` table:

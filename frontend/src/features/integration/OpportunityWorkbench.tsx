@@ -3,7 +3,6 @@ import { request } from '../../shared/api'
 import type { components } from '../../shared/api-types'
 
 type Study = components['schemas']['ResearchStudy']
-type DiscoverySource = components['schemas']['DiscoveryRequest']['discovery_mode']
 type RepoResearch = components['schemas']['RepositoryResearch']
 type Product = components['schemas']['EvaluatedProduct']
 const storageKey = 'repofusion-research-study'
@@ -13,6 +12,8 @@ function RepoEvidence({ item, momentum }: { item: RepoResearch; momentum?: compo
   const brief = item.brief
   return <article className="research-repo">
     <div className="section-heading"><h3><a href={item.repository.url} target="_blank" rel="noreferrer">{item.repository.full_name}</a></h3><span className="badge">{item.status.replaceAll('_', ' ')}</span></div>
+    {item.selection_score != null && <p>Source screening score: {item.selection_score}/12</p>}
+    {(item.selection_reasons ?? []).length > 0 && <ul>{(item.selection_reasons ?? []).map((reason, i) => <li key={i}>{reason}</li>)}</ul>}
     {brief ? <>
       <p className="repo-summary">{brief.summary}</p>
       <dl className="opportunity-facts">
@@ -22,7 +23,8 @@ function RepoEvidence({ item, momentum }: { item: RepoResearch; momentum?: compo
         <dt>Ways to use it</dt><dd>{brief.interfaces}</dd>
         <dt>Limits on reuse</dt><dd>{brief.reuse_limits}</dd>
       </dl>
-    </> : <p>{item.failure ? `Research could not finish: ${item.failure}` : item.status === 'not_researched' ? 'Discovered as part of the candidate pool; outside this run’s research limit.' : 'Source research and a readable summary will appear automatically.'}</p>}
+    </> : <p>{item.failure ? `Research could not finish: ${item.failure}` : item.status === 'unsuitable' ? 'No reusable foundation passed this candidate’s screening; see the selection reasons.' : item.status === 'not_researched' ? 'Candidate not deeply researched within this run’s selection limits.' : 'This candidate was screened but not deeply researched in this run.'}</p>}
+    {(item.source_gaps ?? []).length > 0 && <p role="note">Source coverage gaps: {(item.source_gaps ?? []).join(" · ")}</p>}
     <details><summary>Discovery proof & source evidence</summary>
       <p>{item.origin === 'supporting_tool' && !item.repository.evidence.some(e => e.kind === 'source') ? 'Supporting tool; discovery statistics are unknown.' : `${item.repository.stars.toLocaleString()} stars at discovery. Attention does not establish usefulness.`}</p>
       {momentum && <p>{momentum.current.forks == null ? 'Fork count unknown.' : `${momentum.current.forks.toLocaleString()} forks.`} {momentum.status === 'measured' ? `Net stars: ${momentum.stars_delta}; net forks: ${momentum.forks_delta ?? 'unknown'} over ${momentum.elapsed_hours?.toFixed(1)} hours.` : momentum.note}</p>}
@@ -47,7 +49,7 @@ function ProductReport({ product }: { product: Product }) {
       <dt>Why these tools</dt><dd>{idea.capability_connection}</dd>
       <dt>What may fail</dt><dd>{idea.risk}</dd>
     </dl>
-    {product.critique && <section className="research-verdict"><strong>{product.status === 'rejected' ? 'Why it was rejected' : product.status === 'research_needed' ? 'What remains unresolved' : 'Why investigate this product'}</strong><p>{product.critique.reason}</p><p>Difference from existing tools: {product.critique.difference}</p><p className="muted">Scope: {product.critique.scope.replaceAll('_', ' ')} · Existing-solution check: {product.critique.novelty.replaceAll('_', ' ')}</p></section>}
+    {product.critique && <section className="research-verdict"><strong>{product.status === 'rejected' ? 'Why it was rejected' : product.status === 'research_needed' ? 'What remains unresolved' : 'Why investigate this product'}</strong><p>{product.critique.reason}</p><p>Difference from existing tools: {product.critique.difference}</p><p className="muted">Scope: {product.critique.scope.replaceAll('_', ' ')} · Technical support: {product.critique.technical_support} · Existing-solution check: {product.critique.novelty.replaceAll('_', ' ')}</p></section>}
     {product.failure && <p role="note">Evaluation gap: {product.failure}</p>}
     <details className="concept-preview"><summary>See an example of the proposed product</summary>
       <div className="two-columns"><section><h4>Someone provides</h4><p>{idea.example_input}</p></section><section><h4>The product would deliver</h4><p>{idea.example_output}</p></section></div>
@@ -67,12 +69,9 @@ function ProductReport({ product }: { product: Product }) {
 
 export function OpportunityWorkbench() {
   const [mode, setMode] = useState<'fixture' | 'live'>('fixture')
-  const [source, setSource] = useState<DiscoverySource>('emerging')
-  const [query, setQuery] = useState('stars:>=100')
-  const [limit, setLimit] = useState(3)
+  const [query, setQuery] = useState('stars:>=20')
+  const limit = 12
   const [depth, setDepth] = useState(3)
-  const [period, setPeriod] = useState<'daily' | 'weekly' | 'monthly'>('weekly')
-  const [language, setLanguage] = useState('')
   const [interests, setInterests] = useState('')
   const [study, setStudy] = useState<Study | null>(null)
   const [id, setId] = useState<string | null>(() => sessionStorage.getItem(storageKey))
@@ -112,7 +111,7 @@ export function OpportunityWorkbench() {
     event.preventDefault(); setBusy(true); setError('')
     try {
       const result = await request<Study>('/research-studies', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-        discovery: { mode, discovery_mode: source, query, limit, ...(source === 'trending' ? { trending_period: period, trending_language: language } : {}) },
+        discovery: { mode, discovery_mode: 'emerging', query, limit },
         research_limit: depth, interests,
       }) })
       setStudy(result); setId(result.id); sessionStorage.setItem(storageKey, result.id)
@@ -132,23 +131,24 @@ export function OpportunityWorkbench() {
   const active = busy || running(study)
   const recommended = study?.products?.filter(p => p.status === 'recommended_for_prototype') ?? []
   const other = study?.products?.filter(p => p.status !== 'recommended_for_prototype') ?? []
+  const rankedRepos = [...(study?.repositories ?? [])].sort((a, b) => Number(b.status === 'researched') - Number(a.status === 'researched') || Number(Boolean(b.brief)) - Number(Boolean(a.brief)) || (b.selection_score ?? -1) - (a.selection_score ?? -1) || a.repository.full_name.localeCompare(b.repository.full_name))
+  const detailedRepos = rankedRepos.filter(r => r.brief || r.status === 'failed' || r.status === 'researching')
+  const otherRepos = rankedRepos.filter(r => !detailedRepos.includes(r))
   return <>
     <article className="panel opportunity-intro"><span className="eyebrow">AUTOMATIC OPEN-SOURCE RESEARCH</span><h2>Discover technology. Find a different use.</h2><p>We read the source docs, explain what the tools actually do, explore substantial new products, and compare existing solutions. You start the research; the evaluation runs automatically.</p><div className="opportunity-steps"><span>01 / Discover</span><span>02 / Read & understand</span><span>03 / Repurpose</span><span>04 / Check alternatives</span></div></article>
     <article className="panel"><h2>Start a research run</h2><form className="discovery-form" onSubmit={start}>
       <label>Data mode<select aria-label="Data mode" disabled={active} value={mode} onChange={e => setMode(e.target.value as typeof mode)}><option value="live">Real GitHub + HF research</option><option value="fixture">Fictional workflow demo · no credits</option></select></label>
-      <label>Discovery source<select aria-label="Discovery source" disabled={active} value={source} onChange={e => setSource(e.target.value as DiscoverySource)}><option value="emerging">Emerging · recent & active</option><option value="trending">GitHub Trending</option><option value="popular">Popular search</option></select></label>
-      <label>Candidate pool<input type="number" min={1} max={30} disabled={active} value={limit} onChange={e => setLimit(Number(e.target.value))} required /></label>
-      {source === 'trending' ? <><label>Trending window<select aria-label="Trending window" disabled={active} value={period} onChange={e => setPeriod(e.target.value as typeof period)}><option value="daily">Today</option><option value="weekly">This week</option><option value="monthly">This month</option></select></label><label>Language (optional)<input disabled={active} value={language} maxLength={32} onChange={e => setLanguage(e.target.value)} placeholder="python" /></label></> : <label>GitHub search<input disabled={active} required maxLength={200} value={query} onChange={e => setQuery(e.target.value)} /></label>}
-      <label>Repos to research<input type="number" min={1} max={6} disabled={active} value={depth} onChange={e => setDepth(Number(e.target.value))} required /></label>
+      <label>GitHub search filter<input disabled={active} required maxLength={200} value={query} onChange={e => setQuery(e.target.value)} /><span className="muted">Recent and active repos; use a language or topic to narrow discovery.</span></label>
+      <label>Suitable repos to research<input type="number" min={1} max={6} disabled={active} value={depth} onChange={e => setDepth(Number(e.target.value))} required /></label>
       <label>Optional area of interest<input disabled={active} maxLength={300} value={interests} onChange={e => setInterests(e.target.value)} placeholder="Leave blank to explore broadly" /></label>
       <button disabled={active}>{active ? 'Research in progress…' : mode === 'live' ? 'Discover & research · uses HF credits' : 'Run fictional workflow demo'}</button>
-    </form><p className="muted">Up to {Math.min(limit, depth)} discovered repos are researched in depth, plus at most four suggested supporting tools. A bounded run may find no worthwhile product. Emerging uses recent/activity filters; growth requires observations over time.</p></article>
+    </form><p className="muted">Screen up to 12 candidates using pinned capabilities and interfaces, then deeply research up to {Math.min(limit, depth)} suitable repos. Up to three replacements, 90 GitHub requests, 13 HF calls and 15 minutes per study. Stars help discovery; they do not rank usefulness. No strong opportunity is a valid result.</p></article>
     {error && <p role="alert">{error}</p>}
     {study && <>
-      <article className="panel research-progress" aria-live="polite"><div className="section-heading"><h2>{running(study) ? 'Research is running' : 'Your research report'}</h2><span className="badge">{study.mode} · {study.status}</span></div><p>{study.stage}</p><p>{(study.repositories ?? []).filter(r => r.status === 'researched').length} repos researched · {(study.repositories ?? []).filter(r => r.status === 'failed').length} failed · {recommended.length} products worth prototyping</p>{study.mode === 'fixture' && <p><strong>Fictional demonstration. No repo research, inference, alternative search or trial occurred.</strong></p>}{running(study) && <button onClick={cancel}>Cancel research</button>}<button onClick={download}>Export current report</button></article>
+      <article className="panel research-progress" aria-live="polite"><div className="section-heading"><h2>{running(study) ? 'Research is running' : 'Your research report'}</h2><span className="badge">{study.mode} · {study.status}</span></div><p>{study.stage}</p><p>{study.counts?.researched ?? 0} repos researched · {study.counts?.suitable_researched ?? 0} suitable for idea evaluation · {study.counts?.research_failures ?? 0} research failures · {study.counts?.unsuitable ?? 0} unsuitable · {study.counts?.source_gaps ?? 0} source gaps · {study.counts?.rejected_ideas ?? 0} ideas rejected · {study.counts?.evaluation_failures ?? 0} evaluation failures · {recommended.length} products worth prototyping</p>{study.mode === 'fixture' && <p><strong>Fictional demonstration. No repo research, inference, alternative search or trial occurred.</strong></p>}{running(study) && <button onClick={cancel}>Cancel research</button>}<button onClick={download}>Export current report</button></article>
       {((study.products ?? []).length > 0 || (!running(study) && study.explanation)) && <article className="panel"><h2>What could you build?</h2><p>{study.explanation}</p>{recommended.map(product => <ProductReport product={product} key={product.id} />)}{!recommended.length && !running(study) && <p>No product passed the available scope and existing-solution checks. We keep the research and rejection reasons rather than inventing a winner.</p>}{other.length > 0 && <details><summary>Ideas rejected or needing more research ({other.length})</summary>{other.map(product => <ProductReport product={product} key={product.id} />)}</details>}</article>}
-      {(study.repositories ?? []).length > 0 && <article className="panel"><h2>What we learned about the repositories</h2><p>The descriptions below come from source research. GitHub’s short tagline is not used as the final summary.</p>{(study.repositories ?? []).map(item => <RepoEvidence key={item.repository.id} item={item} momentum={study.discovery?.momentum?.find(m => m.current.full_name === item.repository.full_name)} />)}</article>}
-      <details className="panel"><summary>Research coverage, failures and limitations</summary><ul>{study.failures?.map((failure, i) => <li key={i}>{failure}</li>)}</ul><ul>{study.limitations?.map(note => <li key={note}>{note}</li>)}</ul>{study.discovery && <ul>{study.discovery.limitations.map(note => <li key={note}>{note}</li>)}</ul>}</details>
+      {(study.repositories ?? []).length > 0 && <article className="panel"><h2>What we learned about the repositories</h2><p>The descriptions below come from source research. GitHub’s short tagline is not used as the final summary.</p>{detailedRepos.map(item => <RepoEvidence key={item.repository.id} item={item} momentum={study.discovery?.momentum?.find(m => m.current.full_name === item.repository.full_name)} />)}{otherRepos.length > 0 && <details><summary>Other candidates and selection decisions ({otherRepos.length})</summary>{otherRepos.map(item => <RepoEvidence key={item.repository.id} item={item} momentum={study.discovery?.momentum?.find(m => m.current.full_name === item.repository.full_name)} />)}</details>}</article>}
+      <details className="panel"><summary>Research coverage, failures and limitations</summary><p>{study.api_requests} GitHub requests · {study.inference_calls} HF calls · {study.counts?.run_failures ?? 0} recorded run failures. Cache hits use no GitHub request.</p><ul>{study.failures?.map((failure, i) => <li key={i}>{failure}</li>)}</ul><ul>{study.limitations?.map(note => <li key={note}>{note}</li>)}</ul>{study.discovery && <ul>{study.discovery.limitations.map(note => <li key={note}>{note}</li>)}</ul>}</details>
     </>}
   </>
 }

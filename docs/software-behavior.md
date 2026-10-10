@@ -2,8 +2,6 @@
 
 Every persona requires `software_behavior`. Production personas must have `status: review_informed` and patterns grounded in real people's software reviews or discussions. Reddit, Hacker News, GitHub issues, app-store reviews, review sites and general forums are supported source categories. This is required P0 work within population milestone P1, separate from optional demographic enrichment.
 
-The schema, fixture API and viewer are implemented. B has collected five real SourceTable-relevant upstream reports, extracted through HF and independently approved one tentative compatible source-inspection pattern, then generated and durably saved 500 fictional review-informed profiles locally and in Neon dev. See the [population report](tasks/developer-b-population-report.md) for source checks, frozen versions and limitations. Neon HTTPS operator write/readback/retry/rollback passed; native backend connectivity and hosted reviewer authentication remain open; the running fixture UI still exposes fixtures. A source URL alone does not establish retrieval or semantic support.
-
 ## Expected schema
 
 Pydantic in `backend/app/shared/contracts.py` defines exact types; `shared/openapi.json` and generated frontend types expose them. `Persona.software_behavior` is required, with no silent default.
@@ -46,3 +44,6 @@ B owns source adapters, extraction, persona assignment, provenance display and t
 5. Generate 500 distinct fictional personas with compatible, review-informed profiles; persist immutable lineage. Test malformed reviews, duplicate sources, broken citations, unsupported interpretations, fixture leakage, missing sources and context mismatch. Pilot the bounded behavior policies before scaling.
 
 Source implementation references: [official Hacker News API](https://github.com/HackerNews/API) documents item IDs, timestamps and deleted/dead flags. [Reddit data access overview](https://support.reddithelp.com/hc/en-us/articles/14945211791892-Developer-Platform-Accessing-Reddit-Data) and [Data API wiki](https://support.reddithelp.com/hc/en-us/articles/16160319875092-Reddit-Data-API-Wiki) describe access and current usage requirements. Other sources require their own verified access/export and reuse terms. This project uses HF inference; collecting reviews does not introduce a model-training pipeline.
+
+
+Current prototype gate: no product is selected. Consume only a subsequent validated immutable catalog with factual capabilities, source/implementation pins, initial states and deterministic checks. Existing historical records do not establish compatibility. Generic review, persona, persistence, analysis, isolated edit and matched retest infrastructure remains available. See [handoff](handoffs/developer-a-v1.md).

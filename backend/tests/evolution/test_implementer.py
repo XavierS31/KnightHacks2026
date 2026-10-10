@@ -1,4 +1,3 @@
-import hashlib
 import json
 import subprocess
 from uuid import uuid4
@@ -6,12 +5,6 @@ from uuid import uuid4
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.app.features.evolution.boundary import PRODUCT_BOUNDARY, frozen_v1_sources
-from backend.app.features.evolution.bounded_improvements import (
-    BOUNDED_IMPROVEMENTS,
-    FIRST_ERROR,
-    STALE_STATUS,
-)
 from backend.app.features.evolution.implementer import (
     IMPLEMENTER_PROMPT_VERSION,
     ImplementerOutput,
@@ -21,49 +14,29 @@ from backend.app.features.evolution.implementer import (
 from backend.app.features.evolution.lifecycle import EditConflict, PatchOutsideScope
 from backend.app.features.evolution.models import BoundedEdit, PatchRun
 from backend.app.features.evolution.router import frozen_v1_base, get_inference
-from backend.app.features.integration.product.handoff import MANIFEST, ROOT, ProductHandoff
 from backend.app.main import app
 from backend.app.shared.contracts import Improvement
 from backend.app.shared.inference import HuggingFaceInference
+from backend.tests.prototype_fixtures import (
+    BOUNDED_IMPROVEMENTS,
+    FIRST_ERROR,
+    SOURCES,
+    STALE_STATUS,
+)
+
+
+def frozen_v1_sources():
+    return dict(SOURCES)
+
 
 APP_JS = "product/ui/app.js"
-FIXED_IDS = ["load-sample", "execute", "result", "verdict", "errors", "table", "source-detail"]
-
-
-def test_boundary_reads_only_frozen_v1_ui_files():
-    handoff = ProductHandoff.model_validate_json(MANIFEST.read_text())
+def test_synthetic_edits_build_without_changing_base(tmp_path):
     sources = frozen_v1_sources()
-
-    assert sorted(sources) == sorted(PRODUCT_BOUNDARY)
-    for logical, tracked in PRODUCT_BOUNDARY.items():
-        assert tracked.startswith("frontend/src/features/integration/product/")
-        assert hashlib.sha256(sources[logical].encode()).hexdigest() == (
-            handoff.implementation_hashes[tracked])
-    assert not any("checks.py" in path or "adapter" in path or "manifest" in path
-                   for path in PRODUCT_BOUNDARY.values())
-
-
-@pytest.mark.parametrize("improvement", BOUNDED_IMPROVEMENTS, ids=lambda item: item.key)
-def test_each_bounded_improvement_applies_alone_and_keeps_checked_ids(improvement):
-    sources = frozen_v1_sources()
-    files = apply_edits(improvement.edits, improvement.allowed_paths, sources)
-
-    assert [file.path for file in files] == [APP_JS]
-    assert files[0].content != sources[APP_JS]
-    for element in FIXED_IDS:
-        assert files[0].content.count(f"$('{element}')") >= sources[APP_JS].count(f"$('{element}')")
-    assert "Schema checks passed" in files[0].content
-    assert "Schema errors found" in files[0].content
-
-
-def test_combined_improvements_build(tmp_path):
-    files = apply_edits([edit for item in BOUNDED_IMPROVEMENTS for edit in item.edits],
-                        ["product/ui"], frozen_v1_sources())
-    script = tmp_path / "app.js"
-    script.write_text(files[0].content, encoding="utf-8", newline="\n")
-
-    assert subprocess.run(["node", "--check", str(script)], capture_output=True).returncode == 0
-    assert frozen_v1_sources()[APP_JS] == (ROOT / PRODUCT_BOUNDARY[APP_JS]).read_text(encoding="utf-8")
+    files = apply_edits([edit for item in BOUNDED_IMPROVEMENTS for edit in item.edits], ['product/ui'], sources)
+    script = tmp_path / 'app.js'
+    script.write_text(files[0].content)
+    assert subprocess.run(['node', '--check', str(script)], capture_output=True).returncode == 0
+    assert sources == SOURCES
 
 
 @pytest.mark.parametrize("edit,error", [
@@ -73,7 +46,7 @@ def test_combined_improvements_build(tmp_path):
     (BoundedEdit(path="product/ui/style.css", find=":root", replace=":root "), PatchOutsideScope),
     (BoundedEdit(path="product/ui/checks.py", find="return", replace="return True"),
      PatchOutsideScope),
-    (BoundedEdit(path="backend/app/features/integration/product/checks.py", find="return",
+    (BoundedEdit(path="product/checks.py", find="return",
                  replace="return True"), PatchOutsideScope),
 ])
 def test_edits_must_be_unique_effective_and_in_scope(edit, error):

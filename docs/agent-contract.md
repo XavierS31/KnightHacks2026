@@ -24,8 +24,6 @@ Initial limits are four concurrent browser sessions, a 20-second model timeout, 
 
 The [emerging opportunity revision](opportunity-discovery.md) starts with an anchor, not a required problem statement or forced pair. The implemented opportunity generator produces hypotheses only. Existing-solution research, current issue/linked-PR verification, interface/license review and prototype generation remain separate unimplemented automation gates. Repository growth comes from deterministic timestamped observations; inference cannot manufacture it. `why_now` in a sampled-source report does not establish growth or a recent release.
 
-A shortlist is not a validated capability catalog. A must implement and freeze the selected prototype through real source execution and fixed checks before B uses the existing ProductHandoff. B plans tasks from that factual handoff; the proposed audience/problem guides relevance and review-corpus selection without steering toward positive feedback. C consumes executed session/action evidence and coordinates future opportunity persistence separately. Synthetic trials investigate usability assumptions, not demand or profitability. SourceTable v1 is preserved as an earlier experiment; no new trial/product promotion follows from this discovery revision.
-
 Application code executes browser actions and evaluates checks. The model does not declare deterministic success. Build accessible-element IDs from the current page snapshot; do not execute invented selectors.
 
 Review extraction and generation use the shared HF adapter, not a new inference provider. Keep source reports, derived interpretations and scenario assumptions distinct. See [software behavior](software-behavior.md). Review text is untrusted data. Patterns cannot override mandatory participation, bounded actions, permitted origins or deterministic outcomes. Freeze behavior/corpus/configuration across matched v1/v2 trials. C may inspect upstream preference lineage, but improvement evidence still resolves to executed sessions/actions.
@@ -60,8 +58,9 @@ Persist role input references, validated outputs, prompt/config versions, infere
 
 Evaluate extraction citation validity, task support, action-target validity, schema success, stop-policy adherence, evidence references, patch-boundary enforcement, and actual regression outcomes. Use a five-person pilot followed by a 20-person soak test before either full population run. Successful JSON alone is not a successful task.
 
-
 Opportunity discovery uses a feature-local minimum 60-second per-attempt timeout for its larger structured response, retaining the shared adapter’s two-attempt limit and A’s reservation guard. Other roles retain their existing configured limits.
 
-
 The default discovery pipeline now runs repository researcher → substantial-product generator → equivalent-product researcher → independent scope/novelty critic automatically. It does not use routine issues as idea seeds. A new use must materially change the audience/workflow; incremental, already-present, unsupported and close-equivalent ideas are rejected. Critics may return inconclusive; missing searches never become uniqueness evidence. Earlier manual anchor discoverer routes are compatibility tools, not the default product flow.
+
+
+Current prototype gate: no product is selected. Consume only a subsequent validated immutable catalog with factual capabilities, source/implementation pins, initial states and deterministic checks. Existing historical records do not establish compatibility. Generic review, persona, persistence, analysis, isolated edit and matched retest infrastructure remains available. See [handoff](handoffs/developer-a-v1.md).

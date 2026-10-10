@@ -48,7 +48,7 @@ from backend.app.features.evolution.role_analysis import (
     RoleOutputRejected,
     analyze_with_roles,
 )
-from backend.app.features.integration.product.handoff import MANIFEST, ProductHandoff
+from backend.app.features.integration.handoff import ExecutionError, load_handoff
 from backend.app.shared.contracts import EvolutionSummary
 from backend.app.shared.database import DatabaseUnavailable, NeonDatabase
 from backend.app.shared.fixtures import EXPERIMENT, IMPROVEMENT, SESSIONS
@@ -102,7 +102,10 @@ def get_qa_image(settings: Annotated[Settings, Depends(get_settings)]) -> str:
 
 def frozen_v1_base() -> BaseVersion:
     """Read A's frozen v1 manifest. The lifecycle keeps a copy and never writes it."""
-    handoff = ProductHandoff.model_validate_json(MANIFEST.read_text())
+    try:
+        handoff = load_handoff()
+    except ExecutionError:
+        raise failure(409, "VALIDATED_PROTOTYPE_REQUIRED", "Select and validate a prototype before patch runs.") from None
     return BaseVersion(
         version_id=handoff.version.id, label=handoff.version.label,
         fixed_check_ids=[check.id for check in handoff.checks],

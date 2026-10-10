@@ -11,17 +11,7 @@ This is a runnable, fixture-first shared scaffold with developer starter impleme
 Sample repository combinations, personas and improvement suggestions are explicitly synthetic.
 Discovery now automatically reads source docs and interface metadata, writes useful repo summaries, proposes substantial new products by repurposing emerging technologies, and critiques them against existing open-source alternatives. The user starts one run; there is no manual inspection/anchor/proposal sequence. Routine issue fixes and small feature ideas are excluded. Emerging candidate search uses recent creation/activity filters; local star/fork observations measure net growth only when comparable history exists. Product examples are explicitly illustrative; the report preserves recommendations, rejected ideas, search coverage and export controls. See [the current discovery design](docs/opportunity-discovery.md).
 
-A previously selected pdfplumber + Frictionless and validated a narrow PDF-table/type-check adapter on fixed samples. That earlier experiment is preserved; it is not automatically selected by the new workflow.
-SourceTable v1 runs as a separate local product; its [frozen handoff](backend/app/features/integration/product/v1/manifest.json) records the implementation and environment. No 500-persona experiment has run and no v2 has been approved.
-The required experiment is **500 personas on each version**, not 500 generated records.
-Each persona requires a [software-behavior profile](docs/software-behavior.md) grounded in real software
-reviews for production use. The schema supports Reddit, Hacker News and other review sources; current
-dashboard profiles are labeled fixtures. B's bounded intake/extraction/population foundations now
-exist, with a real HF configuration smoke and two public HN review reads demonstrated. The behavior
-draft was rejected on semantic support; a fresh request failed. The persona view runs local mock
-browser tasks and shows their exact PNG/actions, without incrementing experiment counts. See the
-[Developer B runtime report](docs/tasks/developer-b-runtime-report.md) for evidence and remaining gates.
-Live Hugging Face/Neon credentials are not bundled. Fixture operation makes no paid inference calls.
+The required experiment is 500 personas attempting each validated version. Live personas need review-grounded software behavior; configured records and fixture views are not executed trials. Credentials remain server-side, and fixture mode makes no paid inference calls.
 
 ## Quick start (Windows PowerShell)
 
@@ -69,9 +59,9 @@ npm --prefix frontend run generate:api
 `shared/openapi.json` and `frontend/src/shared/api-types.ts` are generated artifacts, not separately
 maintained contract definitions. Python's `backend/app/shared/contracts.py` is authoritative.
 
-## Real product v1
+## Selected prototype
 
-[SourceTable startup and checks](backend/app/features/integration/product/README.md) describe the pinned Docker image, separate port 8001 product, source-cell mapping and A → B handoff. Its validation covers fixed machine-generated ruled PDFs, not arbitrary PDFs or OCR. Local image/source fingerprints must match the frozen manifest; fixture summaries elsewhere remain explicitly synthetic. Durable Neon evidence storage is still C’s dependency.
+No prototype is selected. Read [the A → B/C gate](docs/handoffs/developer-a-v1.md) before binding a persona population or running evolution checks. The required experiment remains 500 real attempts per version; a research report and hypothetical example establish no execution.
 
 ## Developer kickoff
 

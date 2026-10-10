@@ -16,8 +16,12 @@ from psycopg.rows import dict_row
 
 from backend.app.features.evolution.analysis import analyze_fixture_sessions
 from backend.app.features.evolution.evidence import EvidenceMismatch
-from backend.app.features.integration.product.freeze import implementation_hashes
-from backend.app.features.integration.product.handoff import MANIFEST, ProductHandoff
+from backend.app.features.integration.handoff import (
+    ExecutionError,
+    ProductHandoff,
+    implementation_hashes,
+    load_handoff,
+)
 from backend.app.shared.contracts import Contract, Session
 from backend.app.shared.database import DatabaseUnavailable, NeonDatabase
 from backend.app.shared.fixtures import EXPERIMENT, SESSIONS
@@ -153,6 +157,8 @@ def versions_check(snapshot: dict[str, Any], handoff: ProductHandoff) -> list[Ch
     rows = [{"id": str(row["id"]), "label": row["label"], "status": row["status"],
              "commit_sha": row["commit_sha"], "fixture": row["fixture"]}
             for row in snapshot["versions"]]
+    if handoff is None:
+        return [Check(name=name, status="not_established", detail="No selected validated prototype; stored historical records are preserved.") for name in ("v1_registered", "v2_registered")]
     v1 = [row for row in rows if row["id"] == str(handoff.version.id)]
     if not v1:
         v1_check = Check(name="v1_registered", status="not_established", facts={"versions": rows},
@@ -216,10 +222,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, help="Also write the JSON report to this path.")
     args = parser.parse_args(argv)
     settings = get_settings()
-    handoff = ProductHandoff.model_validate_json(MANIFEST.read_text())
+    try:
+        handoff = load_handoff()
+    except ExecutionError:
+        handoff = None
     database = NeonDatabase(settings)
     try:
-        checks = [v1_source_check(handoff, implementation_hashes()),
+        checks = [v1_source_check(handoff, implementation_hashes(handoff)) if handoff else Check(name="v1_source_preserved", status="not_established", detail="No selected validated prototype."),
                   fixture_analysis_check(EXPERIMENT.id, SESSIONS),
                   *live_checks(settings, database, handoff)]
     finally:

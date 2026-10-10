@@ -11,7 +11,7 @@ from psycopg.errors import RestrictViolation
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
-from backend.app.features.integration.product.handoff import ProductHandoff, verified_handoff
+from backend.app.features.integration.handoff import ProductHandoff, verified_handoff
 from backend.app.shared.database import DatabaseUnavailable, NeonDatabase, bound_transaction
 from backend.app.shared.settings import Settings
 
@@ -161,7 +161,7 @@ def main():
     settings = Settings()
     if not arguments.live or settings.app_mode != 'live' or not settings.database_url.get_secret_value():
         raise SystemExit('Requires --live, APP_MODE=live and C’s configured/migrated DATABASE_URL. No database request made.')
-    from backend.app.features.integration.product.executor import ExecutionError
+    from backend.app.features.integration.handoff import ExecutionError
     try:
         handoff = verified_handoff(settings.artifact_root)
     except ExecutionError:

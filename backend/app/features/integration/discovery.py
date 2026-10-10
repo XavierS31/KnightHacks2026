@@ -1,5 +1,6 @@
 """Bounded read-only GitHub discovery. The search cache stays in memory; live runs may be stored."""
 import asyncio
+import hashlib
 import re
 from collections import OrderedDict
 from datetime import UTC, date, datetime, timedelta
@@ -12,6 +13,7 @@ import httpx
 from fastapi import HTTPException
 from pydantic import Field, field_validator, model_validator
 
+from backend.app.features.integration.github import github_json
 from backend.app.features.integration.momentum import MomentumHistory, MomentumSignal, Observation
 from backend.app.shared.contracts import Contract, Evidence, Repository
 from backend.app.shared.fixtures import REPOSITORIES
@@ -85,7 +87,7 @@ class GitHubDiscovery:
             query += f" created:>={request.created_after.isoformat()}"
         if request.pushed_after:
             query += f" pushed:>={request.pushed_after.isoformat()}"
-        key = (query, request.limit)
+        key = (hashlib.sha256(token.encode()).hexdigest(), query, request.limit)
         now = monotonic()
         cached = self.cache.get(key)
         if cached and now - cached[0] < 300:
@@ -94,29 +96,19 @@ class GitHubDiscovery:
         headers = {"Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28"}
         if token:
             headers["Authorization"] = f"Bearer {token}"
-        params = {"q": f"{query} archived:false fork:false", "sort": "stars",
+        params = {"q": f"{query} archived:false fork:false is:public", "sort": "stars",
                   "order": "desc", "per_page": request.limit, "page": 1}
-        try:
-            async with httpx.AsyncClient(timeout=15, transport=transport, follow_redirects=False) as client:
-                response = await client.get(GITHUB_SEARCH, params=params, headers=headers)
-        except httpx.RequestError as exc:
-            raise discovery_error(502, "GITHUB_UNAVAILABLE", "GitHub discovery is unavailable.", True) from exc
-        if response.status_code in (403, 429):
-            raise discovery_error(429, "GITHUB_RATE_LIMIT", "GitHub refused the request; check quota or permissions.", True)
-        if response.status_code == 401:
-            raise discovery_error(502, "GITHUB_AUTH_FAILED", "GitHub authentication failed; check server configuration.")
-        if response.status_code != 200:
-            raise discovery_error(502, "GITHUB_UPSTREAM_ERROR", "GitHub returned an unsuccessful response.", True)
+        async with httpx.AsyncClient(timeout=15, transport=transport, follow_redirects=False, headers=headers) as client:
+            payload, reference = await github_json(client, "/search/repositories", params)
         collected_at = datetime.now(UTC)
         try:
-            payload = response.json()
             if payload.get("incomplete_results") is not False:
                 raise ValueError("Incomplete search")
             items = payload["items"]
             total = payload["total_count"]
             if not isinstance(items, list) or type(total) is not int or total < 0:
                 raise ValueError("Invalid search")
-            repositories = [self._repository(item, str(response.request.url), collected_at)
+            repositories = [self._repository(item, reference, collected_at)
                             for item in items[:request.limit]]
             fork_counts = [item.get("forks_count") for item in items[:request.limit]]
             if any(value is not None and (type(value) is not int or value < 0) for value in fork_counts):
