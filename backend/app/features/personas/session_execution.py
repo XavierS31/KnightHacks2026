@@ -141,7 +141,7 @@ class EvidenceSink(Protocol):
 
     async def save_session(self, session: Session): ...
     async def save_action(self, action: Action): ...
-    async def save_frame(self, event: StreamEvent): ...
+    async def save_frame(self, event: StreamEvent) -> str | None: ...
 
 
 class FixtureEvidenceSink:
@@ -266,12 +266,21 @@ async def execute_trial(browser, plan: TrialPlan, *, policy: ActionPolicy, sink:
             async def record(kind, target, code):
                 action = Action(id=uuid4(), session_id=session.id, sequence=len(session.actions) + 1,
                                 timestamp=datetime.now(UTC), kind=kind, target=target, result=code)
+                capture_failed = False
+                try:
+                    png = await page.screenshot()
+                    action.artifact_ref = await sink.save_frame(frame_event(
+                        session, png, sequence=2 * action.sequence,
+                        frame_sequence=action.sequence, timestamp=datetime.now(UTC)))
+                except Exception:
+                    # The observed action still happened. Keep it in the durable record
+                    # and surface the missing frame as an infrastructure failure.
+                    capture_failed = True
                 await sink.save_action(action)
                 session.actions.append(action)
                 await sink.save_session(session)
-                png = await page.screenshot()
-                await sink.save_frame(frame_event(session, png, sequence=2 * action.sequence,
-                    frame_sequence=action.sequence, timestamp=datetime.now(UTC)))
+                if capture_failed:
+                    raise TrialGateError("CAPTURED_FRAME_UNAVAILABLE")
 
             await page.goto(url, wait_until="domcontentloaded")
             await record("navigate", url, "product_page_loaded")
