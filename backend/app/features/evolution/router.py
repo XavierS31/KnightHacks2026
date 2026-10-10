@@ -16,12 +16,22 @@ from backend.app.features.evolution.models import (
     AnalysisReport,
     AnalysisRequest,
     BaseVersion,
+    ComparisonReport,
+    ComparisonSubmission,
     PatchRun,
     PatchRunCreate,
     PatchSubmission,
     RegressionSubmission,
+    RetestRequest,
+    RetestRequestCreate,
 )
 from backend.app.features.evolution.repository import ExperimentNotFound, SessionEvidenceRepository
+from backend.app.features.evolution.retest import (
+    RetestError,
+    RetestRegistry,
+    build_retest_request,
+    compare_versions,
+)
 from backend.app.features.evolution.role_analysis import (
     AnalysisInputTooLarge,
     RoleOutputRejected,
@@ -172,3 +182,48 @@ def reject_patch(patch_run_id: UUID, request: ActorRequest):
 @router.post("/patch-runs/{patch_run_id}/rollback", response_model=PatchRun)
 def rollback_patch(patch_run_id: UUID, request: ActorRequest):
     return lifecycle_call(lifecycle.rollback, patch_run_id, request.actor, request.note)
+
+
+retests = RetestRegistry()
+RETEST_STATUS = {
+    "RETEST_REQUEST_NOT_FOUND": 404,
+    "RETEST_NOT_ALLOWED": 409,
+    "RETEST_MISMATCH": 422,
+}
+
+
+def retest_call(settings: Settings, step, submitted: tuple = ()):
+    """Submitted records are explicit fixtures; live retests need durable identity records."""
+    if settings.app_mode != "fixture":
+        raise failure(503, "DURABLE_TRIAL_RECORDS_REQUIRED",
+                      "Live retests read persisted trial identities, which are not stored yet.")
+    if any(run.experiment.status != "fixture" for run in submitted):
+        raise failure(422, "SUBMITTED_SESSIONS_FORBIDDEN", "Submitted experiments must be fixtures.")
+    try:
+        return step()
+    except RetestError as exc:
+        raise failure(RETEST_STATUS[exc.code], exc.code, str(exc)) from None
+    except LifecycleError as exc:
+        raise failure(LIFECYCLE_STATUS[exc.code], exc.code, str(exc)) from None
+    except EvidenceMismatch as exc:
+        raise failure(422, "EVIDENCE_MISMATCH", str(exc)) from None
+
+
+@router.post("/patch-runs/{patch_run_id}/retest-requests", response_model=RetestRequest,
+             status_code=201)
+def create_retest_request(patch_run_id: UUID, request: RetestRequestCreate,
+                          settings: Annotated[Settings, Depends(get_settings)]):
+    return retest_call(settings, lambda: retests.save(
+        build_retest_request(lifecycle.get(patch_run_id), request.v1)), submitted=(request.v1,))
+
+
+@router.get("/retest-requests/{retest_request_id}", response_model=RetestRequest)
+def get_retest_request(retest_request_id: UUID, settings: Annotated[Settings, Depends(get_settings)]):
+    return retest_call(settings, lambda: retests.get(retest_request_id))
+
+
+@router.post("/retest-requests/{retest_request_id}/comparison", response_model=ComparisonReport)
+def compare_retest(retest_request_id: UUID, request: ComparisonSubmission,
+                   settings: Annotated[Settings, Depends(get_settings)]):
+    return retest_call(settings, lambda: compare_versions(
+        retests.get(retest_request_id), request.v1, request.v2), submitted=(request.v1, request.v2))
