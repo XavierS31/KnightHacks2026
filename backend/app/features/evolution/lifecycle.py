@@ -1,8 +1,10 @@
 """Improvement lifecycle: proposed -> reviewed -> patched -> regression -> human approval.
 
 Every transition checks the current state and the actor's role. The frozen v1 base and its
-fixed checks are copied into the run once and never change. Approval registers a separate
-v2 candidate; rollback makes v1 active again. Records live in memory only.
+fixed checks are copied into the run once and never change. A release run composes the
+bounded edits of two or three regression-passed runs and passes the same checks again.
+Approval registers a separate v2 candidate; rollback makes v1 active again. Records live
+in memory only.
 """
 
 import hashlib
@@ -15,6 +17,7 @@ from uuid import NAMESPACE_URL, UUID, uuid4, uuid5
 from backend.app.features.evolution.models import (
     Actor,
     BaseVersion,
+    BoundedEdit,
     CandidateVersion,
     CheckResult,
     IsolatedPatch,
@@ -22,6 +25,7 @@ from backend.app.features.evolution.models import (
     LifecycleState,
     PatchFile,
     PatchRun,
+    RoleRun,
 )
 from backend.app.shared.contracts import Improvement
 
@@ -50,6 +54,10 @@ class RegressionMismatch(LifecycleError):
     code = "REGRESSION_MISMATCH"
 
 
+class EditConflict(LifecycleError):
+    code = "EDIT_CONFLICT"
+
+
 def validate_patch_paths(paths: list[str]) -> None:
     """Limit product patches to relative product/ descendants."""
     if not paths:
@@ -73,7 +81,7 @@ def _patch_digest(files: list[PatchFile]) -> str:
     return hashlib.sha256(canonical.encode()).hexdigest()
 
 
-def _within_scope(path: str, allowed_paths: list[str]) -> bool:
+def within_scope(path: str, allowed_paths: list[str]) -> bool:
     if "\\" in path or str(PurePosixPath(path)) != path:
         return False
     try:
@@ -96,9 +104,13 @@ def _require_state(run: PatchRun, *states: LifecycleState) -> None:
 
 
 class PatchLifecycle:
-    """In-memory patch runs. A durable repository replaces this after the Neon gate."""
+    """In-memory patch runs. A durable repository replaces this after the Neon gate.
 
-    def __init__(self) -> None:
+    `patchable_paths` is the exact file set inside A's approved product boundary.
+    """
+
+    def __init__(self, patchable_paths: frozenset[str]) -> None:
+        self._patchable = patchable_paths
         self._runs: dict[UUID, PatchRun] = {}
         self._lock = Lock()
 
@@ -139,8 +151,8 @@ class PatchLifecycle:
             raise PatchOutsideScope(str(exc)) from None
         event = LifecycleEvent(state="proposed", actor=actor, at=datetime.now(UTC),
                                note=improvement.title)
-        run = PatchRun(id=uuid4(), improvement_id=improvement.id,
-                       allowed_paths=list(improvement.allowed_paths),
+        run = PatchRun(id=uuid4(), improvement_id=improvement.id, title=improvement.title,
+                       issue=improvement.issue, allowed_paths=list(improvement.allowed_paths),
                        acceptance_check=improvement.acceptance_check,
                        base=base.model_copy(deep=True), state="proposed", events=[event])
         with self._lock:
@@ -155,32 +167,109 @@ class PatchLifecycle:
             _require_state(run, "proposed")
             return self._advance(run, "reviewed", actor, note or "Scope accepted.")
 
-    def submit_patch(self, run_id: UUID, actor: Actor, files: list[PatchFile]) -> PatchRun:
-        _require_role(actor, "implementer")
+    def propose_release(self, run_ids: list[UUID], actor: Actor) -> PatchRun:
+        """A human composes regression-passed runs into one run that must pass QA again."""
+        _require_role(actor, "human_reviewer")
+        with self._lock:
+            if not 2 <= len(run_ids) <= 3 or len(set(run_ids)) != len(run_ids):
+                raise TransitionNotAllowed("A release composes two or three distinct runs.")
+            components = [self._get(run_id) for run_id in run_ids]
+            for component in components:
+                _require_state(component, "regression_passed")
+                if component.component_run_ids or not component.patch.edits:
+                    raise TransitionNotAllowed(
+                        "A release composes bounded-edit runs, not files or other releases.")
+            if any(component.base != components[0].base for component in components):
+                raise TransitionNotAllowed("Release components must share one frozen base.")
+            improvement_ids = [component.improvement_id for component in components]
+            if len(set(improvement_ids)) != len(improvement_ids):
+                raise TransitionNotAllowed("Release components must address distinct improvements.")
+            now = datetime.now(UTC)
+            run = PatchRun(
+                id=uuid4(),
+                improvement_id=uuid5(NAMESPACE_URL, "repofusion:release:" + ",".join(
+                    sorted(str(identity) for identity in improvement_ids))),
+                title="v2 release: " + " + ".join(component.title for component in components),
+                issue=" ".join(f"({index}) {component.issue}"
+                               for index, component in enumerate(components, start=1)),
+                allowed_paths=sorted({path for component in components
+                                      for path in component.allowed_paths}),
+                acceptance_check=" ".join(
+                    f"({index}) {component.acceptance_check}"
+                    for index, component in enumerate(components, start=1)),
+                base=components[0].base.model_copy(deep=True), state="reviewed",
+                component_run_ids=list(run_ids),
+                events=[LifecycleEvent(state="proposed", actor=actor, at=now,
+                                       note=f"Release of {len(components)} regression-passed runs."),
+                        LifecycleEvent(state="reviewed", actor=actor, at=now,
+                                       note="Composed scope accepted.")])
+            self._runs[run.id] = run
+            return run.model_copy(deep=True)
+
+    def _release_edits(self, run: PatchRun) -> list[BoundedEdit]:
+        return [edit for run_id in run.component_run_ids for edit in self._get(run_id).patch.edits]
+
+    def release_edits(self, run_id: UUID) -> list[BoundedEdit]:
+        """The only edits a release may apply: each component's edits, in order."""
         with self._lock:
             run = self._get(run_id)
-            _require_state(run, "reviewed")
-            if any(event.actor.id == actor.id for event in run.events):
-                raise ActorNotAllowed("The implementer cannot also propose or review this run.")
+            if not run.component_run_ids:
+                raise TransitionNotAllowed("This run is not a release.")
+            return [edit.model_copy() for edit in self._release_edits(run)]
+
+    def _check_patch_actor(self, run: PatchRun, actor: Actor) -> None:
+        _require_role(actor, "implementer")
+        _require_state(run, "reviewed")
+        if any(event.actor.id == actor.id for event in run.events):
+            raise ActorNotAllowed("The implementer cannot also propose or review this run.")
+
+    def ready_for_patch(self, run_id: UUID, actor: Actor) -> PatchRun:
+        """Check role, state and separation before an implementer spends inference."""
+        with self._lock:
+            run = self._get(run_id)
+            self._check_patch_actor(run, actor)
+            return run.model_copy(deep=True)
+
+    def submit_patch(self, run_id: UUID, actor: Actor, files: list[PatchFile],
+                     edits: list[BoundedEdit] | None = None,
+                     implementer_run: RoleRun | None = None) -> PatchRun:
+        edits = list(edits or [])
+        with self._lock:
+            run = self._get(run_id)
+            self._check_patch_actor(run, actor)
             paths = [item.path for item in files]
             if len(set(paths)) != len(paths):
                 raise PatchOutsideScope("A patch cannot list the same path twice.")
-            outside = [path for path in paths if not _within_scope(path, run.allowed_paths)]
+            outside = [path for path in paths if path not in self._patchable
+                       or not within_scope(path, run.allowed_paths)]
             if outside:
                 raise PatchOutsideScope(f"Patch paths are outside the approved scope: {outside}.")
-            patch = IsolatedPatch(files=list(files), sha256=_patch_digest(files))
+            if run.component_run_ids and edits != self._release_edits(run):
+                raise EditConflict("A release must apply exactly its components' edits in order.")
+            patch = IsolatedPatch(files=list(files), sha256=_patch_digest(files), edits=edits)
             return self._advance(run, "patched", actor, f"Isolated patch {patch.sha256[:12]}.",
-                                 implementer_id=actor.id, patch=patch)
+                                 implementer_id=actor.id, implementer_run=implementer_run,
+                                 patch=patch)
+
+    def _check_regression_actor(self, run: PatchRun, actor: Actor) -> None:
+        _require_role(actor, "qa_reviewer")
+        _require_state(run, "patched")
+        if actor.id == run.implementer_id:
+            raise ActorNotAllowed("The implementer cannot record its own regression.")
+
+    def ready_for_regression(self, run_id: UUID, actor: Actor) -> PatchRun:
+        """Check role, state and separation before QA spends time running checks."""
+        with self._lock:
+            run = self._get(run_id)
+            self._check_regression_actor(run, actor)
+            return run.model_copy(deep=True)
 
     def record_regression(self, run_id: UUID, actor: Actor, patch_sha256: str,
                           results: list[CheckResult]) -> PatchRun:
         """Results must cover exactly v1's fixed checks for the submitted patch."""
-        _require_role(actor, "qa_reviewer")
         with self._lock:
             run = self._get(run_id)
-            _require_state(run, "patched")
-            if actor.id == run.implementer_id:
-                raise ActorNotAllowed("The implementer cannot record its own regression.")
+            self._check_regression_actor(run, actor)
             if patch_sha256 != run.patch.sha256:
                 raise RegressionMismatch("Regression results refer to a different patch.")
             check_ids = [result.check_id for result in results]
@@ -198,9 +287,12 @@ class PatchLifecycle:
         _require_role(actor, "human_reviewer")
         with self._lock:
             run = self._get(run_id)
-            if actor.id == run.implementer_id:
+            components = [self._get(run_id) for run_id in run.component_run_ids]
+            if actor.id in {run.implementer_id, *(item.implementer_id for item in components)}:
                 raise ActorNotAllowed("The implementer cannot promote its own patch.")
             _require_state(run, "regression_passed")
+            if any(item.state != "regression_passed" for item in components):
+                raise TransitionNotAllowed("Every release component must still be regression-passed.")
             if any(other.base.version_id == run.base.version_id and other.state == "approved"
                    for other in self._runs.values()):
                 raise TransitionNotAllowed("Another v2 is active for this base; roll it back first.")

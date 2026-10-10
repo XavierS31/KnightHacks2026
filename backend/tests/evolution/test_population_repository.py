@@ -200,7 +200,7 @@ async def test_postgresql_migration_and_population_round_trip(migrated_settings)
     """Optional disposable TLS DB integration; skips without TEST_DATABASE_URL."""
     corpus, approval, population, identity = await bundle()
     database = NeonDatabase(migrated_settings)
-    migration = Path(__file__).parents[2] / "migrations" / "002_review_populations.sql"
+    migration = Path(__file__).parents[2] / "migrations" / "003_review_populations.sql"
     try:
         with database.connection() as connection:
             connection.execute(migration.read_text())

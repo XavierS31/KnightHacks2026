@@ -1,5 +1,4 @@
--- C-owned B lineage storage. Apply after 001 to an authorized database.
-BEGIN;
+-- C-owned B lineage storage. The ordered runner owns the transaction.
 
 CREATE TABLE review_corpora (
     version text PRIMARY KEY CHECK (version ~ '^[0-9a-f]{64}$'),
@@ -79,4 +78,3 @@ BEGIN
     END LOOP;
 END;
 $$;
-COMMIT;

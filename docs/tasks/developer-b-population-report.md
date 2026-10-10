@@ -69,12 +69,20 @@ or 1,000-session experiment was authorized or performed.
 
 B added bounded GitHub issue intake, exact frozen A-manifest consumption, contextual
 extraction, checkpointed five-record generation, exclusive local spend accounting,
-whole-run forecast and a generation/persistence CLI. C implemented migration 002
+whole-run forecast and a generation/persistence CLI. C implemented migration 003
 and an atomic immutable corpus/approval/population repository with readback checks,
 bounded SQL batches and separately versioned evidence per corpus. B reviewed the
 consumer schema; repeated source IDs can appear in new corpora without rewriting old evidence.
 
-476 backend tests passed with real local Chromium checks enabled; six unavailable
+Latest merged C work was integrated before PR preparation. C's migration 002 is
+preserved; the population migration is 003, with no independent transaction wrappers.
+The runner lists all three checksums without contacting a database. A documentation
+merge retained both owners' progress. Windows checkout CRLF was reconciled locally
+by restoring three UI files from Git blobs proven to match A's frozen fingerprints,
+without changing their tracked content. Coordinated C QA writes now use UTF-8/LF,
+and comparison tests explicitly read UTF-8. No fixed check or fingerprint was weakened.
+
+523 backend tests passed with real local Chromium checks enabled; 18 unavailable
 Docker/database checks skipped. Ruff, OpenAPI drift, generated TypeScript drift,
 frontend typecheck and build passed. TypeScript was regenerated to normalize checkout
 line endings; no schema/API change was introduced. Existing test-client deprecation
@@ -83,7 +91,7 @@ and large frontend chunk warnings remain. No UI behavior changed in this slice.
 ## Remaining work, sequentially
 
 1. **Neon gate (#3 partial):** set intended server-side `DATABASE_URL` in ignored
-   `.env`; apply C's reviewed ordered migrations 001 then 002 with recorded checksums;
+   `.env`; apply C's reviewed ordered migrations 001, 002 and 003 with recorded checksums;
    save the frozen bundle and prove readback/rollback. Repository tests currently use
    fake connections; no live Neon success is claimed. Hosted authenticated reviewer
    identity, atomic multiworker spend, leases and durable action/frame/feedback sinks

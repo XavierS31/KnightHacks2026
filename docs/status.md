@@ -5,8 +5,8 @@ source-inspection pattern independently approved. 500 real HF-generated fictiona
 persona/scenario/task records are frozen locally; 100 successful batch requests,
 zero completed trials. C migration/repository implemented and consumer-reviewed,
 but DATABASE_URL missing and no Neon write/readback. Normal6 catalog consumed;
-runtime verification and error7/recovery9 alternatives remain open. 476 backend tests
-pass with Chromium; six unavailable DB/Docker checks skipped. Lint, OpenAPI/types,
+runtime verification and error7/recovery9 alternatives remain open. 523 backend tests
+pass with Chromium; 18 unavailable DB/Docker checks skipped. Lint, OpenAPI/types,
 frontend typecheck/build pass. Aggregate conservative spend $0.05753544/$4.
 See [B population report](tasks/developer-b-population-report.md). P1/P2/P4 partial,
 P3 unexecuted. Earlier updates below describe their historical evidence.
@@ -25,12 +25,16 @@ accounting and dependency-ordered remaining work: [B runtime report](tasks/devel
 | Three developer starter slices | A discovery, B exact-session viewer/inference boundary, C grounded analysis/database helper implemented and checked | Production milestones in each starter task |
 | Developer roles and project skills | Repository-local instructions prepared | Valid TOML/YAML, scoped paths and kickoff review |
 | Live repository integration | SourceTable v1: pinned pdfplumber/Frictionless adapter passed fixed normal/error/compatibility/timeout checks and real browser flow | Broader PDF coverage, portable environment verification and C durable storage |
+| Hosted HF inference | A authenticated Qwen/Qwen3-32B through DeepInfra; 26 cited repository interpretations and five proposal hypotheses retained locally | Complete role-output support review; B/C flows and experiment accounting remain separate |
+| Review-informed persona behavior | Required schema, citation/provenance validation, fixture examples and viewer implemented; real ingestion/extraction not established | B collects relevant real software reviews, verifies HF extraction support and persists immutable source-linked population profiles with C |
+| Neon persistence | Migration runner and write/read/rollback gate verified on local TLS PostgreSQL; Neon connection not established | Run the gate in `backend/migrations/README.md` against Neon and record its output |
+| Persona browser execution | Production path not established | Real Playwright task and retained action/output evidence |
 | Hosted HF inference | A authenticated Qwen3-32B/DeepInfra with 26 repository interpretations and five hypotheses; B's configuration smoke validated, behavior extraction quality/reliability unresolved | Independent role-output support review; representative B/C roles, durable experiment accounting and measured pilots |
 | Review-informed persona behavior | Bounded corpus/approval/population foundations; two real public reviews; extraction rejected then provider failure; no approved live profiles | Product-relevant corpus, independently supported behavior and C-persisted frozen 500-person population |
 | Neon persistence | Connection not established | Actual durable write/read/migration evidence |
 | Persona browser execution | Bounded executor/runtime policy and local mock task/captured-frame viewer verified; production path gated | A validated product plus C durable evidence/jobs; one real checked task |
 | 500 v1 + 500 v2 trials | Not executed | Per-persona mandatory attempt + feedback on both versions |
-| Product v2 | Not promoted | Evidence-linked patch, regressions and human approval |
+| Product v2 | Not promoted. Three bounded UI patches passed the fixed checks in isolated QA on a local image rebuild | Evidence-linked proposals, QA on the frozen v1 image and human approval |
 
 C starter: evidence-validating deterministic fixture analysis and readable report controls implemented; no-model/no-persistence status explicit. Lazy pooled database helper and an unapplied initial SQL migration are prepared. An in-memory patch lifecycle enforces proposed → reviewed → patched → regression → human approval, with rejection and rollback; no real patch, executed regression or v2 exists. Twenty-four focused mocked analysis/database checks passed; this does not establish a Neon connection or real engineering-agent run.
 
@@ -99,6 +103,7 @@ Remaining cross-owner gates: C must provide Neon-backed evidence/version persist
 
 2026-10-10 A version-storage preparation: added an immutable version repository over C’s existing table/pool contract, with explicit live CLI opt-in, JSONB bound values, bounded transactions, idempotent save and conflicting-rewrite rejection. Eight offline cases and real disposable local PostgreSQL 17.11 roundtrip/idempotency/conflict/concurrent-save checks passed; the temporary database was removed. 228 combined backend checks pass. This is prepared A persistence code, not a verified Neon connection; no migration/shared-database code was changed. A’s alternate uploaded City/People/date PDF also passed adapter and UI checks, preserving frozen v1.
 
+2026-10-10 C Neon gate preparation (E1): added an ordered, checksummed migration runner (`python -m backend.migrations.runner`) and a write/read/rollback gate (`python -m backend.migrations.roundtrip`), both through `NeonDatabase`. `001_initial.sql` no longer holds its own `BEGIN`/`COMMIT`, so each file and its `schema_migrations` row commit together. `002_persistence_checks.sql` adds an append-only probe table. Against a disposable local PostgreSQL 14.18 with TLS, both files applied, a rerun applied none, an edited checksum was refused, a failed file rolled back all pending files, and the gate read a committed row through a new pool and found the aborted row absent. Seven new checks pass with `TEST_DATABASE_URL` set (four skip without it). This is not Neon evidence. No Neon URL was configured, so no migration ran against Neon. A and B persistence stays blocked until someone runs the gate on Neon and records its output here.
 PR #6 merge reconciliation with A PRs #7/#8 preserves the frozen product and both owners' evidence.
 A coordinated test-only Windows portability fixes: bounded pytest IDs and synthetic temporary
 manifest/source fingerprints, with image/set/content drift rejection retained. This does not validate
