@@ -30,6 +30,8 @@ from backend.app.features.integration.proposals import (
     ProposalRequest,
 )
 from backend.app.features.integration.sources import SourceRequest, SourceSnapshot, SourceStore
+from backend.app.features.integration.studies import StudyEngine
+from backend.app.features.integration.study_models import ResearchStudy, StudyRequest
 from backend.app.shared.contracts import IntegrationSummary
 from backend.app.shared.database import (
     DatabaseUnavailable,
@@ -75,6 +77,24 @@ def storage_errors():
     except (RecordConflict, RecordInvalid, RecordMissing):
         raise discovery_error(409, "DISCOVERY_RECORD_REJECTED",
                               "Durable storage rejected the record; nothing was stored.") from None
+
+
+studies = StudyEngine(discovery=store, snapshot_store=source_store)
+
+
+@router.post("/research-studies", response_model=ResearchStudy, status_code=202)
+async def start_research_study(request: StudyRequest, records: Records, settings: Settings = Depends(get_settings)):
+    return studies.start(request, settings, records)
+
+
+@router.get("/research-studies/{study_id}", response_model=ResearchStudy)
+async def get_research_study(study_id: UUID):
+    return studies.get(study_id).model_copy(deep=True)
+
+
+@router.post("/research-studies/{study_id}/cancel", response_model=ResearchStudy)
+async def cancel_research_study(study_id: UUID):
+    return studies.cancel(study_id)
 
 
 @router.get('/integration/product-readiness', response_model=ProductReadiness)

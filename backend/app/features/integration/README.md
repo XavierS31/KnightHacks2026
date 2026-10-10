@@ -1,7 +1,13 @@
+# Automatic repository research
+
+The main dashboard uses the automatic research-study pipeline described in [the current design](../../../../docs/opportunity-discovery.md). Discovery starts source research, repo briefs, substantial repurposing proposals, GitHub equivalent-product searches and scope/novelty critique without manual repo selection. Public reads and paid HF calls are bounded and failures remain visible.
+
+Legacy discovery/source routes below remain compatible; their old manual UI is no longer the default.
+
 # Discovery starter
 
 `POST /api/v1/discovery-runs` accepts `mode` (`fixture` by default, or `live`),
-`discovery_mode` (`popular` only), a single-line GitHub `query` (up to 200 characters),
+`discovery_mode` (`popular`, `trending` or `emerging`), a single-line GitHub `query` (up to 200 characters),
 and `limit` (1–30). It is a synchronous read, returning 201 with the completed metadata
 result or synthetic fixture result; it is not a durable queue job. GET by UUID returns
 that same record while retained in the current process.

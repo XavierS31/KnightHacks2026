@@ -16,7 +16,7 @@ This is the implementation roadmap. The [product backlog](product-backlog.md) tr
 | ID | Priority | Deliverable | Dependency and acceptance |
 | --- | --- | --- | --- |
 | F1 | P0, all | Shared scaffold, contracts, fixtures, mounts and local checks | Runnable fixture views, generated types and passing offline checks |
-| I1 | P0 | Emerging/Popular/Trending discovery, bounded docs/issues and anchor-first opportunities | Source links/commits, truthful Popular/Trending distinction |
+| I1 | P0 | Automatic Emerging/Popular/Trending research, explanatory briefs and substantial repurposing opportunities | Source links/commits, truthful Popular/Trending distinction |
 | I2 | P0 | Existing-solution and feasibility gates | Recorded queries/results and independently runnable selected source tool(s) |
 | I3 | P0 | Narrow real extension or adapter | Known outputs, invalid input, incompatible result and timeout cases pass |
 | I4 | P0 | Generated product v1 and validated briefing | Actual UI calls I3; supported tasks/checks handed to B |
