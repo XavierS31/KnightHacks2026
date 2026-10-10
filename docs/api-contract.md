@@ -129,3 +129,12 @@ npm --prefix frontend run check:contracts
 
 Do not edit generated TypeScript manually. A coordinates: propose change → identify consumers → approve → update Pydantic → export and regenerate → update fixtures → verify → notify owners. Prefer additive changes. Feature routers and their tests stay feature-owned; central mounts are coordinated once.
 
+
+
+## Automatic research studies
+
+- `POST /api/v1/research-studies`: `StudyRequest` (discovery, research_limit 1–6/default 3, optional interests) → 202 `ResearchStudy`; starts discovery/research/proposals/equivalent searches/critic automatically. Live mode requires configured HF and an approved budget; fixture mode calls no external services.
+- `GET /api/v1/research-studies/{id}`: progress/report, 404 after restart/eviction.
+- `POST /api/v1/research-studies/{id}/cancel`: cancel pending work, retaining completed evidence.
+
+One active study per API process; another start returns 409. A 15-minute bound and 100-record memory retention apply. RepositoryResearch contains pinned source evidence, explanatory brief, research status/coverage/failure and discovery/supporting-tool origin. EvaluatedProduct contains proposed substantial use, original-use difference, illustrative examples/checks, automatic AlternativeSearch evidence, scope/novelty CritiqueOutput and recommended_for_prototype/research_needed/rejected status. Recommendations are not approved capabilities or uniqueness guarantees. No prototype/persona execution follows automatically.

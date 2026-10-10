@@ -122,6 +122,104 @@
         "title": "ActorRequest",
         "type": "object"
       },
+      "Alternative": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "readme": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Readme"
+          },
+          "readme_reference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Readme Reference"
+          },
+          "repository": {
+            "title": "Repository",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "repository",
+          "url",
+          "description"
+        ],
+        "title": "Alternative",
+        "type": "object"
+      },
+      "AlternativeSearch": {
+        "additionalProperties": false,
+        "properties": {
+          "collected_at": {
+            "format": "date-time",
+            "title": "Collected At",
+            "type": "string"
+          },
+          "failure": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failure"
+          },
+          "matches": {
+            "items": {
+              "$ref": "#/components/schemas/Alternative"
+            },
+            "title": "Matches",
+            "type": "array"
+          },
+          "query": {
+            "title": "Query",
+            "type": "string"
+          },
+          "reference": {
+            "title": "Reference",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "completed",
+              "failed"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query",
+          "reference",
+          "collected_at",
+          "status"
+        ],
+        "title": "AlternativeSearch",
+        "type": "object"
+      },
       "AnalysisReport": {
         "additionalProperties": false,
         "properties": {
@@ -316,6 +414,107 @@
           "replace"
         ],
         "title": "BoundedEdit",
+        "type": "object"
+      },
+      "BriefCapability": {
+        "additionalProperties": false,
+        "properties": {
+          "citation_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "maxItems": 3,
+            "minItems": 1,
+            "title": "Citation Ids",
+            "type": "array"
+          },
+          "mechanism": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Mechanism",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "mechanism",
+          "citation_ids"
+        ],
+        "title": "BriefCapability",
+        "type": "object"
+      },
+      "BriefOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "capabilities": {
+            "items": {
+              "$ref": "#/components/schemas/BriefCapability"
+            },
+            "maxItems": 3,
+            "minItems": 1,
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "distinctive_mechanism": {
+            "maxLength": 400,
+            "minLength": 1,
+            "title": "Distinctive Mechanism",
+            "type": "string"
+          },
+          "inputs": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Inputs",
+            "type": "string"
+          },
+          "interfaces": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Interfaces",
+            "type": "string"
+          },
+          "original_purpose": {
+            "maxLength": 400,
+            "minLength": 1,
+            "title": "Original Purpose",
+            "type": "string"
+          },
+          "outputs": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Outputs",
+            "type": "string"
+          },
+          "reuse_limits": {
+            "maxLength": 400,
+            "minLength": 1,
+            "title": "Reuse Limits",
+            "type": "string"
+          },
+          "summary": {
+            "maxLength": 600,
+            "minLength": 1,
+            "title": "Summary",
+            "type": "string"
+          }
+        },
+        "required": [
+          "summary",
+          "original_purpose",
+          "distinctive_mechanism",
+          "inputs",
+          "outputs",
+          "interfaces",
+          "reuse_limits",
+          "capabilities"
+        ],
+        "title": "BriefOutput",
         "type": "object"
       },
       "CandidateVersion": {
@@ -706,6 +905,59 @@
         "title": "ContinuationResult",
         "type": "object"
       },
+      "CritiqueOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "difference": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Difference",
+            "type": "string"
+          },
+          "matching_references": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 4,
+            "title": "Matching References",
+            "type": "array"
+          },
+          "novelty": {
+            "enum": [
+              "close_equivalent",
+              "partial_overlap",
+              "no_close_match",
+              "inconclusive"
+            ],
+            "title": "Novelty",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 600,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "scope": {
+            "enum": [
+              "substantial_repurpose",
+              "incremental_feature",
+              "already_present",
+              "unsupported"
+            ],
+            "title": "Scope",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scope",
+          "novelty",
+          "reason",
+          "difference"
+        ],
+        "title": "CritiqueOutput",
+        "type": "object"
+      },
       "DiscoveryRequest": {
         "additionalProperties": false,
         "properties": {
@@ -909,6 +1161,81 @@
           "edits"
         ],
         "title": "EditSubmission",
+        "type": "object"
+      },
+      "EvaluatedProduct": {
+        "additionalProperties": false,
+        "properties": {
+          "critique": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CritiqueOutput"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/OpportunityCitation"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "example_status": {
+            "const": "illustrative_not_executed",
+            "default": "illustrative_not_executed",
+            "title": "Example Status",
+            "type": "string"
+          },
+          "failure": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failure"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "idea": {
+            "$ref": "#/components/schemas/ProductIdea"
+          },
+          "provenance": {
+            "additionalProperties": true,
+            "title": "Provenance",
+            "type": "object"
+          },
+          "searches": {
+            "items": {
+              "$ref": "#/components/schemas/AlternativeSearch"
+            },
+            "title": "Searches",
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "recommended_for_prototype",
+              "research_needed",
+              "rejected"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "idea",
+          "status"
+        ],
+        "title": "EvaluatedProduct",
         "type": "object"
       },
       "Evidence": {
@@ -2800,6 +3127,110 @@
         "title": "PersonaSummary",
         "type": "object"
       },
+      "ProductIdea": {
+        "additionalProperties": false,
+        "properties": {
+          "additional_repositories": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 2,
+            "title": "Additional Repositories",
+            "type": "array"
+          },
+          "alternative_queries": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Alternative Queries",
+            "type": "array"
+          },
+          "anchor_repository": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Anchor Repository",
+            "type": "string"
+          },
+          "audience": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Audience",
+            "type": "string"
+          },
+          "capability_connection": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Capability Connection",
+            "type": "string"
+          },
+          "example_input": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Example Input",
+            "type": "string"
+          },
+          "example_output": {
+            "maxLength": 400,
+            "minLength": 1,
+            "title": "Example Output",
+            "type": "string"
+          },
+          "new_use": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "New Use",
+            "type": "string"
+          },
+          "original_use_difference": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Original Use Difference",
+            "type": "string"
+          },
+          "problem": {
+            "maxLength": 400,
+            "minLength": 1,
+            "title": "Problem",
+            "type": "string"
+          },
+          "prototype_check": {
+            "maxLength": 400,
+            "minLength": 1,
+            "title": "Prototype Check",
+            "type": "string"
+          },
+          "risk": {
+            "maxLength": 400,
+            "minLength": 1,
+            "title": "Risk",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "anchor_repository",
+          "audience",
+          "problem",
+          "new_use",
+          "original_use_difference",
+          "capability_connection",
+          "example_input",
+          "example_output",
+          "prototype_check",
+          "alternative_queries",
+          "risk"
+        ],
+        "title": "ProductIdea",
+        "type": "object"
+      },
       "ProductReadiness": {
         "additionalProperties": false,
         "properties": {
@@ -3279,6 +3710,219 @@
           "evidence"
         ],
         "title": "Repository",
+        "type": "object"
+      },
+      "RepositoryResearch": {
+        "additionalProperties": false,
+        "properties": {
+          "brief": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BriefOutput"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "commit_sha": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Commit Sha"
+          },
+          "coverage": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Coverage",
+            "type": "array"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/OpportunityCitation"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "failure": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failure"
+          },
+          "origin": {
+            "default": "discovery",
+            "enum": [
+              "discovery",
+              "supporting_tool"
+            ],
+            "title": "Origin",
+            "type": "string"
+          },
+          "provenance": {
+            "additionalProperties": true,
+            "title": "Provenance",
+            "type": "object"
+          },
+          "repository": {
+            "$ref": "#/components/schemas/Repository"
+          },
+          "snapshot_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Snapshot Id"
+          },
+          "status": {
+            "enum": [
+              "queued",
+              "researching",
+              "researched",
+              "failed",
+              "not_researched"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "repository",
+          "status"
+        ],
+        "title": "RepositoryResearch",
+        "type": "object"
+      },
+      "ResearchStudy": {
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "discovery": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DiscoveryRun"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "explanation": {
+            "default": "",
+            "title": "Explanation",
+            "type": "string"
+          },
+          "failures": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Failures",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "mode": {
+            "enum": [
+              "fixture",
+              "live"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "products": {
+            "items": {
+              "$ref": "#/components/schemas/EvaluatedProduct"
+            },
+            "title": "Products",
+            "type": "array"
+          },
+          "provenance": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Provenance",
+            "type": "array"
+          },
+          "repositories": {
+            "items": {
+              "$ref": "#/components/schemas/RepositoryResearch"
+            },
+            "title": "Repositories",
+            "type": "array"
+          },
+          "request": {
+            "$ref": "#/components/schemas/StudyRequest"
+          },
+          "stage": {
+            "title": "Stage",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "queued",
+              "running",
+              "completed",
+              "partial",
+              "failed",
+              "cancelled",
+              "interrupted"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "storage": {
+            "const": "in_memory",
+            "default": "in_memory",
+            "title": "Storage",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "request",
+          "mode",
+          "status",
+          "stage",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ResearchStudy",
         "type": "object"
       },
       "RetestRequest": {
@@ -4190,6 +4834,29 @@
           "payload"
         ],
         "title": "StreamEvent",
+        "type": "object"
+      },
+      "StudyRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "discovery": {
+            "$ref": "#/components/schemas/DiscoveryRequest"
+          },
+          "interests": {
+            "default": "",
+            "maxLength": 300,
+            "title": "Interests",
+            "type": "string"
+          },
+          "research_limit": {
+            "default": 3,
+            "maximum": 6.0,
+            "minimum": 1.0,
+            "title": "Research Limit",
+            "type": "integer"
+          }
+        },
+        "title": "StudyRequest",
         "type": "object"
       },
       "Transition": {
@@ -5766,6 +6433,133 @@
         "summary": "Create Release",
         "tags": [
           "evolution"
+        ]
+      }
+    },
+    "/api/v1/research-studies": {
+      "post": {
+        "operationId": "start_research_study_api_v1_research_studies_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResearchStudy"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Start Research Study",
+        "tags": [
+          "integration"
+        ]
+      }
+    },
+    "/api/v1/research-studies/{study_id}": {
+      "get": {
+        "operationId": "get_research_study_api_v1_research_studies__study_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "study_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Study Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResearchStudy"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Research Study",
+        "tags": [
+          "integration"
+        ]
+      }
+    },
+    "/api/v1/research-studies/{study_id}/cancel": {
+      "post": {
+        "operationId": "cancel_research_study_api_v1_research_studies__study_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "study_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Study Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResearchStudy"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Cancel Research Study",
+        "tags": [
+          "integration"
         ]
       }
     },

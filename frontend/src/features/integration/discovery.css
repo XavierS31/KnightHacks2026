@@ -38,6 +38,13 @@
 .decision-note textarea { min-height: 5rem; width: 100%; resize: vertical; border: 1px solid #becdc3; padding: .8rem; font: inherit; background: white; }
 .review-actions { display: flex; gap: .7rem; flex-wrap: wrap; margin: .8rem 0; }
 .growth-measured { border-left: 3px solid #527b40; padding-left: .8rem; }
+.research-repo { border-top: 1px solid var(--line); padding: 1.5rem 0; overflow-wrap: anywhere; }
+.research-repo h3 { font: 1.35rem Georgia, serif; }
+.repo-summary { font-size: 1.05rem; line-height: 1.65; max-width: 55rem; }
+.research-repo summary { cursor: pointer; padding: .8rem 0; }
+.research-repo blockquote { border-left: 3px solid #b9caba; margin: 1rem 0; padding-left: 1rem; }
+.research-verdict { background: #f0f3e9; border-left: 3px solid #50744a; padding: 1rem 1.25rem; margin: 1rem 0; }
+.research-progress button { margin-right: .7rem; }
 @media (max-width: 700px) {
   .opportunity-intro h2 { font-size: 2rem; }
   .opportunity-facts { grid-template-columns: 1fr; gap: .4rem; }
