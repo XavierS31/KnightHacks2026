@@ -10,14 +10,15 @@ from backend.app.features.evolution.lifecycle import (
     PatchOutsideScope,
     RegressionMismatch,
     TransitionNotAllowed,
-    validate_patch_paths,
 )
 from backend.app.features.evolution.models import Actor, BaseVersion, CheckResult, PatchFile
+from backend.app.features.evolution.patch_boundary import PatchRejected, validate_allowed_paths
 from backend.app.features.integration.product.handoff import MANIFEST
 from backend.app.main import app
 from backend.app.shared.contracts import Improvement
 from backend.app.shared.fixtures import IMPROVEMENT
 
+APP_JS = "frontend/src/features/integration/product/app.js"
 PRIORITIZER = Actor(id="prioritizer-1", role="prioritizer")
 HUMAN = Actor(id="human-1", role="human_reviewer")
 IMPLEMENTER = Actor(id="implementer-1", role="implementer")
@@ -28,8 +29,8 @@ IMPROVEMENT_IN_SCOPE = Improvement(
     id=uuid4(), title="Clarify the input format", issue="Personas could not find supported input",
     supporting_session_ids=[uuid4()], severity=3, affected_share=0.5, evidence_strength=1,
     estimated_effort_hours=1, acceptance_check="A supported-input hint is visible",
-    allowed_paths=["product/src"], status="proposed")
-PATCH = [PatchFile(path="product/src/hint.txt", content="Supported input: ruled PDF tables.")]
+    allowed_paths=[APP_JS], status="proposed")
+PATCH = [PatchFile(path=APP_JS, content="const hint = 'Supported input: ruled PDF tables.';")]
 PASSING = [CheckResult(check_id="normal-v1", passed=True, evidence="Verdict matched."),
            CheckResult(check_id="type-error-v1", passed=True, evidence="Errors mapped.")]
 
@@ -69,9 +70,10 @@ def test_steps_cannot_be_skipped():
 
 
 @pytest.mark.parametrize("path", [
-    "product/other/app.js", "product/src/../../backend/app.py", "../product/src/a.py",
-    "/product/src/a.py", "product\\src\\a.py", "product/./src/a.py", "backend/app/main.py",
-    "product/srcx/a.py",
+    "frontend/src/features/integration/product/style.css",
+    "frontend/src/features/integration/product/../../evolution/a.js", "../" + APP_JS, "/" + APP_JS,
+    APP_JS.replace("/", "\\"), "frontend/src/features/integration/product/./app.js",
+    "backend/app/main.py", APP_JS + "x", "backend/app/features/integration/product/checks.py",
 ])
 def test_patch_outside_approved_paths_fails(path):
     lifecycle = PatchLifecycle()
@@ -261,12 +263,13 @@ def test_routes_enforce_lifecycle_against_frozen_v1():
     assert hashlib.sha256(MANIFEST.read_bytes()).hexdigest() == manifest_digest
 
 
-@pytest.mark.parametrize("path", ["../product/a.py", "product/../backend/app.py", "/product/a.py",
-                                  "C:\\product\\a.py", "backend/a.py", "product"])
+@pytest.mark.parametrize("path", ["../" + APP_JS, "frontend/src/features/integration/../app.js",
+                                  "/" + APP_JS, "C:\\" + APP_JS, "backend/a.py", "product/src",
+                                  "frontend/src/features/integration/product"])
 def test_patch_boundaries_reject_escape(path):
-    with pytest.raises(ValueError):
-        validate_patch_paths([path])
+    with pytest.raises(PatchRejected):
+        validate_allowed_paths([path])
 
 
 def test_product_descendant_path_is_allowed():
-    validate_patch_paths(["product/src/app.py"])
+    validate_allowed_paths([APP_JS, "backend/app/features/integration/product/runtime/adapter.py"])

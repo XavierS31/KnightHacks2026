@@ -8,7 +8,6 @@ v2 candidate; rollback makes v1 active again. Records live in memory only.
 import hashlib
 import json
 from datetime import UTC, datetime
-from pathlib import PurePosixPath, PureWindowsPath
 from threading import Lock
 from uuid import NAMESPACE_URL, UUID, uuid4, uuid5
 
@@ -22,6 +21,11 @@ from backend.app.features.evolution.models import (
     LifecycleState,
     PatchFile,
     PatchRun,
+)
+from backend.app.features.evolution.patch_boundary import (
+    PatchRejected,
+    inspect_patch,
+    validate_allowed_paths,
 )
 from backend.app.shared.contracts import Improvement
 
@@ -50,38 +54,9 @@ class RegressionMismatch(LifecycleError):
     code = "REGRESSION_MISMATCH"
 
 
-def validate_patch_paths(paths: list[str]) -> None:
-    """Limit product patches to relative product/ descendants."""
-    if not paths:
-        raise ValueError("A non-empty approved product path list is required.")
-    for raw in paths:
-        normalized = raw.replace("\\", "/")
-        path = PurePosixPath(normalized)
-        windows_path = PureWindowsPath(raw)
-        if (path.is_absolute() or windows_path.drive or ".." in path.parts
-                or not path.parts or path.parts[0] != "product" or len(path.parts) < 2):
-            raise ValueError("Patch paths must stay within relative product/ descendants.")
-
-
 def fixed_checks_digest(checks: list[dict]) -> str:
     canonical = json.dumps(checks, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode()).hexdigest()
-
-
-def _patch_digest(files: list[PatchFile]) -> str:
-    canonical = json.dumps([[item.path, item.content] for item in files], separators=(",", ":"))
-    return hashlib.sha256(canonical.encode()).hexdigest()
-
-
-def _within_scope(path: str, allowed_paths: list[str]) -> bool:
-    if "\\" in path or str(PurePosixPath(path)) != path:
-        return False
-    try:
-        validate_patch_paths([path])
-    except ValueError:
-        return False
-    candidate = PurePosixPath(path)
-    return any(candidate.is_relative_to(PurePosixPath(allowed)) for allowed in allowed_paths)
 
 
 def _require_role(actor: Actor, *roles: str) -> None:
@@ -134,8 +109,8 @@ class PatchLifecycle:
         if not improvement.supporting_session_ids or improvement.evidence_strength == 0:
             raise TransitionNotAllowed("An improvement without session evidence cannot be patched.")
         try:
-            validate_patch_paths(improvement.allowed_paths)
-        except ValueError as exc:
+            validate_allowed_paths(improvement.allowed_paths)
+        except PatchRejected as exc:
             raise PatchOutsideScope(str(exc)) from None
         event = LifecycleEvent(state="proposed", actor=actor, at=datetime.now(UTC),
                                note=improvement.title)
@@ -162,13 +137,11 @@ class PatchLifecycle:
             _require_state(run, "reviewed")
             if any(event.actor.id == actor.id for event in run.events):
                 raise ActorNotAllowed("The implementer cannot also propose or review this run.")
-            paths = [item.path for item in files]
-            if len(set(paths)) != len(paths):
-                raise PatchOutsideScope("A patch cannot list the same path twice.")
-            outside = [path for path in paths if not _within_scope(path, run.allowed_paths)]
-            if outside:
-                raise PatchOutsideScope(f"Patch paths are outside the approved scope: {outside}.")
-            patch = IsolatedPatch(files=list(files), sha256=_patch_digest(files))
+            try:
+                digest = inspect_patch(files, run.allowed_paths)
+            except PatchRejected as exc:
+                raise PatchOutsideScope(str(exc)) from None
+            patch = IsolatedPatch(files=list(files), sha256=digest)
             return self._advance(run, "patched", actor, f"Isolated patch {patch.sha256[:12]}.",
                                  implementer_id=actor.id, patch=patch)
 
