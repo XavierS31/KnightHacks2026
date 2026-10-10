@@ -1696,6 +1696,194 @@
         "title": "SoftwareReviewEvidence",
         "type": "object"
       },
+      "SourceDocument": {
+        "additionalProperties": false,
+        "properties": {
+          "blob_sha": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Blob Sha"
+          },
+          "collected_at": {
+            "format": "date-time",
+            "title": "Collected At",
+            "type": "string"
+          },
+          "content_sha256": {
+            "title": "Content Sha256",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "readme",
+              "license",
+              "documentation",
+              "issue"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Path"
+          },
+          "reference": {
+            "title": "Reference",
+            "type": "string"
+          },
+          "request_reference": {
+            "title": "Request Reference",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "truncated": {
+            "title": "Truncated",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "kind",
+          "reference",
+          "request_reference",
+          "collected_at",
+          "text",
+          "content_sha256",
+          "truncated"
+        ],
+        "title": "SourceDocument",
+        "type": "object"
+      },
+      "SourceRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "documentation_paths": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 3,
+            "title": "Documentation Paths",
+            "type": "array"
+          },
+          "issue_limit": {
+            "default": 5,
+            "maximum": 10.0,
+            "minimum": 0.0,
+            "title": "Issue Limit",
+            "type": "integer"
+          }
+        },
+        "title": "SourceRequest",
+        "type": "object"
+      },
+      "SourceSnapshot": {
+        "additionalProperties": false,
+        "properties": {
+          "collected_at": {
+            "format": "date-time",
+            "title": "Collected At",
+            "type": "string"
+          },
+          "commit_reference": {
+            "title": "Commit Reference",
+            "type": "string"
+          },
+          "commit_sha": {
+            "title": "Commit Sha",
+            "type": "string"
+          },
+          "documents": {
+            "items": {
+              "$ref": "#/components/schemas/SourceDocument"
+            },
+            "title": "Documents",
+            "type": "array"
+          },
+          "failures": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Failures",
+            "type": "array"
+          },
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "license_spdx": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "License Spdx"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "repository_id": {
+            "format": "uuid",
+            "title": "Repository Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "collected",
+              "partial"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "storage": {
+            "const": "in_memory",
+            "default": "in_memory",
+            "title": "Storage",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "repository_id",
+          "full_name",
+          "commit_sha",
+          "commit_reference",
+          "collected_at",
+          "status",
+          "license_spdx",
+          "documents",
+          "limitations",
+          "failures"
+        ],
+        "title": "SourceSnapshot",
+        "type": "object"
+      },
       "StreamEvent": {
         "additionalProperties": false,
         "properties": {
@@ -1900,6 +2088,69 @@
           }
         },
         "summary": "Get Discovery",
+        "tags": [
+          "integration"
+        ]
+      }
+    },
+    "/api/v1/discovery-runs/{run_id}/repositories/{repository_id}/sources": {
+      "post": {
+        "operationId": "collect_sources_api_v1_discovery_runs__run_id__repositories__repository_id__sources_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "repository_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Repository Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SourceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceSnapshot"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Collect Sources",
         "tags": [
           "integration"
         ]
@@ -2128,6 +2379,49 @@
         "summary": "Session Detail",
         "tags": [
           "personas"
+        ]
+      }
+    },
+    "/api/v1/source-snapshots/{snapshot_id}": {
+      "get": {
+        "operationId": "get_sources_api_v1_source_snapshots__snapshot_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "snapshot_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Snapshot Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceSnapshot"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Sources",
+        "tags": [
+          "integration"
         ]
       }
     }

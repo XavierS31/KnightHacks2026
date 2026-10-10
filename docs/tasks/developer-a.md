@@ -22,3 +22,7 @@ Run relevant Python tests and frontend typecheck/build; export/regenerate/check 
 
 2026-10-10 starter complete: scoped discovery adapter/store and frontend controls implement synchronous in-memory discovery with fixture default and bounded opt-in live GitHub reads, explicit source modes and failures. Known fixture candidates remain unvalidated. Offline discovery checks and combined schema/type/build checks passed; desktop/mobile browser smoke verified fixture discovery controls. Live repository selection, independent tool execution, research and integration remain gated. Next: inspect a real candidate pair and establish independent fixtures.
 
+
+2026-10-10 source collection slice: added live-run-gated, commit-pinned README/license/requested documentation collection, bounded issue snapshots, byte/text limits, hash checks and visible partial failures. The UI exposes source inspection for live candidates. A real read of psf/requests pinned commit 611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60 and returned README, LICENSE and three issue records. This is a collector smoke test, not a selected integration pair. All 121 backend tests, lint, generated-contract checks, frontend typecheck and build passed. HF extraction/proposals, Trending, durable storage, selection and execution remain unfinished. Docker CLI exists but its daemon is unavailable on this machine.
+
+Source inspection desktop/mobile browser check passed, including expanded source excerpts and no horizontal overflow at 390px. Local captures are under ignored artifacts/.

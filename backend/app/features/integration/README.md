@@ -25,3 +25,29 @@ rate limiting, timeout, incomplete search and malformed-response failures.
 Next: pin commits/licenses; collect bounded documentation/issues; consume B's HF inference
 adapter for cited extraction; retain proposals and research; independently execute a pair
 with fixed acceptance fixtures before creating an adapter. Coordinate Neon persistence with C.
+
+## Commit-pinned source inspection
+
+After a real discovery run, `POST /api/v1/discovery-runs/{id}/repositories/{repository_id}/sources`
+accepts `documentation_paths` (up to three unique relative `.md`, `.rst` or `.txt` paths)
+and `issue_limit` (0–10; default 5). Collection requires server `APP_MODE=live` and a repository
+belonging to a live discovery run. Fixture runs never trigger source reads.
+
+The collector resolves the latest default-branch commit, then reads README, license and requested
+files using that exact SHA. File evidence includes commit-specific URLs, verified Git blob IDs,
+full-content SHA-256 and collection timestamps. SPDX metadata is a collection-time hint; it does
+not approve licensing. Issues are mutable, timestamped snapshots, not commit-pinned evidence.
+GitHub returns pull requests in the issues endpoint; these are excluded without requesting extra pages.
+
+Only `api.github.com` is contacted, redirects are disabled, requests have a 15-second timeout,
+responses are capped at 512 KB, decoded files at 100 KB and displayed text at 20,000 characters.
+No code, Markdown HTML, links from repository content or model instructions are executed.
+Missing/invalid/oversized files and issue failures yield a visible partial snapshot; failure to
+resolve a commit prevents collection. Rate limiting stops remaining optional requests.
+
+`GET /api/v1/source-snapshots/{id}` reads one of at most 100 process-local snapshots. Restart or
+retention eviction removes snapshots. This is not durable Neon storage. The UI offers inspection
+for real candidates and shows source excerpts, provenance, missing files and collection limitations.
+
+Next gates: coordinate persistence with C, use B's verified HF adapter for cited capability/proposal
+extraction, then perform pair research, independent execution and adapter validation.
