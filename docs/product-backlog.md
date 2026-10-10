@@ -1,5 +1,7 @@
 # Product backlog
 
+2026-10-10 B online-data checkpoint: fresh Neon HTTPS population readback fed one frozen, review-linked persona/task context to guarded Hugging Face inference; exact output IDs validated. Zero trials. One-pilot job/evidence code is prepared, pending normal Python Neon connectivity, a newly selected validated prototype, C experiment registration and a measured pilot. See [online data report](tasks/developer-b-online-data-report.md).
+
 Updated 2026-10-10. This is the prioritized implementation backlog; [roadmap](roadmap.md) defines sequencing and [status](status.md) records verification evidence. Each developer owns frontend, backend and tests for their phase.
 
 Priority **P0** means required for the complete demo, **P1** means improvement after P0, and **P2** means stretch. A milestone named `P1` is a persona milestone ID, not a priority. “Partial” means some code exists but the full acceptance criteria have not passed. Configured persona records, fixture sessions and passing scaffold tests do not establish executed trials.
@@ -53,6 +55,8 @@ Owner: **B**, using `developer_b_personas` and `$repofusion-personas`.
 - [x] **P1 bundle persistence:** DATABASE_URL configured privately; migration 005 applied after canonical 001–004; actual immutable 500-person bundle write/readback, retry and rollback verified through official Neon HTTPS.
 - [ ] **P1 production persistence:** Repair native backend PostgreSQL connectivity and exercise the Python repository; hosted reviewer authentication remains separate.
 - [ ] **P2 execution:** Verify local runtime, wire durable evidence/atomic distributed ledger/leases, then one real trial. Local generation journals do not finish experiment storage.
+- [x] **P2 online context diagnostic:** Fresh Neon HTTPS readback fed one real frozen population record to guarded HF inference with exact review-pattern and task IDs. This was not a browser trial; native Python repository transport remains blocked.
+- [x] **P2 pilot wiring:** B's single claimed lease uses A's fixed check and C's session/job APIs, with captured PNG/action references. No claimed live execution; C atomic terminal write and distributed budget remain open.
 - [ ] **P3/P4:** Five real pilots and twenty-person soak; measure capacity/cost, authorize full batches, execute v1 and match ten actual sessions.
 
 **Inputs → outputs:** A's validated briefing/checks + population configuration → persona/scenario/task records → executed sessions/actions/feedback/frames. Population logic, worker tests and world UI can develop concurrently using fixtures; live trials require the real product. Start four workers and increase only after measurement. Cut optional continuation and visual detail before mandatory coverage; never replace the agreed 500 with an undisclosed smaller run.

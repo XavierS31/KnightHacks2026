@@ -1,5 +1,7 @@
 # Developer B kickoff — AI personas and world
 
+Latest online data/pilot evidence: [B online data report](developer-b-online-data-report.md). Fresh Neon HTTPS readback fed one review-linked population record to guarded Hugging Face inference. The response validated exact IDs; zero browser trials completed. Normal Python Neon transport and the selected-prototype runtime gate still gate the pilot.
+
 Use `developer_b_personas` and `$repofusion-personas`. Read root AGENTS.md, ownership, architecture, runtime/data contracts and roadmap. Inspect current files before repeating completed starter work.
 
 ## Boundaries and inputs

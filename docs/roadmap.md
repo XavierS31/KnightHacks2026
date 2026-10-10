@@ -2,6 +2,8 @@
 
 Current gate (2026-10-10): no prototype is selected. Historical populations and database evidence remain preserved, but require new product-relevant task/corpus review before reuse. Generic B/C infrastructure remains available; generation and catalog binding are not executed trials.
 
+2026-10-10 B online-data update: a fresh exact Neon HTTPS readback of the 500-record frozen population fed one review-linked persona/task context to guarded Hugging Face inference. The structured response cited the supplied pattern/review IDs; completed trials remain zero. B's one-pilot lease, fixed-check and durable evidence wiring is prepared. Native Python Neon connectivity, a newly selected verified prototype process and durable experiment registration still gate a real pilot. P1/P2/P4 remain partial and P3 unexecuted. See the [online data report](tasks/developer-b-online-data-report.md).
+
 This is the implementation roadmap. The [product backlog](product-backlog.md) tracks prioritized implementation work, owners and acceptance; status evidence lives in [status](status.md). The skeleton is a starting point; production feature milestones below remain open until demonstrated.
 
 ## Phase 1 — Project scraping and integration (A)
