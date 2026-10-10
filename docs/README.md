@@ -14,6 +14,7 @@ Read [product spec](product-spec.md), [architecture](architecture.md), and [owne
 | [Software behavior](software-behavior.md) | Required review-informed persona schema, source lineage and collection acceptance |
 | [Dataset registry](dataset-registry.md) | Candidate sources, transforms and verification obligations |
 | [Runtime agents](agent-contract.md) | Application AI roles, bounded tools and validation |
+| [Opportunity discovery](opportunity-discovery.md) | Current anchor-first product purpose, implemented flow and cross-owner dependencies |
 | [Integration](integration.md) | Cross-feature handoffs, CI and release checks |
 | [Decisions](decisions.md) | Accepted defaults and unresolved external dependencies |
 | [Coding agents](coding-agents.md) | Codex agent installation/discovery and human kickoff |

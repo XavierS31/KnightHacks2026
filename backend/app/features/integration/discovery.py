@@ -1,7 +1,8 @@
 """Bounded read-only GitHub discovery; memory cache is not durable experiment storage."""
 import re
 from collections import OrderedDict
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
+from pathlib import Path
 from time import monotonic
 from typing import Literal
 from uuid import NAMESPACE_URL, UUID, uuid4, uuid5
@@ -10,6 +11,7 @@ import httpx
 from fastapi import HTTPException
 from pydantic import Field, field_validator, model_validator
 
+from backend.app.features.integration.momentum import MomentumHistory, MomentumSignal, Observation
 from backend.app.shared.contracts import Contract, Evidence, Repository
 from backend.app.shared.fixtures import REPOSITORIES
 
@@ -18,7 +20,7 @@ GITHUB_SEARCH = "https://api.github.com/search/repositories"
 
 class DiscoveryRequest(Contract):
     mode: Literal["fixture", "live"] = "fixture"
-    discovery_mode: Literal["popular", "trending"] = "popular"
+    discovery_mode: Literal["popular", "trending", "emerging"] = "popular"
     created_after: date | None = None
     pushed_after: date | None = None
     trending_period: Literal["daily", "weekly", "monthly"] = "weekly"
@@ -60,6 +62,7 @@ class DiscoveryRun(Contract):
     storage: Literal["in_memory"] = "in_memory"
     limitations: list[str]
     next_gate: str
+    momentum: list[MomentumSignal] = Field(default_factory=list)
 
 
 def discovery_error(status: int, code: str, message: str, retryable: bool = False):
@@ -73,6 +76,7 @@ class GitHubDiscovery:
 
     def __init__(self):
         self.cache: OrderedDict[tuple[str, int], tuple[float, datetime, list[Repository], int]] = OrderedDict()
+        self.forks: OrderedDict[tuple[str, datetime], int | None] = OrderedDict()
 
     async def search(self, request: DiscoveryRequest, token: str = "", transport=None):
         query = request.query
@@ -113,9 +117,16 @@ class GitHubDiscovery:
                 raise ValueError("Invalid search")
             repositories = [self._repository(item, str(response.request.url), collected_at)
                             for item in items[:request.limit]]
+            fork_counts = [item.get("forks_count") for item in items[:request.limit]]
+            if any(value is not None and (type(value) is not int or value < 0) for value in fork_counts):
+                raise ValueError("Invalid fork count")
         except (ValueError, TypeError, KeyError, AttributeError) as exc:
             raise discovery_error(502, "GITHUB_INVALID_RESPONSE", "GitHub metadata did not match the expected schema.", True) from exc
         self.cache[key] = (now, collected_at, repositories, total)
+        for repository, forks in zip(repositories, fork_counts, strict=True):
+            self.forks[(repository.full_name, collected_at)] = forks
+        while len(self.forks) > 600:
+            self.forks.popitem(last=False)
         self.cache.move_to_end(key)
         while len(self.cache) > 20:
             self.cache.popitem(last=False)
@@ -150,8 +161,13 @@ class DiscoveryStore:
         self.runs: OrderedDict[UUID, DiscoveryRun] = OrderedDict()
         self.github = GitHubDiscovery()
 
-    async def create(self, request: DiscoveryRequest, token: str = "") -> DiscoveryRun:
+    async def create(self, request: DiscoveryRequest, token: str = "", artifact_root: Path | None = None) -> DiscoveryRun:
         now = datetime.now(UTC)
+        if request.discovery_mode == "emerging":
+            request = request.model_copy(update={
+                "created_after": request.created_after or (now - timedelta(days=90)).date(),
+                "pushed_after": request.pushed_after or (now - timedelta(days=30)).date(),
+            })
         if request.mode == "fixture":
             repositories, total, collected_at, hit = REPOSITORIES[:request.limit], None, now, False
         elif request.discovery_mode == "trending":
@@ -174,6 +190,20 @@ class DiscoveryStore:
             run.limitations.append("A bounded page is sampled; fork/archived entries are excluded without backfilling.")
         if request.mode == "fixture":
             run.limitations.insert(0, "Synthetic fixture only: no GitHub request or model inference occurred.")
+        if request.discovery_mode == "emerging":
+            run.limitations.append("Emerging candidates are recent, active star-sorted results, not a verified growth ranking.")
+        observations = [Observation(full_name=repo.full_name, observed_at=collected_at,
+                                    stars=repo.stars, forks=self.github.forks.get((repo.full_name, collected_at)),
+                                    source_reference=next((item.reference for item in repo.evidence if item.kind == "source"), None))
+                        for repo in repositories]
+        if request.mode == "live" and artifact_root is not None:
+            run.momentum = MomentumHistory(artifact_root).observe(observations)
+        else:
+            run.momentum = [MomentumSignal(current=item, status="fixture" if request.mode == "fixture" else "insufficient_history",
+                                           note="Synthetic metadata; no growth measurement." if request.mode == "fixture"
+                                           else "Local observation storage was not configured; growth is unknown.")
+                            for item in observations]
+        run.next_gate = "Inspect an anchor repository's capabilities and problem evidence; propose extensions or optional integrations."
         self.runs[run.id] = run
         while len(self.runs) > 100:
             self.runs.popitem(last=False)

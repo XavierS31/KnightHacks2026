@@ -1,6 +1,6 @@
 # API contract
 
-The backend Pydantic models in `backend/app/shared/contracts.py` and exported `shared/openapi.json` are authoritative for implemented routes, exact fields, enums and validation. Generated frontend types live in `frontend/src/shared/api-types.ts`. The target production table does not mean every endpoint is implemented by the scaffold. Inspect `/openapi.json` before consuming a route. A fixture-backed read route is not a durable production workflow.
+The backend Pydantic models in `backend/app/shared/contracts.py`, feature-owned integration models, and exported `shared/openapi.json` are authoritative for implemented routes, exact fields, enums and validation. Generated frontend types live in `frontend/src/shared/api-types.ts`. The target production table does not mean every endpoint is implemented by the scaffold. Inspect `/openapi.json` before consuming a route. A fixture-backed read route is not a durable production workflow.
 
 ## Current scaffold interfaces
 
@@ -34,6 +34,28 @@ The backend Pydantic models in `backend/app/shared/contracts.py` and exported `s
 
 Owners may add bounded starter routes while development proceeds; the generated OpenAPI remains current truth.
 
+## Emerging opportunity discovery — implemented additive interfaces
+
+The [opportunity discovery revision](opportunity-discovery.md) supersedes forced two-repo matching. These synchronous routes are mounted under `/api/v1`; reports/snapshots remain bounded in memory. They are not durable jobs or trial launches.
+
+| Route | Input → response / gate |
+| --- | --- |
+| `POST /discovery-runs` | `DiscoveryRequest` now accepts `discovery_mode=emerging` alongside Popular/Trending; returns `DiscoveryRun` with additive `momentum` signals. Emerging defaults to recent-created/recent-pushed search sorted by total stars, not growth |
+| `POST /discovery-runs/{run_id}/repositories/{repository_id}/sources` | `SourceRequest` with up to three documentation paths and 0–10 issues → `201 SourceSnapshot`; requires live server and live discovery, with repository membership checked |
+| `GET /source-snapshots/{snapshot_id}` | Retained `SourceSnapshot`; unknown/evicted IDs return `404` |
+| `POST /opportunity-reports` | `OpportunityRequest`: one `anchor_snapshot_id`, zero to two distinct `supporting_snapshot_ids`, optional `interests` (300 characters) → `201 OpportunityReport`; existing snapshots required, shared HF/live configuration and approved A budget gates apply |
+| `POST /integration/opportunity-demo` | No input → `201 OpportunityReport` containing an explicitly fictional feature-extension teaching example; no HF, GitHub, validation or trial execution |
+| `GET /opportunity-reports/{report_id}` | Retained `OpportunityReport`; `404` after restart/eviction or for unknown IDs |
+| `POST /opportunity-reports/{report_id}/cards/{card_id}/decision` | `OpportunityDecision` with `shortlisted`/`rejected` and nonblank `note` (up to 1,000 characters) → updated report; verifies card membership. This mutable review does not promote a product or start a trial |
+
+`OpportunityReport` carries anchor identity/commit, mode, creation time, up to two model hypotheses, an abstention reason when none are proposed, research leads, inference provenance/reservation and limitations. Each card has a UUID, `kind=feature_extension|integration`, `need_basis=issue_report|inferred_workflow`, audience/problem/current/proposed value, why investigate, implementation boundary, hypothetical input/output/check, risk and server-resolved evidence. Cards remain `status=hypothesis`, `novelty=unresolved`, `feasibility=unreviewed`, and `example_status=illustrative_not_executed` even after shortlisting. An integration must use supplied supporting snapshots with documented capability citations; a feature extension uses none. Citation IDs are checked for existence/ownership, not approved semantic support.
+
+`DiscoveryRun.momentum` includes current/baseline observations, status, nullable net star/fork deltas, elapsed hours and an explanatory note. An unavailable baseline is not zero growth. Local count history survives process restart; discovery results and opportunity reports do not. No growth-ranked search, automated alternatives/issue-PR research, prototype generator or new opportunity trial is established by these routes.
+
+Legacy extraction/proposal-preview routes remain available for existing consumers. A selected opportunity must pass research and real implementation/fixed-check gates before producing the existing validated `ProductHandoff`; B/C must not treat a report or illustrative example as that handoff. The frozen SourceTable v1 API/manifest remains unchanged.
+
+
+
 `Persona.software_behavior` is required in `PersonaSummary`: `SoftwareBehaviorProfile` contains corpus/generation versions, patterns and `SoftwareReviewEvidence`. Patterns define tendency, trigger, agent policy and source IDs; review records preserve platform, permalink, dates, normalized-content hash, software context and report type. Reddit, Hacker News and general review categories are supported. Current responses are explicit behavior fixtures, not collected reviews. Live summaries reject fixture behavior. See [software behavior](software-behavior.md) for semantics and remaining collection work. This schema addition requires older persona payload producers to supply the new field; frontend types are regenerated.
 
 The analysis starter defaults to the known fixture sessions, which currently have no feedback. It returns zero clusters without inventing evidence. Submitted fixture feedback must reference existing same-session actions and correct persona/experiment identities. Its score denominator is supplied sessions with feedback. It is not the planned asynchronous production agent pipeline.
@@ -64,8 +86,8 @@ Production errors must not leak tokens, database connection strings or unredacte
 | --- | --- | --- |
 | A | `POST /discovery-runs` | Mode/filter/limit → job; discovery UI |
 | A | `GET /discovery-runs/{id}` | ID → progress, candidates/proposals |
-| A | `POST /proposals/{id}/checks` | Proposal → research/feasibility job |
-| A | `POST /integration-runs` | Proposal/fixture references → validation job |
+| A | `POST /proposals/{id}/checks` | Selected opportunity → research/feasibility job (target only; no automated research route in this slice) |
+| A | `POST /integration-runs` | Selected feature-extension/integration opportunity and fixture references → validation job |
 | A | `GET /integration-runs/{id}` | ID → source/adapter/check evidence |
 | A | `GET /products/{id}/versions/{version}` | Product/version → immutable manifest/briefing; B/C |
 | A | `POST /products/{id}/versions/{version}/execute` | Capability/payload/session scope → operation result; product UI |
@@ -82,7 +104,7 @@ Production errors must not leak tokens, database connection strings or unredacte
 | C | `POST /experiments/{id}/retests` | Original experiment + v2 → matched experiment job |
 | C | `GET /comparisons/{id}` | ID → matched results/denominators/evidence |
 
-An execution payload is validated against the selected capability's registered schema. Do not invent a universal adapter payload before the pair is selected.
+An execution payload is validated against the selected capability's registered schema. Do not invent a universal adapter payload before an opportunity and its capability interfaces are selected.
 
 Target experiment request:
 

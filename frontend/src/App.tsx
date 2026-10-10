@@ -6,7 +6,7 @@ const PersonaPanel = lazy(() => import('./features/personas/PersonaPanel'))
 const EvolutionPanel = lazy(() => import('./features/evolution/EvolutionPanel'))
 
 const phases = [
-  { name: 'Integration', detail: 'Discover & validate', owner: 'Developer A' },
+  { name: 'Discovery', detail: 'Find & test opportunities', owner: 'Developer A' },
   { name: 'Personas', detail: 'Observe real trials', owner: 'Developer B' },
   { name: 'Evolution', detail: 'Improve & compare', owner: 'Developer C' },
 ]
@@ -31,7 +31,7 @@ export default function App() {
       <div className="content">
         <div className="eyebrow">REPOSITORIES → TRIALS → IMPROVEMENTS</div>
         <h1>{phases[phase].name}</h1>
-        <p className="intro">An evidence trail from complementary code to a tested product.</p>
+        <p className="intro">Discover emerging tools, investigate what you could build, and test a selected opportunity.</p>
         <div className="fixture-notice" role="note"><strong>Development scaffold</strong>
           <span>Sample records are labeled fixtures. Configured personas and illustrative suggestions are not executed results.</span></div>
         <Suspense fallback={<AsyncState error={null} />}>
