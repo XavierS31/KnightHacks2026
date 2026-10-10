@@ -97,13 +97,16 @@ def stored(migrated_settings, live_sessions, corrupt):
             "INSERT INTO experiments (id, population_id, product_version_id, task_set_id, "
             "configuration, status) VALUES (%s, %s, %s, %s, %s, 'completed')",
             (first.experiment_id, uuid4(), first.product_version_id, uuid4(), Jsonb({})))
-        for session in live_sessions:
+        # Distinct creation times keep the stored order equal to the F/A labels in the answers.
+        for index, session in enumerate(live_sessions):
             connection.execute(
                 "INSERT INTO sessions (id, experiment_id, persona_id, task_id, product_version_id, "
-                "attempt, status, outcome, provenance) VALUES (%s, %s, %s, %s, %s, 1, %s, %s, %s)",
+                "attempt, status, outcome, provenance, created_at) "
+                "VALUES (%s, %s, %s, %s, %s, 1, %s, %s, %s, now() + %s * interval '1 second')",
                 (session.id, session.experiment_id, session.persona_id, uuid4(),
                  session.product_version_id, session.status, session.outcome,
-                 Jsonb({"stream_mode": session.stream_mode, "stop_reason": session.stop_reason})))
+                 Jsonb({"stream_mode": session.stream_mode, "stop_reason": session.stop_reason}),
+                 index))
             for action in session.actions:
                 connection.execute(
                     "INSERT INTO actions (id, session_id, sequence, occurred_at, payload) "
