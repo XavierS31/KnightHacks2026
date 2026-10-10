@@ -64,7 +64,8 @@ export default function EvolutionPanel() {
       <p className="muted">Supporting session references: {improvement.supporting_session_ids.length}</p></article>)}
     <article className="panel"><h3>Review before v2</h3>
       <p>Keep v1, run fixed regressions, and obtain human review before promoting a patch.
-        The starter approval route rejects promotion until those gates exist.</p>
+        Patch runs follow proposed → reviewed → patched → regression → human approval. The
+        implementer cannot approve its own patch, and a failed regression blocks v2.</p>
       <p>Matched trials: v1 {data.matched_v1} · v2 {data.matched_v2}</p>
     </article>
     <div className="next-gate"><strong>Next gate</strong><p>{data.next_gate}</p></div></section>

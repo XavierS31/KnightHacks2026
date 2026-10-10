@@ -70,7 +70,7 @@ Local ignored evidence: `artifacts/devb-live-readiness-20261010.json`,
 
 ## Verification
 
-362 combined backend tests pass after reconciling A PRs #7/#8 (343 after #5, 317 originally),
+387 combined backend tests pass after reconciling C PR #21 (362 after A #7/#8, 343 after #5, 317 originally),
 with one opt-in real-Docker check skipped on this Windows host. Actual local Chromium checks, six standalone stream-validation tests,
 Ruff, frontend typecheck/build and generated-contract checks pass. Final test counts are recorded
 in [status](../status.md). Build retains the existing large persona/3D chunk warning; test client
