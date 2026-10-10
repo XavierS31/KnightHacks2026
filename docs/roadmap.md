@@ -25,6 +25,12 @@ Collect 20–30 candidates but integrate exactly one pair. Prefer small CPU-frie
 
 World detail can develop against fixtures while A establishes the product. Fixture interactions never become observed persona outcomes. Start with four workers; select higher concurrency only from measured CPU/memory and provider rate limits.
 
+2026-10-10 B mock development evidence: an owned in-memory A handoff and loopback browser harness
+now support 500 unique fixture persona/task records, bounded observed-target actions, real mock-page
+screenshots and deterministic checks. All experiment execution counters remain zero. The explicit HF
+configuration smoke command is prepared but has not made a live request. P1/P2/P4 remain partial;
+P3 remains unexecuted. Commands and limitations: `backend/app/features/personas/README.md`.
+
 The required [software-behavior contract](software-behavior.md) and illustrative viewer are implemented; actual review collection/extraction and the 500-person generator remain open. Real review grounding is P0 even when optional demographic enrichment is deferred. Freeze corpus, behavior and generation versions before v1 and preserve them for v2.
 
 ## Phase 3 — Feedback agents and improvement (C)
